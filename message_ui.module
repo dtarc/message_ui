@@ -5,6 +5,69 @@
  */
 
 /**
+ * Get list of the messages.
+ */
+function message_ui_get_types() {
+  $message_types = db_select('message_type', 'mt')
+    ->fields('mt')
+    ->execute()
+    ->fetchAllAssoc('name');
+
+  $list = array();
+  foreach ($message_types as $message) {
+    $list[$message->name] = $message->description;
+  }
+
+  return $list;
+}
+
+/**
+ * Check if the user can create an instance for a message type.
+ *
+ * @param $type
+ *  The message type for which the info shall be returned, or NULL to return an
+ *  array with info about all types.
+ * @param $account
+ *  The user object or user uid.
+ *
+ * @return array|bool
+ *  TRUE or FALSE for a specific message type or an array of the message types
+ */
+function message_ui_user_can_create_message($type = NULL, $account = NULL) {
+  if (empty($account)) {
+    global $user;
+    $account = $user;
+  }
+  $account = entity_metadata_wrapper('user', $account)->value();
+  $types = message_ui_get_types();
+
+  // User have access to create any instances.
+  if (user_access('create any message instance', $account)) {
+    return TRUE;
+  }
+
+  // Check access for a specific message.
+  if ($type) {
+    // Didn't found that type.
+    if (!in_array($type, $types)) {
+      return;
+    }
+
+    if (user_access('create a ' . $type . ' message instance', $account)) {
+      return TRUE;
+    }
+  }
+
+  // Build list of arrays for the permissions.
+  $permissions = array();
+  foreach (array_keys($types) as $type) {
+    $permissions[$type] = user_access('create a ' . $type . ' message instance', $account);
+  }
+
+  return $permissions;
+}
+
+/**
  * Implements hook_menu().
  */
 function message_ui_menu() {
@@ -182,11 +245,11 @@ function message_ui_permission() {
  */
 function message_ui_create_new_message_instance_list() {
   $items = array();
-  $allowed_types = message_user_can_create_message();
+  $allowed_types = message_ui_user_can_create_message();
 
   foreach (message_ui_get_types() as $type => $title) {
     if ($allowed_types || (is_array($allowed_types) && $allowed_types[$type])) {
-      $items[] = l($title, 'admin/content/messages/create/' . str_replace('_', '-', $type));
+      $items[] = l($title, 'admin/content/message/create/' . str_replace('_', '-', $type));
     }
   }
 
@@ -251,7 +314,8 @@ function message_ui_filter_by_message_type_submit($form, $form_state) {
       ),
     );
   }
-  drupal_goto('admin/content/messages', $options);
+
+  drupal_goto('admin/content/message', $options);
 }
 
 /**
@@ -374,7 +438,7 @@ function message_ui_instance_delete($form, &$form_state, $message) {
   return confirm_form($form,
     t('Are you sure you want to delete the %type message instance?',
       array('%title' => $message->type)),
-    'admin/content/messages',
+    'admin/content/message',
     t('Are you sure you want to delete the message instance? This action cannot be undone.'),
     t('Delete'),
     t('Cancel'));
@@ -387,7 +451,7 @@ function message_ui_instance_delete_submit($form, &$form_state) {
   if ($form_state['clicked_button']['#type']) {
     $form_state['#entity']->delete();
 
-    $form_state['redirect'] = 'admin/content/messages';
+    $form_state['redirect'] = 'admin/content/message';
     drupal_set_message(t('The message instance @type deleted successfully', array(
       '@type' => $form_state['#entity']->type,
     )));
