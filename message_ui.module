@@ -1,0 +1,395 @@
+<?php
+/**
+ * @file
+ * Main file for the message UI module.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function message_ui_menu() {
+  $items = array();
+
+  $items['message/%message'] = array(
+    'title' => 'Viewing a message',
+    'description' => 'Select a message to create an instance.',
+    'page callback' => 'message_ui_show_message',
+    'page arguments' => array(1),
+    'access callback' => 'message_ui_access_control',
+    'access arguments' => array('view', 1),
+  );
+
+  $items['admin/content/message/create'] = array(
+    'title' => 'Create a new message',
+    'description' => 'Select a message to create an instance.',
+    'page callback' => 'message_ui_create_new_message_instance_list',
+    'access callback' => 'message_ui_access_control',
+    'access arguments' => array('create', 'any'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => -10,
+  );
+
+  foreach (message_ui_get_types() as $type => $title) {
+    $items['admin/content/message/create/' . str_replace('_', '-', $type)] = array(
+      'title' => $title,
+      'description' => 'Create a new message' . $title . ' instance',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('message_ui_instance_message_manage', $type),
+      'access arguments' => array('create', $type),
+      'access callback' => 'message_ui_access_control',
+    );
+  }
+
+  $items['message/%message/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['message/%message/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('message_ui_instance_message_manage', 1),
+    'access callback' => 'message_ui_access_control',
+    'access arguments' => array('edit', 1),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'weight' => 0,
+  );
+
+  $items['message/%message/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('message_ui_instance_delete', 1),
+    'access callback' => 'message_ui_access_control',
+    'access arguments' => array('delete', 1),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'weight' => 10,
+  );
+
+  if (module_exists('devel')) {
+    $items['message/%message/devel'] = array(
+      'title' => 'Devel',
+      'page callback' => 'devel_load_object',
+      'page arguments' => array('message', 1),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'devel.pages.inc',
+      'file path' => drupal_get_path('module', 'devel'),
+      'weight' => 20,
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function message_ui_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'message_ui') . '/views',
+  );
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function message_ui_admin_paths() {
+  return array(
+    'message/*/edit' => TRUE,
+    'message/*/delete' => TRUE,
+    'message/*/devel' => TRUE,
+  );
+}
+
+/**
+ * Message module access callback.
+ *
+ * @param $operation
+ *  The operation - create, view, update, delete.
+ * @param $message
+ *  The message object or message type.
+ * @param stdClass $user
+ *  A user object. Optional.
+ *
+ * @return bool True or false.
+ */
+function message_ui_access_control($operation, $message, stdClass $user = NULL) {
+  if (empty($user)) {
+    global $user;
+    $account = user_load($user->uid);
+  }
+  else {
+    $account = user_load($user->uid);
+  }
+
+  // Get the message type from the function argument or from the message object.
+  $type = is_object($message) ? $message->type : $message;
+
+  // The user can manage any type of message.
+  if ($type == 'any' && user_access('bypass message access control', $account)) {
+    return TRUE;
+  }
+
+  // Verify that the user can apply the op.
+  if (user_access($operation . ' any message instance', $account) || user_access($operation . ' a ' . $type . ' message instance', $account)) {
+    return TRUE;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function message_ui_permission() {
+  // Defining the operation.
+  $operations = array(
+    'view',
+    'edit',
+    'create',
+    'delete',
+  );
+
+  // Build the permissions.
+  $permissions = array();
+
+  $permissions['bypass message access control'] = array(
+    'title' => t('Bypass message access control'),
+    'description' => t('Grant to the user the permission to apply CRUD option on any messages. Grant this permission to trusty users!'),
+  );
+
+  foreach ($operations as $operation) {
+    $permissions[$operation . ' any message instance'] = array(
+      'title' => t(ucfirst($operation) . ' any message type'),
+      'description' => t('Allowing to ' . $operation . ' message from any message type.'),
+    );
+
+    foreach (message_ui_get_types() as $type => $title) {
+      $permissions[$operation . ' a ' . $type . ' message instance'] = array(
+        'title' => t(ucfirst($operation) . ' a new message instance for ' . $title),
+        'description' => t('Allowing to ' . $operation . ' an instance for the ' . $title . ' message type'),
+      );
+    }
+  }
+
+  return $permissions;
+}
+
+/**
+ * Display list of message types to create an instance for them.
+ */
+function message_ui_create_new_message_instance_list() {
+  $items = array();
+  $allowed_types = message_user_can_create_message();
+
+  foreach (message_ui_get_types() as $type => $title) {
+    if ($allowed_types || (is_array($allowed_types) && $allowed_types[$type])) {
+      $items[] = l($title, 'admin/content/messages/create/' . str_replace('_', '-', $type));
+    }
+  }
+
+  return theme('item_list', array('items' => $items));
+}
+
+/**
+ * Displaying a list of message types fot the user to filter the messages.
+ */
+function message_ui_filter_by_message_type($form_state) {
+  $form['filters'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Filter by type'),
+  );
+
+  $form['filters']['type'] = array(
+    '#type' => 'select',
+    '#options' => array('---' => t('Filter by message type')) + message_ui_get_types(),
+    '#prefix' => '<div class="container-inline">',
+    '#default_value' => isset($_GET['type']) ? $_GET['type'] : '',
+  );
+
+  if (isset($_GET['type'])) {
+    $form['filters']['reset'] = array(
+      '#type' => 'submit',
+      '#value' => t('Reset'),
+      '#info' => 'reset-form',
+    );
+  }
+
+  $form['filters']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Search'),
+    '#suffix' => '</div>',
+  );
+
+  return $form;
+}
+
+/**
+ * Validate the user select a proper value.
+ */
+function message_ui_filter_by_message_type_validate($form, $form_state) {
+  if ($form_state['values']['type'] == '---') {
+    form_set_error('type', t('Please select a propper value.'));
+  }
+}
+
+/**
+ * Redirect the user to the message overview page filter by the selected type.
+ */
+function message_ui_filter_by_message_type_submit($form, $form_state) {
+  if ($form_state['clicked_button']['#info'] == 'reset-form') {
+    // Reset the form to the user.
+    $options = array();
+  }
+  else {
+    // Move the user to a page filter the messages by the selected type.
+    $options = array(
+      'query' => array(
+        'type' => $form_state['values']['type'],
+      ),
+    );
+  }
+  drupal_goto('admin/content/messages', $options);
+}
+
+/**
+ * The UI for creating/editing the message.
+ */
+function message_ui_instance_message_manage($form, &$form_state, $message) {
+  if (!is_object($message)) {
+    $message = message_create($message);
+  }
+  $form_state['#entity'] = $message;
+
+  $form['text'] = array(
+    '#type' => 'item',
+    '#title' => t('Message text'),
+    '#markup' => $message->getText(),
+  );
+
+  field_attach_form('message', $message, $form, $form_state);
+
+  $form['additional_settings'] = array(
+    '#type' => 'vertical_tabs',
+    '#weight' => 99,
+  );
+
+  $form['owner'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Authoring information'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+    '#attributes' => array(
+      'class' => array('message-form-owner'),
+    ),
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'message') . '/js/message.js',
+        array(
+          'type' => 'setting',
+          'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
+        ),
+      ),
+    ),
+    '#weight' => 90,
+  );
+
+  $form['owner']['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Authored by'),
+    '#maxlength' => 60,
+    '#weight' => 99,
+    '#autocomplete_path' => 'user/autocomplete',
+    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+    '#default_value' => user_load($message->uid)->name,
+  );
+
+  $form['owner']['date'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Authored on'),
+    '#description' => t('Please insert in the format of @date', array(
+      '@date' => date('Y-m-d j:i', $message->timestamp),
+    )),
+    '#default_value' => date('Y-m-d H:i', $message->timestamp),
+    '#maxlength' => 25,
+    '#weight' => 100,
+  );
+
+  $form['actions'] = array(
+    '#type' => 'actions',
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => is_object($message) ? t('Update') : t('Create'),
+      '#submit' => array('message_ui_instance_message_create_submit'),
+    ),
+    'cancel' => array(
+      '#type' => 'markup',
+      '#markup' => l(t('Cancel'), is_object($message) && !empty($message->mid) ? 'message/' . $message->mid : 'admin/structure/messages'),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Validate the submitted message.
+ */
+function message_ui_instance_message_manage_validate($form, &$form_state) {
+  field_attach_form_validate('message', $form_state['#entity'], $form, $form_state);
+}
+
+/**
+ * Submit handler - create/edit new message via the UI.
+ */
+function message_ui_instance_message_create_submit($form, &$form_state) {
+  $message = $form_state['#entity'];
+
+  field_attach_submit('message', $message, $form, $form_state);
+
+  $wrapper = entity_metadata_wrapper('message', $message);
+  $wrapper->timestamp->set(strtotime($form_state['values']['date']));
+  $wrapper->save();
+
+  $form_state['redirect'] = 'message/' . $wrapper->getIdentifier();
+}
+
+/**
+ * Display the message.
+ */
+function message_ui_show_message(Message $message) {
+  return $message->view();
+}
+
+/**
+ * Deleting the message.
+ */
+function message_ui_instance_delete($form, &$form_state, $message) {
+  // When the bundle is exported - display a message to the user.
+  $form_state['#entity'] = $message;
+
+  // Always provide entity id in the same form key as in the entity edit form.
+  return confirm_form($form,
+    t('Are you sure you want to delete the %type message instance?',
+      array('%title' => $message->type)),
+    'admin/content/messages',
+    t('Are you sure you want to delete the message instance? This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel'));
+}
+
+/**
+ * Deleting the sub theme submit handler.
+ */
+function message_ui_instance_delete_submit($form, &$form_state) {
+  if ($form_state['clicked_button']['#type']) {
+    $form_state['#entity']->delete();
+
+    $form_state['redirect'] = 'admin/content/messages';
+    drupal_set_message(t('The message instance @type deleted successfully', array(
+      '@type' => $form_state['#entity']->type,
+    )));
+  }
+}

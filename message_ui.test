@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * Testing the message access use case.
+ */
+class MessageUiPermissions extends DrupalWebTestCase {
+
+  public $user;
+  public $rid;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Message UI permissions',
+      'description' => 'Testing the use case of message_access function.',
+      'group' => 'Message UI',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('message', 'message_ui');
+
+    $this->user = $this->drupalCreateUser();
+
+    $message_type = message_type_create('foo', array('message_text' => array(LANGUAGE_NONE => array(array('value' => 'Example text.')))));
+    $message_type->save();
+
+    $role = user_role_load_by_name('authenticated user');
+    $this->rid = $role->rid;
+  }
+
+  /**
+   * Test message_access use case.
+   */
+  function testMessageUiPermissions() {
+    // verify the user can't create the message.
+    $this->drupalLogin($this->user);
+    $this->drupalGet('admin/content/message/create/foo');
+    $this->assertResponse(403, t("The user can't create message."));
+
+    // Create the message.
+    $this->grantMessageUiPermission('create');
+    $this->drupalPost('admin/content/message/create/foo', array(), t('Update'));
+
+    // Verify the user now can see the text.
+    $this->grantMessageUiPermission('view');
+    $this->drupalGet('message/1');
+    $this->assertResponse(200, "The user can't view message.");
+
+    // Verify can't edit the message.
+    $this->drupalGet('message/1/edit');
+    $this->assertResponse(403, "The user can't edit message.");
+
+    // Grant permission to the user.
+    $this->grantMessageUiPermission('edit');
+    $this->drupalGet('message/1/edit');
+    $this->assertResponse(200, "The user can't edit message.");
+
+    // Verify the user can't delete the message.
+    $this->drupalGet('message/1/delete');
+    $this->assertResponse(403, "The user can't delete the message");
+
+    // Grant the permission to the user.
+    $this->grantMessageUiPermission('delete');
+    $this->drupalPost('message/1/delete', array(), t('Delete'));
+
+    // The user did not have the permission to the overview page - verify access
+    // denied.
+    $this->assertResponse(403, t("The user can't access the over view page."));
+
+    user_role_grant_permissions($this->rid, array('administer message types'));
+    $this->drupalGet('admin/content/message');
+    $this->assertResponse(200, "The user can access the over view page.");
+
+    // Create a new user with the bypass access permission and verify the bypass.
+    $this->drupalLogout();
+    $user = $this->drupalCreateUser(array('bypass message access control'));
+
+    // Verify the user can by pass the message access control.
+    $this->drupalLogin($user);
+    $this->drupalGet('admin/content/message/create/foo');
+    $this->assertResponse(200, 'The user can bypass the message access contol.');
+  }
+
+  /**
+   * Grant to the user a specific permission.
+   *
+   * @param $operation
+   *  The type of operation - create, update, delete or view.
+   */
+  private function grantMessageUiPermission($operation) {
+    user_role_grant_permissions($this->rid, array($operation . ' a foo message instance'));
+  }
+}
