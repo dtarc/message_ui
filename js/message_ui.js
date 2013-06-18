@@ -2,7 +2,7 @@
 
   Drupal.behaviors.nodeFieldsetSummaries = {
     attach: function (context) {
-      $('fieldset.message-form-owner', context).drupalSetSummary(function (context) {
+      $('.message-form-owner', context).drupalSetSummary(function (context) {
         var name = $('.form-item-name input', context).val() || Drupal.settings.anonymous,
           date = $('.form-item-date input', context).val();
         return date ?

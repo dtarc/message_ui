@@ -351,7 +351,7 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     ),
     '#attached' => array(
       'js' => array(
-        drupal_get_path('module', 'message') . '/js/message.js',
+        drupal_get_path('module', 'message_ui') . '/js/message_ui.js',
         array(
           'type' => 'setting',
           'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
@@ -414,6 +414,7 @@ function message_ui_instance_message_create_submit($form, &$form_state) {
   field_attach_submit('message', $message, $form, $form_state);
 
   $wrapper = entity_metadata_wrapper('message', $message);
+  $wrapper->user->set(user_load_by_name($form_state['values']['name']));
   $wrapper->timestamp->set(strtotime($form_state['values']['date']));
   $wrapper->save();
 
