@@ -294,7 +294,7 @@ function message_ui_filter_by_message_type($form_state) {
  */
 function message_ui_filter_by_message_type_validate($form, $form_state) {
   if ($form_state['values']['type'] == '---') {
-    form_set_error('type', t('Please select a propper value.'));
+    form_set_error('type', t('Please select a proper value.'));
   }
 }
 
