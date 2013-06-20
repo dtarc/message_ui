@@ -8,14 +8,19 @@
  * Get list of the messages.
  */
 function message_ui_get_types() {
-  $message_types = db_select('message_type', 'mt')
-    ->fields('mt')
-    ->execute()
-    ->fetchAllAssoc('name');
+  $query = new entityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'message_type')
+    ->execute();
 
-  $list = array();
-  foreach ($message_types as $message) {
-    $list[$message->name] = $message->description;
+  if (empty($result['message_type'])) {
+    return;
+  }
+
+  $message_types = entity_load('message_type', array_keys($result['message_type']));
+
+  foreach ($message_types as $message_type) {
+    $list[$message_type->name] = $message_type->name;
   }
 
   return $list;
