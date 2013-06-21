@@ -22,6 +22,13 @@ function message_ui_views_data() {
       'handler' => 'message_ui_edit_button',
     ),
   );
+  $data['message']['view'] = array(
+    'title' => t('View message'),
+    'help' => t('Link to view the message instance.'),
+    'field' => array(
+      'handler' => 'message_ui_view_button',
+    ),
+  );
   return $data;
 }
 
