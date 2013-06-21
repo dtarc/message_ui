@@ -143,6 +143,7 @@ function message_ui_menu() {
       'page arguments' => array('message', 1),
       'access arguments' => array('access devel information'),
       'type' => MENU_LOCAL_TASK,
+      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
       'file' => 'devel.pages.inc',
       'file path' => drupal_get_path('module', 'devel'),
       'weight' => 20,
@@ -429,7 +430,20 @@ function message_ui_instance_message_create_submit($form, &$form_state) {
  * Display the message.
  */
 function message_ui_show_message(Message $message) {
-  return $message->view();
+  $build = $message->view();
+
+  $build += array(
+    '#theme' => 'message',
+    '#entity' => $message,
+    '#view_mode' => 'full',
+  );
+
+  $build['#contextual_links']['message'] = array('message', array($message->identifier()));
+
+  // Allow modules to modify the structured node.
+  drupal_alter('message_ui_view', $build, $message);
+
+  return $build;
 }
 
 /**
