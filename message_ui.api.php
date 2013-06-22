@@ -6,7 +6,7 @@
  */
 
 /**
- * Implement hook_message_ui_view_alter().
+ * Implements hook_message_ui_view_alter().
  *
  * @param $build
  *  A render-able array which returned by the page callback function.

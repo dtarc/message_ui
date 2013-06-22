@@ -263,48 +263,6 @@ function message_ui_create_new_message_instance_list() {
 }
 
 /**
- * Displaying a list of message types fot the user to filter the messages.
- */
-function message_ui_filter_by_message_type($form_state) {
-  $form['filters'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Filter by type'),
-  );
-
-  $form['filters']['type'] = array(
-    '#type' => 'select',
-    '#options' => array('---' => t('Filter by message type')) + message_ui_get_types(),
-    '#prefix' => '<div class="container-inline">',
-    '#default_value' => isset($_GET['type']) ? $_GET['type'] : '',
-  );
-
-  if (isset($_GET['type'])) {
-    $form['filters']['reset'] = array(
-      '#type' => 'submit',
-      '#value' => t('Reset'),
-      '#info' => 'reset-form',
-    );
-  }
-
-  $form['filters']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Search'),
-    '#suffix' => '</div>',
-  );
-
-  return $form;
-}
-
-/**
- * Validate the user select a proper value.
- */
-function message_ui_filter_by_message_type_validate($form, $form_state) {
-  if ($form_state['values']['type'] == '---') {
-    form_set_error('type', t('Please select a proper value.'));
-  }
-}
-
-/**
  * Redirect the user to the message overview page filter by the selected type.
  */
 function message_ui_filter_by_message_type_submit($form, $form_state) {
