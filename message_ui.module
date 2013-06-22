@@ -229,6 +229,11 @@ function message_ui_permission() {
     'description' => t('Grant to the user the permission to apply CRUD option on any messages. Grant this permission to trusty users!'),
   );
 
+  $permissions['update tokens'] = array(
+    'title' => t('Manage the message tokens'),
+    'description' => t('Grant to the user the permission to update the tokens of the message - manually or automatically with a checkbox'),
+  );
+
   foreach ($operations as $operation) {
     $permissions[$operation . ' any message instance'] = array(
       'title' => t(ucfirst($operation) . ' any message type'),
@@ -289,12 +294,14 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
   if (!is_object($message)) {
     $message = message_create($message);
   }
+
   $form_state['#entity'] = $message;
+  $message_text = $message->view();
 
   $form['text'] = array(
     '#type' => 'item',
     '#title' => t('Message text'),
-    '#markup' => $message->getText(),
+    '#markup' => render($message_text),
   );
 
   field_attach_form('message', $message, $form, $form_state);
@@ -346,6 +353,48 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     '#weight' => 100,
   );
 
+  if (!empty($message->arguments) && user_access('update tokens')) {
+    $form['tokens'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Tokens and arguments'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#weight' => 110,
+    );
+
+    // Give the user an option to update the har coded tokens.
+    $form['tokens']['replace_tokens'] = array(
+      '#type' => 'select',
+      '#title' => t('Update tokens value automatically'),
+      '#description' => t('By default, the hard coded values will be replaced automatically. If unchecked - you can update their value manually.'),
+      '#default_value' => 'no_update',
+      '#options' => array(
+        'no_update' => t("Don't update"),
+        'update' => t('Update automatically'),
+        'update_manually' => t('Update manually'),
+      ),
+    );
+
+    $form['tokens']['values'] = array(
+      '#type' => 'container',
+      '#states' => array(
+        'visible' => array(
+          ':input[name="replace_tokens"]' => array('value' => 'update_manually'),
+        ),
+      ),
+    );
+
+    // Build list of fields to update the tokens manually.
+    foreach ($message->arguments as $name => $value) {
+      $form['tokens']['values'][$name] = array(
+        '#type' => 'textfield',
+        '#title' => t("@name's value", array('@name' => $name)),
+        '#default_value' => $value,
+      );
+    }
+  }
+
   $form['actions'] = array(
     '#type' => 'actions',
     'submit' => array(
@@ -376,6 +425,30 @@ function message_ui_instance_message_create_submit($form, &$form_state) {
   $message = $form_state['#entity'];
 
   field_attach_submit('message', $message, $form, $form_state);
+
+  // Update the tokens.
+  $token_actions = $form_state['values']['replace_tokens'];
+
+  if (is_object($message) && !empty($message->arguments)) {
+    if (!empty($token_actions) && $token_actions != 'no_update') {
+
+      foreach (array_keys($message->arguments) as $token) {
+        // Loop through the arguments of the message.
+
+        if ($token_actions == 'update') {
+          // Get the hard coded value of the message and him in the message.
+          $token_name = str_replace(array('@{', '}'), array('[', ']'), $token);
+          $value = token_replace($token_name, array('message' => $message));
+        }
+        else {
+          // Hard coded value given from the user.
+          $value = $form_state['values'][$token];
+        }
+
+        $message->arguments[$token] = $value;
+      }
+    }
+  }
 
   $wrapper = entity_metadata_wrapper('message', $message);
   $wrapper->user->set(user_load_by_name($form_state['values']['name']));
