@@ -91,3 +91,56 @@ class MessageUiPermissions extends DrupalWebTestCase {
     user_role_grant_permissions($this->rid, array($operation . ' a foo message instance'));
   }
 }
+
+/**
+ * Testing the editing of the hard coded arguments.
+ */
+class MessageUiHardCodedArguments extends DrupalWebTestCase {
+
+  public $user1;
+  public $user2;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Message UI hard coded arguments',
+      'description' => 'Testing the editing of the hard coded arguments.',
+      'group' => 'Message UI',
+      'dependencies' => array('entity_token'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('message', 'message_ui', 'entity_token');
+
+    $message_type = message_type_create('dummy_message', array('message_text' => array(LANGUAGE_NONE => array(array('value' => '@{message:user:name}.')))));
+    $message_type->save();
+
+    $this->user1 = $this->drupalCreateUser();
+    $this->user2 = $this->drupalCreateUser();
+    $role = user_role_load_by_name('authenticated user');
+
+    user_role_grant_permissions($role->rid, array('create any message instance', 'view any message instance', 'edit any message instance'));
+  }
+
+  public function testHardCoded() {
+    $this->drupalLogin($this->user1);
+
+    $message = message_create('dummy_message');
+    $message->uid = $this->user1->uid;
+    $message->save();
+
+    // Verifying the message hard coded value is set to the user 1.
+    $this->drupalGet('message/' . $message->mid);
+
+    $this->assertText($this->user1->name, 'The message token is set to the user 1.');
+
+    $message->uid = $this->user2->uid;
+    $message->save();
+    $this->drupalGet('message/' . $message->mid);
+
+    $this->assertNoText($this->user2->name, 'The message token is set to the user 1 after editing the message.');
+
+    // Editing the message via the UI and verify that the hard coded argument
+    // has been changed.
+  }
+}
