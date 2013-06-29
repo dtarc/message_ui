@@ -97,15 +97,17 @@ function message_ui_menu() {
     'weight' => -10,
   );
 
-  foreach (message_ui_get_types() as $type => $title) {
-    $items['admin/content/message/create/' . str_replace('_', '-', $type)] = array(
-      'title' => $title,
-      'description' => 'Create a new message' . $title . ' instance',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('message_ui_instance_message_manage', $type),
-      'access arguments' => array('create', $type),
-      'access callback' => 'message_ui_access_control',
-    );
+  if ($types = message_ui_get_types()) {
+    foreach ($types as $type => $title) {
+      $items['admin/content/message/create/' . str_replace('_', '-', $type)] = array(
+        'title' => $title,
+        'description' => 'Create a new message' . $title . ' instance',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('message_ui_instance_message_manage', $type),
+        'access arguments' => array('create', $type),
+        'access callback' => 'message_ui_access_control',
+      );
+    }
   }
 
   $items['message/%message/view'] = array(
@@ -240,11 +242,13 @@ function message_ui_permission() {
       'description' => t('Allowing to ' . $operation . ' message from any message type.'),
     );
 
-    foreach (message_ui_get_types() as $type => $title) {
-      $permissions[$operation . ' a ' . $type . ' message instance'] = array(
-        'title' => t(ucfirst($operation) . ' a new message instance for ' . $title),
-        'description' => t('Allowing to ' . $operation . ' an instance for the ' . $title . ' message type'),
-      );
+    if ($types = message_ui_get_types()) {
+      foreach ($types as $type => $title) {
+        $permissions[$operation . ' a ' . $type . ' message instance'] = array(
+          'title' => t(ucfirst($operation) . ' a new message instance for ' . $title),
+          'description' => t('Allowing to ' . $operation . ' an instance for the ' . $title . ' message type'),
+        );
+      }
     }
   }
 
@@ -407,7 +411,7 @@ function message_ui_instance_message_create_submit($form, &$form_state) {
   field_attach_submit('message', $message, $form, $form_state);
 
   // Update the tokens.
-  $token_actions = $form_state['values']['replace_tokens'];
+  $token_actions = empty($form_state['values']['replace_tokens']) ? array() : $form_state['values']['replace_tokens'];
 
   if (is_object($message) && !empty($message->arguments)) {
     if (!empty($token_actions) && $token_actions != 'no_update') {
