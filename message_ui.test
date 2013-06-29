@@ -119,7 +119,7 @@ class MessageUiHardCodedArguments extends DrupalWebTestCase {
     $this->user2 = $this->drupalCreateUser();
     $role = user_role_load_by_name('authenticated user');
 
-    user_role_grant_permissions($role->rid, array('create any message instance', 'view any message instance', 'edit any message instance'));
+    user_role_grant_permissions($role->rid, array('bypass message access control'));
   }
 
   public function testHardCoded() {
@@ -140,7 +140,21 @@ class MessageUiHardCodedArguments extends DrupalWebTestCase {
 
     $this->assertNoText($this->user2->name, 'The message token is set to the user 1 after editing the message.');
 
-    // Editing the message via the UI and verify that the hard coded argument
-    // has been changed.
+    // Update the message arguments automatically.
+    $edit = array(
+      'name' => $this->user2->name,
+      'replace_tokens' => 'update',
+    );
+    $this->drupalPost('message/' . $message->mid . '/edit', $edit, t('Update'));
+    $this->assertText($this->user2->name, 'The message token as updated automatically.');
+
+    // Update the message arguments manually.
+    $edit = array(
+      'name' => $this->user2->name,
+      'replace_tokens' => 'update_manually',
+      '@{message:user:name}' => 'Dummy name',
+    );
+    $this->drupalPost('message/' . $message->mid . '/edit', $edit, t('Update'));
+    $this->assertText('Dummy name', 'The hard coded token was updated with a custom value.');
   }
 }

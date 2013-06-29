@@ -114,6 +114,8 @@ function message_ui_menu() {
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
+    'access callback' => 'message_ui_access_control',
+    'access arguments' => array('view', 1),
   );
 
   $items['message/%message/edit'] = array(
@@ -201,7 +203,7 @@ function message_ui_access_control($operation, $message, stdClass $user = NULL) 
   $type = is_object($message) ? $message->type : $message;
 
   // The user can manage any type of message.
-  if ($type == 'any' && user_access('bypass message access control', $account)) {
+  if (user_access('bypass message access control', $account)) {
     return TRUE;
   }
 
@@ -337,7 +339,7 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     '#weight' => 100,
   );
 
-  if (!empty($message->arguments) && user_access('update tokens')) {
+  if (!empty($message->arguments) && (user_access('update tokens') || user_access('bypass message access control'))) {
     $form['tokens'] = array(
       '#type' => 'fieldset',
       '#title' => t('Tokens and arguments'),
