@@ -258,6 +258,18 @@ function message_ui_permission() {
 }
 
 /**
+ * Implements hook_cron_queue_info().
+ */
+function message_ui_cron_queue_info() {
+  $items['message_ui_arguments'] = array(
+    'title' => t('Message UI arguments'),
+    'worker callback' => 'message_ui_arguments_worker',
+    'time' => 60,
+  );
+  return $items;
+}
+
+/**
  * Display list of message types to create an instance for them.
  */
 function message_ui_create_new_message_instance_list() {
@@ -271,6 +283,251 @@ function message_ui_create_new_message_instance_list() {
   }
 
   return theme('item_list', array('items' => $items));
+}
+
+/**
+ * Get hard coded arguments.
+ *
+ * @param $type
+ *  The message type.
+ * @param $count
+ *  Determine weather to the count the arguments or return a list of them.
+ * @return int
+ *  The number of the arguments.
+ */
+function message_ui_message_arguments($type, $count = FALSE) {
+  $message_type = message_type_load($type);
+
+  if (!$output = $message_type->getText()) {
+    return;
+  }
+
+  preg_match_all('/[@|%|\!]\{([a-z0-9:_\-]+?)\}/i', $output, $matches);
+
+  return $count ? count($matches[0]) : $matches[0];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function message_ui_form_message_user_admin_settings_alter(&$form, $form_state, $form_id) {
+  $form['update_tokens'] = array(
+    '#type' => 'fieldset',
+    '#itle' => t('Token update settings'),
+  );
+  $form['update_tokens']['update_tokens_update_tokens'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Update messages arguments'),
+    '#description' => t('When editing a message type, the user can add or delete arguments. When this is checked, you can choose how to update to messages arguments.'),
+    '#default_value' => variable_get('update_tokens_update_tokens', FALSE),
+  );
+
+  $form['update_tokens']['update_tokens_how_to_act'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose how to act'),
+    '#default_value' => variable_get('update_tokens_how_to_act'),
+    '#options' => array(
+      'update_when_removed' => t('Update messages when tokens are removed'),
+      'update_when_added' => t('Update messages when tokens are added'),
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['update_tokens']['update_tokens_how_update'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose how to update the messages'),
+    '#default_value' => variable_get('update_tokens_how_update'),
+    '#options' => array(
+      'update_with_batch' => t('Update messages with batch API'),
+      'update_when_item' => t('Update messages with queue item'),
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['update_tokens']['update_tokens_number_items'] = array(
+    '#type' => 'textfield',
+    '#size' => '10',
+    '#title' => t('Items to process each time.'),
+    '#description' => t('Choose how much items to process each iteration.'),
+    '#default_value' => variable_get('update_tokens_number_items', 250),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Submit handler for updating the arguments number.
+ *
+ * When a message type is been edited, there could be a change in the arguments
+ * of the message - added or removed.
+ * If this has been defined, we need to update the arguments of the other
+ * messages. This will be achieved by in two steps:
+ * 1. Load an instance of the message from the same type
+ * 2. Cont the number of the arguments and if there is a difference between the
+ *    number of the arguments from the old message to the current one - create
+ *    a batch or a queue and update the messages.
+ */
+function message_ui_entity_update($entity, $type) {
+  if ($type != 'message_type') {
+    return;
+  }
+
+  $type = $entity->name;
+
+  $query = new entityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'message')
+    ->propertyCondition('type', $type)
+    ->range(0, 1)
+    ->propertyOrderBy('mid', 'DESC')
+    ->execute();
+
+  // There is no messages from this type.
+  if (empty($result['message'])) {
+    return;
+  }
+
+  $keys = array_keys($result['message']);
+  $message = message_load(reset($keys));
+  $new_arguments = message_ui_message_arguments($type);
+
+  $old_arguments_number = count($message->arguments);
+  $new_arguments_number = count($new_arguments);
+  $how_to_act = variable_get('update_tokens_how_to_act');
+
+  $update['when_added'] = $old_arguments_number < $new_arguments_number && $how_to_act == 'update_when_added';
+  $update['when_removed'] = $old_arguments_number > $new_arguments_number && $how_to_act == 'update_when_removed';
+
+  if (!($update['when_added'] || $update['when_removed'])) {
+    return;
+  }
+
+  $item_to_process = variable_get('update_tokens_number_items', 250);
+
+  if (variable_get('update_tokens_how_update') == 'update_with_batch') {
+    // Get all the messages.
+    $query = new entityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'message')
+      ->propertyCondition('type', $type)
+      ->propertyOrderBy('mid', 'DESC')
+      ->execute();
+
+    $chunks = array_chunk(array_keys($result['message']), $item_to_process);
+    $operations = array();
+    foreach ($chunks as $chunk) {
+      $operations[] = array('message_ui_arguments_update', array($chunk, $new_arguments));
+    }
+
+    // Set the batch.
+    $batch = array(
+      'operations' => $operations,
+      'finished' => 'message_ui_message_arguments_update',
+      'title' => t('Updating the messages arguments.'),
+      'init_message' => t('Start process messages.'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('Example Batch has encountered an error.'),
+    );
+    batch_set($batch);
+    batch_process('admin/structure/messages');
+  }
+  elseif (variable_get('update_tokens_how_update') == 'update_when_item') {
+    // Define the queue item data.
+    $data = array(
+      'type' => $type,
+      'last_mid' => 0,
+      'new_arguments' => $new_arguments,
+      'item_to_process' => $item_to_process,
+    );
+
+    // Set the queue worker.
+    $queue = DrupalQueue::get('message_ui_arguments');
+    return $queue->createItem($data);
+  }
+}
+
+/**
+ * The message batch or queue item callback function.
+ *
+ * @param $mids
+ *  The messages ID for process.
+ * @param $arguments
+ *  The new state arguments.
+ */
+function message_ui_arguments_update($mids, $arguments) {
+  // Load the messages and update them.
+  $messages = message_load_multiple($mids);
+
+  foreach ($messages as $message) {
+    _message_ui_arguments_update($message, $arguments);
+  }
+}
+
+/**
+ * Update the message arguments via a queue worker.
+ */
+function message_ui_arguments_worker($data) {
+  // Load all of the messages.
+  $query = new entityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'message')
+    ->propertyCondition('type', $data['type'])
+    ->propertyOrderBy('mid', 'DESC')
+    ->propertyCondition('mid', $data['last_mid'], '>=')
+    ->range(0, $data['item_to_process'])
+    ->execute();
+
+  if (empty($result['message'])) {
+    return;
+  }
+  
+  // Update the messages.
+  $messages = message_load_multiple(array_keys($result['message']));
+  foreach ($messages as $message) {
+    _message_ui_arguments_update($message, $data['new_arguments']);
+    $data['last_mid'] = $message->mid;
+  }
+
+  // Create the next queue worker.
+  $queue = DrupalQueue::get('message_ui_arguments');
+  return $queue->createItem($data);
+}
+
+/**
+ * A helper function for generate a new array of the message's arguments.
+ *
+ * @param Message $message
+ *  The message which her arguments need an update.
+ * @param array $arguments
+ *  The new arguments need to be calculated.
+ */
+function _message_ui_arguments_update(Message $message, $arguments) {
+
+  $message_arguments = array();
+
+  foreach ($arguments as $token) {
+    // Get the hard coded value of the message and him in the message.
+    $token_name = str_replace(array('@{', '}'), array('[', ']'), $token);
+    $value = token_replace($token_name, array('message' => $message));
+
+    $message_arguments[$token] = $value;
+  }
+
+  $message->arguments = $message_arguments;
+  $message->save();
 }
 
 /**

@@ -102,7 +102,7 @@ class MessageUiHardCodedArguments extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Message UI hard coded arguments',
+      'name' => 'Message UI arguments single update',
       'description' => 'Testing the editing of the hard coded arguments.',
       'group' => 'Message UI',
       'dependencies' => array('entity_token'),
@@ -122,6 +122,9 @@ class MessageUiHardCodedArguments extends DrupalWebTestCase {
     user_role_grant_permissions($role->rid, array('bypass message access control'));
   }
 
+  /**
+   * Verify that a user can update the arguments for each instance.
+   */
   public function testHardCoded() {
     $this->drupalLogin($this->user1);
 
@@ -156,5 +159,81 @@ class MessageUiHardCodedArguments extends DrupalWebTestCase {
     );
     $this->drupalPost('message/' . $message->mid . '/edit', $edit, t('Update'));
     $this->assertText('Dummy name', 'The hard coded token was updated with a custom value.');
+  }
+}
+
+/**
+ * Testing the update of the hard coded arguments in massive way.
+ */
+class MessageUiMassiveHardCodedArguments extends DrupalWebTestCase {
+
+  public $user1;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Message UI arguments massive update',
+      'description' => 'Testing the removing/updating an hard coded arguments.',
+      'group' => 'Message UI',
+      'dependencies' => array('entity_token'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('message', 'message_ui', 'entity_token');
+
+    $message_type = message_type_create('dummy_message', array('message_text' => array(LANGUAGE_NONE => array(array('value' => '@{message:user:name}.')))));
+    $message_type->save();
+
+    // Set a queue worker for the update arguments when updating a message type.
+    variable_set('update_tokens_update_tokens', TRUE);
+    variable_set('update_tokens_how_update', 'update_when_item');
+  }
+
+  public function testRemoveAddingArguments() {
+    // Create a message.
+    $this->user1 = $this->drupalCreateUser();
+    $message = message_create('dummy_message');
+    $message->uid = $this->user1->uid;
+    $message->save();
+
+    $original_arguments = $message->arguments;
+
+    // Update message instance when removing a hard coded argument.
+    variable_set('update_tokens_how_to_act', 'update_when_removed');
+
+    $message_type = message_type_load('dummy_message');
+    $message_type->message_text[LANGUAGE_NONE][0]['value'] = '[message:user:name].';
+    $message_type->save();
+
+    // Fire the queue worker.
+    $queue = DrupalQueue::get('message_ui_arguments');
+    $item = $queue->claimItem();
+    message_ui_arguments_worker($item->data);
+
+    // Verify the arguments has changed.
+    $message = message_load($message->mid);
+    $this->assertTrue($original_arguments != $message->arguments, 'The message arguments has changed during the queue worker work.');
+
+    // Creating a new message and her hard coded arguments.
+    $message = message_create('dummy_message');
+    $message->uid = $this->user1->uid;
+    $message->save();
+    $original_arguments = $message->arguments;
+
+    // Process the message instance when adding hard coded arguments.
+    variable_set('update_tokens_how_to_act', 'update_when_added');
+
+    $message_type = message_type_load('dummy_message');
+    $message_type->message_text[LANGUAGE_NONE][0]['value'] = '@{message:user:name}.';
+    $message_type->save();
+
+    // Fire the queue worker.
+    $queue = DrupalQueue::get('message_ui_arguments');
+    $item = $queue->claimItem();
+    message_ui_arguments_worker($item->data);
+
+    // Verify the arguments has changed.
+    $message = message_load($message->mid);
+    $this->assertTrue($original_arguments == $message->arguments, 'The message arguments has changed during the queue worker work.');
   }
 }
