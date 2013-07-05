@@ -724,14 +724,14 @@ function message_ui_show_message(Message $message) {
 /**
  * Deleting the message.
  */
-function message_ui_instance_delete($form, &$form_state, $message) {
+function message_ui_instance_delete($form, &$form_state, Message $message) {
   // When the bundle is exported - display a message to the user.
   $form_state['#entity'] = $message;
 
   // Always provide entity id in the same form key as in the entity edit form.
   return confirm_form($form,
-    t('Are you sure you want to delete the %type message instance?',
-      array('%title' => $message->type)),
+    t('Are you sure you want to delete the @type message instance?',
+      array('@type' => $message->type)),
     'admin/content/message',
     t('Are you sure you want to delete the message instance? This action cannot be undone.'),
     t('Delete'),
