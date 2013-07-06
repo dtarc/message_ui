@@ -1,0 +1,7 @@
+name = Message notify UI
+description = Integrating the message notify into the UI functionality.
+core = 7.x
+package = Message
+
+dependencies[] = message_ui
+dependencies[] = message_notify

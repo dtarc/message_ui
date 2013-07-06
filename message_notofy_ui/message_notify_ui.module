@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Main module file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function message_notify_ui_menu() {
+  $items = array();
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function message_notify_ui_permission() {
+}
