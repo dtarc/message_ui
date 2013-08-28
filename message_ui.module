@@ -20,7 +20,7 @@ function message_ui_get_types() {
   $message_types = entity_load('message_type', array_keys($result['message_type']));
 
   foreach ($message_types as $message_type) {
-    $list[$message_type->name] = $message_type->name;
+    $list[$message_type->name] = $message_type->description;
   }
 
   return $list;
@@ -153,6 +153,14 @@ function message_ui_menu() {
       'weight' => 20,
     );
   }
+
+  $items['admin/config/development/message_delete_multiple'] = array(
+    'title' => 'Message delete multiple',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('message_ui_delete_multiple_messages'),
+    'access callback' => 'message_ui_access_control',
+    'access arguments' => array('delete', 1),
+  );
 
   return $items;
 }
@@ -750,4 +758,67 @@ function message_ui_instance_delete_submit($form, &$form_state) {
       '@type' => $form_state['#entity']->type,
     )));
   }
+}
+
+/**
+ * Delete multiple messages
+ */
+function message_ui_delete_multiple_messages($form, $form_state) {
+  $types = message_ui_get_types();
+
+  $form['types'] = array(
+    '#type' => 'select',
+    '#title' => t('Message types'),
+    '#description' => t('Select the message type your would like to delete message from.'),
+    '#options' => $types,
+    '#multiple' => TRUE,
+    '#required' => TRUE,
+  );
+
+  $form['actions'] = array(
+    '#type' => 'actions',
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => t('Send'),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler - delete the messages.
+ */
+function message_ui_delete_multiple_messages_submit($form, $form_state) {
+  // Get the message IDs.
+  $query = new entityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'message')
+    ->propertyCondition('type', $form_state['values']['types'], 'IN')
+    ->execute();
+
+  if (empty($result['message'])) {
+    // No messages found, return.
+    drupal_set_message(t('No messages were found according to the parameters you entered'), 'error');
+    return;
+  }
+
+  // Prepare the message IDs chunk array for batch operation.
+  $chunks = array_chunk(array_keys($result['message']), 100);
+  $operations = array();
+
+  foreach ($chunks as $chunk) {
+    $operations[] = array('message_delete_multiple', array($chunk));
+  }
+
+  // Set the batch.
+  $batch = array(
+    'operations' => $operations,
+    'title' => t('deleting messages.'),
+    'init_message' => t('Starting to delete messages.'),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('The batch operation has failed.'),
+  );
+  batch_set($batch);
+  batch_process($_GET['q']);
 }
