@@ -36,6 +36,10 @@ function message_ui_views_data() {
  * Implements hook_views_default_views_alter().
  */
 function message_ui_views_default_views_alter(&$views) {
+  if (!in_array('message', array_keys($views))) {
+    return;
+  }
+
   $handler =& $views['message']->display['default']->handler;
 
   /* Field: Message: Edit message */
