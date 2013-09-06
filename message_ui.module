@@ -284,10 +284,15 @@ function message_ui_create_new_message_instance_list() {
   $items = array();
   $allowed_types = message_ui_user_can_create_message();
 
-  foreach (message_ui_get_types() as $type => $title) {
-    if ($allowed_types || (is_array($allowed_types) && $allowed_types[$type])) {
-      $items[] = l($title, 'admin/content/message/create/' . str_replace('_', '-', $type));
+  if ($types = message_ui_get_types()) {
+    foreach ($types as $type => $title) {
+      if ($allowed_types || (is_array($allowed_types) && $allowed_types[$type])) {
+        $items[] = l($title, 'admin/content/message/create/' . str_replace('_', '-', $type));
+      }
     }
+  }
+  else {
+    return t("There are no messages types. You can create a new message type <a href='@url'>here</a>.", array('@url' => url('admin/structure/messages/add')));
   }
 
   return theme('item_list', array('items' => $items));
