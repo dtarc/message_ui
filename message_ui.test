@@ -5,7 +5,16 @@
  */
 class MessageUiPermissions extends DrupalWebTestCase {
 
+  /**
+   * The user object.
+   * @var
+   */
   public $user;
+
+  /**
+   * @var
+   * The user role.
+   */
   public $rid;
 
   public static function getInfo() {
@@ -39,7 +48,7 @@ class MessageUiPermissions extends DrupalWebTestCase {
 
     // Create the message.
     $this->grantMessageUiPermission('create');
-    $this->drupalPost('admin/content/message/create/foo', array(), t('Update'));
+    $this->drupalPost('admin/content/message/create/foo', array(), t('Create'));
 
     // Verify the user now can see the text.
     $this->grantMessageUiPermission('view');
@@ -78,7 +87,7 @@ class MessageUiPermissions extends DrupalWebTestCase {
     // Verify the user can by pass the message access control.
     $this->drupalLogin($user);
     $this->drupalGet('admin/content/message/create/foo');
-    $this->assertResponse(200, 'The user can bypass the message access contol.');
+    $this->assertResponse(200, 'The user can bypass the message access control.');
   }
 
   /**
@@ -97,7 +106,16 @@ class MessageUiPermissions extends DrupalWebTestCase {
  */
 class MessageUiHardCodedArguments extends DrupalWebTestCase {
 
+  /**
+   * The first user object.
+   * @var
+   */
   public $user1;
+
+  /**
+   * The second user object.
+   * @var
+   */
   public $user2;
 
   public static function getInfo() {
