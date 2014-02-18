@@ -99,6 +99,40 @@ class MessageUiPermissions extends DrupalWebTestCase {
   private function grantMessageUiPermission($operation) {
     user_role_grant_permissions($this->rid, array($operation . ' a foo message instance'));
   }
+
+  /**
+   * Checking the alteration flow for other modules.
+   */
+  public function testMessageUIAccessHook() {
+    module_enable(array('message_ui_test'));
+
+    $this->drupalLogin($this->user);
+
+    // Setting up the operation and the expected value from the access callback.
+    $permissions = array(
+      'create' => TRUE,
+      'view' => TRUE,
+      'delete' => FALSE,
+      'update' => FALSE,
+    );
+
+    $message = message_create('foo');
+    $message->uid = $this->user->uid;
+    $message->save();
+
+    foreach ($permissions as $op => $value) {
+      // When the hook access of the dummy module will get in action it will
+      // check which value need to return. If the access control function will
+      // return the expected value then we know the hook got in action.
+      $message->{$op} = $value;
+      $params = array(
+        '@operation' => $op,
+        '@value' => $value,
+      );
+
+      $this->assertEqual(message_ui_access_control($op, $message, $this->user), $value, format_string('The hook return @value for @operation', $params));
+    }
+  }
 }
 
 /**

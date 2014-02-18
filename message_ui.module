@@ -5,6 +5,16 @@
  */
 
 /**
+ * Grant permission for the operation upon message.
+ */
+define('MESSAGE_UI_ALLOW', TRUE);
+
+/**
+ * Deny permission for the operation upon message.
+ */
+define('MESSAGE_UI_DENY', FALSE);
+
+/**
  * Get list of the messages.
  */
 function message_ui_get_types() {
@@ -18,6 +28,8 @@ function message_ui_get_types() {
   }
 
   $message_types = entity_load('message_type', array_keys($result['message_type']));
+
+  $list = array();
 
   foreach ($message_types as $message_type) {
     $list[$message_type->name] = $message_type->description;
@@ -43,6 +55,7 @@ function message_ui_user_can_create_message($type = NULL, $account = NULL) {
     global $user;
     $account = $user;
   }
+
   $account = entity_metadata_wrapper('user', $account)->value();
   $types = message_ui_get_types();
 
@@ -53,6 +66,7 @@ function message_ui_user_can_create_message($type = NULL, $account = NULL) {
 
   // Check access for a specific message.
   if ($type) {
+
     // Didn't found that type.
     if (!in_array($type, $types)) {
       return;
@@ -213,6 +227,12 @@ function message_ui_access_control($operation, $message, stdClass $user = NULL) 
   // The user can manage any type of message.
   if (user_access('bypass message access control', $account)) {
     return TRUE;
+  }
+
+  // Allow other modules to alter the access.
+  $data = module_invoke_all('message_message_ui_access_control', $message, $operation, $account);
+  foreach ($data as $info) {
+    return $info === MESSAGE_UI_ALLOW;
   }
 
   // Verify that the user can apply the op.
