@@ -357,7 +357,7 @@ function message_ui_message_arguments($type, $count = FALSE) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function message_ui_form_message_user_admin_settings_alter(&$form, $form_state, $form_id) {
+function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) {
   $form['update_tokens'] = array(
     '#type' => 'fieldset',
     '#itle' => t('Token update settings'),
@@ -410,6 +410,17 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state, 
         ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
       ),
     ),
+  );
+
+  $form['message_ui_show_preview'] = array(
+    '#type' => 'radios',
+    '#title' => t('Show/hide preview'),
+    '#default_value' => variable_get('message_ui_show_preview', TRUE),
+    '#options' =>  array(
+      TRUE =>  t('Show preview'),
+      FALSE => t('Hide preview'),
+    ),
+    '#description' => t('Show/hide the text of the message when editing an instance of the message.'),
   );
 }
 
@@ -588,11 +599,13 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
   $form_state['#entity'] = $message;
   $message_text = $message->view();
 
-  $form['text'] = array(
-    '#type' => 'item',
-    '#title' => t('Message text'),
-    '#markup' => render($message_text),
-  );
+  if (variable_get('message_ui_show_preview', TRUE)) {
+    $form['text'] = array(
+      '#type' => 'item',
+      '#title' => t('Message text'),
+      '#markup' => render($message_text),
+    );
+  }
 
   field_attach_form('message', $message, $form, $form_state);
 
