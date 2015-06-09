@@ -7,10 +7,8 @@
 
 namespace Drupal\message_ui\Tests;
 
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
-use Drupal\message\Entity\MessageType;
 use Drupal\message\Entity\Message;
 
 /**
@@ -51,8 +49,8 @@ class MessageUiHardCodedArguments extends MessageTestBase {
   public function setUp() {
     parent::setUp('message', 'message_ui', 'entity_token');
 
-    $message_type = MessageType::create('dummy_message', array('message_text' => array(LanguageInterface::LANGCODE_NOT_APPLICABLE => array(array('value' => '@{message:user:name}.')))));
-    $message_type->save();
+    // Create Message Type of 'Dummy Test'.
+    $this->createMessageType('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
 
     $this->user1 = $this->drupalCreateUser();
     $this->user2 = $this->drupalCreateUser();
@@ -69,7 +67,9 @@ class MessageUiHardCodedArguments extends MessageTestBase {
   public function testHardCoded() {
     $this->drupalLogin($this->user1);
 
-    $message = Message::create('dummy_message');
+    // Get the message type and create an instance.
+    $message_type = $this->loadMessageType('dummy_message');
+    $message = Message::create(array('type' => $message_type->id()));
     $message->setAuthorId($this->user1->uid);
     $message->save();
 

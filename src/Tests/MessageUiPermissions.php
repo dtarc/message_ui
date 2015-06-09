@@ -7,10 +7,8 @@
 
 namespace Drupal\message_ui\Tests;
 
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
-use Drupal\message\Entity\MessageType;
 use Drupal\message\Entity\Message;
 
 /**
@@ -52,8 +50,8 @@ class MessageUiPermissions extends MessageTestBase {
 
     $this->user = $this->drupalCreateUser();
 
-    $message_type = MessageType::create('foo', array('message_text' => array(LanguageInterface::LANGCODE_NOT_APPLICABLE => array(array('value' => 'Example text.')))));
-    $message_type->save();
+    // Create Message type foo.
+    $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
 
     // Load 'authenticated' user role.
     $role = entity_load('user_role', RoleInterface::AUTHENTICATED_ID);
@@ -139,7 +137,9 @@ class MessageUiPermissions extends MessageTestBase {
       'update' => FALSE,
     );
 
-    $message = Message::create('foo');
+    // Get the message type and create an instance.
+    $message_type = $this->loadMessageType('foo');
+    $message = Message::create(array('type' => $message_type->id()));
     $message->setAuthorId($this->user->uid);
     $message->save();
 
