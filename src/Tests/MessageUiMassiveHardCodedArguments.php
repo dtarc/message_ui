@@ -24,14 +24,15 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
    *
    * @var array
    */
-  public static $modules = array('message', 'message_ui', 'entity_token');
+  // @todo: is entity_token required in D8?
+  public static $modules = array('message', 'message_ui'/*, 'entity_token'*/);
 
   public static function getInfo() {
     return array(
       'name' => 'Message UI arguments massive update',
       'description' => 'Testing the removing/updating an hard coded arguments.',
       'group' => 'Message UI',
-      'dependencies' => array('entity_token'),
+      // 'dependencies' => array('entity_token'), // // @todo: is this required?
     );
   }
 
