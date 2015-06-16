@@ -1,0 +1,21 @@
+message_ui.show_message:
+  path: 'message/{message}'
+  defaults:
+    _title:  'Viewing a message'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::show'
+
+message_ui.create_message:
+  path: 'admin/content/message/create'
+  defaults:
+      _title:  'Create a new message'
+      _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
+      message: 'any' # pass 'any' string in message arg for default create form.
+      # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
+
+message_ui.create_message_by_type:
+  path: 'admin/content/message/create/{message_type}'
+  defaults:
+      _title:  'Create a new message'
+      #_title_callback: # Add title callback to display message type.
+      _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
+      # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
