@@ -1,21 +1,43 @@
 message_ui.show_message:
-  path: 'message/{message}'
+  path: '/message/{message}'
   defaults:
     _title:  'Viewing a message'
-    _controller: '\Drupal\message_ui\Controller\MessageUIController::show'
+    _controller: '\Drupal\message_ui\Controller\MessageUiController::show'
 
+# Should this be 'message/add' in D8, see drupal.org issue #2500559.
+# Beneficial for message_private, user facing module dependant on message_ui.
 message_ui.create_message:
-  path: 'admin/content/message/create'
+  path: '/admin/content/message/create'
   defaults:
-      _title:  'Create a new message'
-      _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
-      message: 'any' # pass 'any' string in message arg for default create form.
+      _title: 'Create a new message'
+      _controller: '\Drupal\message_ui\Controller\MessageUiController::show_types'
       # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
 
 message_ui.create_message_by_type:
-  path: 'admin/content/message/create/{message_type}'
+  path: '/admin/content/message/create/{message_type}'
   defaults:
       _title:  'Create a new message'
       #_title_callback: # Add title callback to display message type.
-      _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
+      _controller: '\Drupal\message_ui\Controller\MessageUiController::add'
       # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
+
+message_ui.edit_message:
+  path: 'message/{message}/edit'
+  defaults:
+        _title:  'Edit'
+        _controller: '\Drupal\message_ui\Controller\MessageUiController::add'
+
+message_ui.delete_message:
+  path: '/message/{message}/delete'
+  defaults:
+    _title: 'Delete'
+    _controller: '\Drupal\message_ui\Controller\MessageUiController::delete'
+
+message_ui.delete_multiple:
+  path: 'admin/config/development/message_delete_multiple'
+  defaults:
+    _title: 'Message delete multiple'
+    _controller: '\Drupal\message_ui\Controller\MessageUiController::delete_multiple'
+
+route_callbacks:
+  - '\Drupal\message_ui\Routing\ExampleRoutes::routes'

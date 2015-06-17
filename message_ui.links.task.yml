@@ -1,0 +1,18 @@
+# MENU_DEFAULT_LOCAL_TASK for 'message/%message/view'.
+message_ui.show_message.view:
+  route_name: message_ui.show_message
+  title: 'View'
+  parent_id: message_ui.show_message
+  weight: -10
+
+message_ui.edit_message:
+  route_name: message_ui.edit_message
+  base_route: message_ui.show_message
+  title:  'Edit'
+  weight: 0
+
+message_ui.delete_message:
+  route_name: message_ui.delete_message
+  base_route: message_ui.show_message
+  title: 'Delete'
+  weight: 10
