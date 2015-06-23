@@ -46,6 +46,16 @@ function message_notify_ui_permission() {
 }
 
 /**
+ * Implements hook_views_api().
+ */
+function message_notify_ui_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'message_notify_ui') . '/views',
+  );
+}
+
+/**
  * Send notification of a message.
  */
 function message_notify_ui_send_notification($form, &$form_state, Message $message) {
@@ -126,4 +136,34 @@ function message_notify_ui_send_notification_submit($form, &$form_state) {
   }
 
   $form_state['redirect'] = 'message/' . $message->mid;
+}
+
+/**
+ * Implements hook_action_info().
+ */
+function message_notify_action_info() {
+  return array(
+    'message_notify_send_email_vbo' => array(
+      'type' => 'message',
+      'label' => t('Send as e-mail to the owner of the message'),
+      'behavior' => array('changes_property'),
+      'configurable' => FALSE,
+      'vbo_configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+  );
+}
+
+/**
+ * VBO callback function.
+ *
+ * Sending email to each selected message.
+ *
+ * @param $message
+ *   The message object.
+ * @param $context
+ *   The context data array.
+ */
+function message_notify_send_email_vbo(&$message, $context) {
+  message_notify_send_message($message);
 }
