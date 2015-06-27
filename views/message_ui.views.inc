@@ -43,30 +43,43 @@ function message_ui_views_default_views_alter(&$views) {
   $handler =& $views['message']->display['default']->handler;
 
   /* Field: Message: Edit message */
-  $handler->display->display_options['fields']['edit']['id'] = 'edit';
-  $handler->display->display_options['fields']['edit']['table'] = 'message';
-  $handler->display->display_options['fields']['edit']['field'] = 'edit';
-  $handler->display->display_options['fields']['edit']['label'] = '';
-  $handler->display->display_options['fields']['edit']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['edit']['element_label_colon'] = FALSE;
+  $field['edit']['id'] = 'edit';
+  $field['edit']['table'] = 'message';
+  $field['edit']['field'] = 'edit';
+  $field['edit']['label'] = '';
+  $field['edit']['exclude'] = TRUE;
+  $field['edit']['element_label_colon'] = FALSE;
+
   /* Field: Message: Delete message */
-  $handler->display->display_options['fields']['delete']['id'] = 'delete';
-  $handler->display->display_options['fields']['delete']['table'] = 'message';
-  $handler->display->display_options['fields']['delete']['field'] = 'delete';
-  $handler->display->display_options['fields']['delete']['label'] = '';
-  $handler->display->display_options['fields']['delete']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['delete']['element_label_colon'] = FALSE;
+  $field['delete']['id'] = 'delete';
+  $field['delete']['table'] = 'message';
+  $field['delete']['field'] = 'delete';
+  $field['delete']['label'] = '';
+  $field['delete']['exclude'] = TRUE;
+  $field['delete']['element_label_colon'] = FALSE;
+
   /* Field: Message: View message */
-  $handler->display->display_options['fields']['view']['id'] = 'view';
-  $handler->display->display_options['fields']['view']['table'] = 'message';
-  $handler->display->display_options['fields']['view']['field'] = 'view';
-  $handler->display->display_options['fields']['view']['label'] = '';
-  $handler->display->display_options['fields']['view']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['view']['element_label_colon'] = FALSE;
+  $field['view']['id'] = 'view';
+  $field['view']['table'] = 'message';
+  $field['view']['field'] = 'view';
+  $field['view']['label'] = '';
+  $field['view']['exclude'] = TRUE;
+  $field['view']['element_label_colon'] = FALSE;
+
+  $handler->display->display_options['fields'] = $field + $handler->display->display_options['fields'];
+
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'Operation';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[view] [edit] [delete]';
+
+  $text = '[view] [edit] [delete] ';
+  // In case this value was set previously by another "views_default_views_alter".
+  if (isset($handler->display->display_options['fields']['nothing']['alter']['text'])) {
+    $handler->display->display_options['fields']['nothing']['alter']['text'] .= $text;
+  }
+  else {
+    $handler->display->display_options['fields']['nothing']['alter']['text'] = $text;
+  }
 }
