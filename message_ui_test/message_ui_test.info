@@ -1,5 +1,0 @@
-name = Message UI test
-description = Dummy module for checking how other modules will interact with message UI.
-core = 7.x
-
-dependencies[] = message_ui

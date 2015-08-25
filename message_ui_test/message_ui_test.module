@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements hook_message_message_ui_access_control().
+ * Implements hook_message_message_ui_access_control.
  */
 function message_ui_test_message_message_ui_access_control($message, $op, $account) {
   if (empty($message->mid)) {
