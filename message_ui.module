@@ -226,7 +226,11 @@ function theme_message_ui_create_message($variables) {
 
   foreach ($items as $item) {
     $output .= '<li class="clearfix">';
-    $output .= '<span class="label">' . l(ucfirst(str_replace('_', ' ', $item['type'])), 'admin/content/message/create/' . str_replace('_', '-', $item['type'])) . '</span>';
+
+    $url = Url::fromUri('admin/content/message/create/' . str_replace('_', '-', $item['type']));
+    $internal_link = \Drupal::l(ucfirst(str_replace('_', ' ', $item['type'])), $url);
+
+    $output .= '<span class="label">' . $internal_link;
     $output .= '<div class="description">' . t('Create a message instance of @type', array('@type' => $item['name'])) . '</div>';
     $output .= '</li>';
   }
@@ -374,29 +378,28 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
  */
 function message_ui_entity_update($entity, $type) {
   if ($type != 'message_type') {
-    return;
+    return FALSE;
   }
 
   $type = $entity->name;
 
-  $query = new entityFieldQuery();
+  $query = \Drupal::entityQuery('message');
   $result = $query
-    ->entityCondition('entity_type', 'message')
-    ->propertyCondition('type', $type)
+    ->condition('type', $type)
     ->range(0, 1)
-    ->propertyOrderBy('mid', 'DESC')
+    ->sort('mid', 'DESC')
     ->execute();
 
   // There is no messages from this type.
   if (empty($result['message'])) {
-    return;
+    return FALSE;
   }
 
   $keys = array_keys($result['message']);
-  $message = message_load(reset($keys));
+  $message = Message::load(reset($keys));
   $new_arguments = message_ui_message_arguments($type);
 
-  $old_arguments_number = count($message->arguments);
+  $old_arguments_number = count($message->getArguments());
   $new_arguments_number = count($new_arguments);
   $how_to_act = variable_get('update_tokens_how_to_act');
 
@@ -404,18 +407,18 @@ function message_ui_entity_update($entity, $type) {
   $update['when_removed'] = $old_arguments_number > $new_arguments_number && $how_to_act == 'update_when_removed';
 
   if (!($update['when_added'] || $update['when_removed'])) {
-    return;
+    return FALSE;
   }
 
   $item_to_process = variable_get('update_tokens_number_items', 250);
 
   if (variable_get('update_tokens_how_update') == 'update_with_batch') {
+
     // Get all the messages.
-    $query = new entityFieldQuery();
+    $query = \Drupal::entityQuery('message');
     $result = $query
-      ->entityCondition('entity_type', 'message')
-      ->propertyCondition('type', $type)
-      ->propertyOrderBy('mid', 'DESC')
+      ->condition('type', $type)
+      ->sort('mid', 'DESC')
       ->execute();
 
     $chunks = array_chunk(array_keys($result['message']), $item_to_process);
@@ -446,7 +449,7 @@ function message_ui_entity_update($entity, $type) {
     );
 
     // Set the queue worker.
-    $queue = DrupalQueue::get('message_ui_arguments');
+    $queue = \Drupal::queue('message_ui_arguments');
     return $queue->createItem($data);
   }
 }
@@ -461,7 +464,7 @@ function message_ui_entity_update($entity, $type) {
  */
 function message_ui_arguments_update($mids, $arguments) {
   // Load the messages and update them.
-  $messages = message_load_multiple($mids);
+  $messages = Message::loadMultiple($mids);
 
   foreach ($messages as $message) {
     _message_ui_arguments_update($message, $arguments);
@@ -472,29 +475,29 @@ function message_ui_arguments_update($mids, $arguments) {
  * Update the message arguments via a queue worker.
  */
 function message_ui_arguments_worker($data) {
+
   // Load all of the messages.
-  $query = new entityFieldQuery();
+  $query = \Drupal::entityQuery('message');
   $result = $query
-    ->entityCondition('entity_type', 'message')
-    ->propertyCondition('type', $data['type'])
-    ->propertyOrderBy('mid', 'DESC')
-    ->propertyCondition('mid', $data['last_mid'], '>=')
+    ->condition('type', $data['type'])
+    ->sort('mid', 'DESC')
+    ->condition('mid', $data['last_mid'], '>=')
     ->range(0, $data['item_to_process'])
     ->execute();
 
   if (empty($result['message'])) {
-    return;
+    return FALSE;
   }
   
   // Update the messages.
-  $messages = message_load_multiple(array_keys($result['message']));
+  $messages = Message::loadMultiple(array_keys($result['message']));
   foreach ($messages as $message) {
     _message_ui_arguments_update($message, $data['new_arguments']);
-    $data['last_mid'] = $message->mid;
+    $data['last_mid'] = $message->id();
   }
 
   // Create the next queue worker.
-  $queue = DrupalQueue::get('message_ui_arguments');
+  $queue = \Drupal::queue('message_ui_arguments');
   return $queue->createItem($data);
 }
 
@@ -518,16 +521,16 @@ function _message_ui_arguments_update(Message $message, $arguments) {
     $message_arguments[$token] = $value;
   }
 
-  $message->arguments = $message_arguments;
+  $message->getArguments() = $message_arguments;
   $message->save();
 }
 
 /**
  * The UI for creating/editing the message.
  */
-function message_ui_instance_message_manage($form, &$form_state, $message) {
+function message_ui_instance_message_manage($form, &$form_state, Message $message) {
   if (!is_object($message)) {
-    $message = message_create($message);
+    $message = Message::create($message);
   }
 
   $form_state['#entity'] = $message;
@@ -576,7 +579,7 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     '#weight' => 99,
     '#autocomplete_path' => 'user/autocomplete',
     '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
-    '#default_value' => User::load($message->uid)->getUsername(),
+    '#default_value' => User::load($message->getAuthorId())->getUsername(),
   );
 
   $form['owner']['date'] = array(
@@ -590,7 +593,9 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     '#weight' => 100,
   );
 
-  if (!empty($message->arguments) && (\Drupal::currentUser()->hasPermission('update tokens') || \Drupal::currentUser()->hasPermission('bypass message access control'))) {
+  $args = $message->getArguments();
+
+  if (!empty($args) && (\Drupal::currentUser()->hasPermission('update tokens') || \Drupal::currentUser()->hasPermission('bypass message access control'))) {
     $form['tokens'] = array(
       '#type' => 'fieldset',
       '#title' => t('Tokens and arguments'),
@@ -623,7 +628,7 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     );
 
     // Build list of fields to update the tokens manually.
-    foreach ($message->arguments as $name => $value) {
+    foreach ($message->getArguments() as $name => $value) {
       $form['tokens']['values'][$name] = array(
         '#type' => 'textfield',
         '#title' => t("@name's value", array('@name' => $name)),
@@ -632,7 +637,8 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     }
   }
 
-  $url = is_object($message) && !empty($message->mid) ? Url::fromRoute('message_ui.show_message', $message) : Url::fromRoute('message.overview_types');
+  $mid = $message->id();
+  $url = is_object($message) && !empty($mid) ? Url::fromRoute('message_ui.show_message', $message) : Url::fromRoute('message.overview_types');
 
   $form['actions'] = array(
     '#type' => 'actions',
@@ -727,7 +733,7 @@ function message_ui_instance_delete($form, &$form_state, Message $message) {
   // Always provide entity id in the same form key as in the entity edit form.
   return confirm_form($form,
     t('Are you sure you want to delete the @type message instance?',
-      array('@type' => $message->type)),
+      array('@type' => $message->getType())),
     'admin/content/message',
     t('Are you sure you want to delete the message instance? This action cannot be undone.'),
     t('Delete'),
@@ -779,10 +785,9 @@ function message_ui_delete_multiple_messages($form, $form_state) {
  */
 function message_ui_delete_multiple_messages_submit($form, $form_state) {
   // Get the message IDs.
-  $query = new entityFieldQuery();
+  $query = \Drupal::entityQuery('message');
   $result = $query
-    ->entityCondition('entity_type', 'message')
-    ->propertyCondition('type', $form_state['values']['types'], 'IN')
+    ->condition('type', $form_state['values']['types'], 'IN')
     ->execute();
 
   if (empty($result['message'])) {
