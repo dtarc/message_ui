@@ -4,6 +4,11 @@
  * Main file for the message UI module.
  */
 
+use Drupal\Core\Url;
+use Drupal\user\Entity\User;
+use Drupal\message\Entity\Message;
+use Drupal\message\Entity\MessageType;
+
 /**
  * Grant permission for the operation upon message.
  */
@@ -18,21 +23,20 @@ define('MESSAGE_UI_DENY', FALSE);
  * Get list of the messages.
  */
 function message_ui_get_types() {
-  $query = new entityFieldQuery();
-  $result = $query
-    ->entityCondition('entity_type', 'message_type')
-    ->execute();
+
+  $query = \Drupal::entityQuery('message_type');
+  $result = $query->execute();
 
   if (empty($result['message_type'])) {
     return;
   }
 
-  $message_types = entity_load('message_type', array_keys($result['message_type']));
+  $message_types = MessageType::loadMultiple($result);
 
   $list = array();
 
   foreach ($message_types as $message_type) {
-    $list[$message_type->name] = $message_type->description;
+    $list[$message_type->getLabel()] = $message_type->getDescription();
   }
 
   return $list;
@@ -52,15 +56,14 @@ function message_ui_get_types() {
  */
 function message_ui_user_can_create_message($type = NULL, $account = NULL) {
   if (empty($account)) {
-    global $user;
-    $account = $user;
+    $account = \Drupal::currentUser();
   }
 
   $account = entity_metadata_wrapper('user', $account)->value();
   $types = message_ui_get_types();
 
   // User have access to create any instances.
-  if (user_access('create any message instance', $account)) {
+  if ($account->hasPermission('create any message instance')) {
     return TRUE;
   }
 
@@ -72,7 +75,7 @@ function message_ui_user_can_create_message($type = NULL, $account = NULL) {
       return;
     }
 
-    if (user_access('create a ' . $type . ' message instance', $account)) {
+    if ($account->hasPermission('create a ' . $type . ' message instance')) {
       return TRUE;
     }
   }
@@ -80,103 +83,10 @@ function message_ui_user_can_create_message($type = NULL, $account = NULL) {
   // Build list of arrays for the permissions.
   $permissions = array();
   foreach (array_keys($types) as $type) {
-    $permissions[$type] = user_access('create a ' . $type . ' message instance', $account);
+    $permissions[$type] = $account->hasPermission('create a ' . $type . ' message instance');
   }
 
   return $permissions;
-}
-
-/**
- * Implements hook_menu().
- */
-function message_ui_menu() {
-  $items = array();
-
-  $items['message/%message'] = array(
-    'title' => 'Viewing a message',
-    'description' => 'Select a message to create an instance.',
-    'page callback' => 'message_ui_show_message',
-    'page arguments' => array(1),
-    'access callback' => 'message_ui_access_control',
-    'access arguments' => array('view', 1),
-  );
-
-  $items['admin/content/message/create'] = array(
-    'title' => 'Create a new message',
-    'description' => 'Select a message to create an instance.',
-    'page callback' => 'message_ui_create_new_message_instance_list',
-    'access callback' => 'message_ui_access_control',
-    'access arguments' => array('create', 'any'),
-    'type' => MENU_LOCAL_ACTION,
-    'weight' => -10,
-  );
-
-  if ($types = message_ui_get_types()) {
-    foreach ($types as $type => $title) {
-      $items['admin/content/message/create/' . str_replace('_', '-', $type)] = array(
-        'title' => ucfirst(str_replace('_', ' ', $title)),
-        'description' => 'Create a new message' . $title . ' instance',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('message_ui_instance_message_manage', $type),
-        'access arguments' => array('create', $type),
-        'access callback' => 'message_ui_access_control',
-      );
-    }
-  }
-
-  $items['message/%message/view'] = array(
-    'title' => 'View',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-    'access callback' => 'message_ui_access_control',
-    'access arguments' => array('view', 1),
-  );
-
-  $items['message/%message/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('message_ui_instance_message_manage', 1),
-    'access callback' => 'message_ui_access_control',
-    'access arguments' => array('edit', 1),
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-    'weight' => 0,
-  );
-
-  $items['message/%message/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('message_ui_instance_delete', 1),
-    'access callback' => 'message_ui_access_control',
-    'access arguments' => array('delete', 1),
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-    'weight' => 10,
-  );
-
-  if (module_exists('devel')) {
-    $items['message/%message/devel'] = array(
-      'title' => 'Devel',
-      'page callback' => 'devel_load_object',
-      'page arguments' => array('message', 1),
-      'access arguments' => array('access devel information'),
-      'type' => MENU_LOCAL_TASK,
-      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-      'file' => 'devel.pages.inc',
-      'file path' => drupal_get_path('module', 'devel'),
-      'weight' => 20,
-    );
-  }
-
-  $items['admin/config/development/message_delete_multiple'] = array(
-    'title' => 'Message delete multiple',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('message_ui_delete_multiple_messages'),
-    'access callback' => 'message_ui_access_control',
-    'access arguments' => array('delete', 1),
-  );
-
-  return $items;
 }
 
 /**
@@ -212,20 +122,20 @@ function message_ui_admin_paths() {
  *
  * @return bool True or false.
  */
-function message_ui_access_control($operation, $message, stdClass $user = NULL) {
+function message_ui_access_control($operation, $message, Drupal\user\Entity\User $user = NULL) {
   if (empty($user)) {
-    global $user;
-    $account = user_load($user->uid);
+    $user = \Drupal::currentUser();
+    $account = User::load($user->id());
   }
   else {
-    $account = user_load($user->uid);
+    $account = User::load($user->id());
   }
 
   // Get the message type from the function argument or from the message object.
   $type = is_object($message) ? $message->type : $message;
 
   // The user can manage any type of message.
-  if (user_access('bypass message access control', $account)) {
+  if ($account->hasPermission('bypass message access control')) {
     return TRUE;
   }
 
@@ -236,7 +146,7 @@ function message_ui_access_control($operation, $message, stdClass $user = NULL) 
   }
 
   // Verify that the user can apply the op.
-  if (user_access($operation . ' any message instance', $account) || user_access($operation . ' a ' . $type . ' message instance', $account)) {
+  if ($account->hasPermission($operation . ' any message instance', $account) || $account->hasPermission($operation . ' a ' . $type . ' message instance', $account)) {
     return TRUE;
   }
 }
@@ -662,7 +572,7 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     '#weight' => 99,
     '#autocomplete_path' => 'user/autocomplete',
     '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
-    '#default_value' => user_load($message->uid)->name,
+    '#default_value' => User::load($message->uid)->getUsername(),
   );
 
   $form['owner']['date'] = array(
@@ -676,7 +586,7 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     '#weight' => 100,
   );
 
-  if (!empty($message->arguments) && (user_access('update tokens') || user_access('bypass message access control'))) {
+  if (!empty($message->arguments) && (\Drupal::currentUser()->hasPermission('update tokens') || \Drupal::currentUser()->hasPermission('bypass message access control'))) {
     $form['tokens'] = array(
       '#type' => 'fieldset',
       '#title' => t('Tokens and arguments'),
@@ -718,6 +628,8 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     }
   }
 
+  $url = is_object($message) && !empty($message->mid) ? Url::fromRoute('message_ui.show_message', $message) : Url::fromRoute('message.overview_types');
+
   $form['actions'] = array(
     '#type' => 'actions',
     'submit' => array(
@@ -727,7 +639,7 @@ function message_ui_instance_message_manage($form, &$form_state, $message) {
     ),
     'cancel' => array(
       '#type' => 'markup',
-      '#markup' => l(t('Cancel'), is_object($message) && !empty($message->mid) ? 'message/' . $message->mid : 'admin/structure/messages'),
+      '#markup' => \Drupal::l(t('Cancel'), $url)
     ),
   );
 
