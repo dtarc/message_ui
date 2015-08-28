@@ -28,7 +28,7 @@ function message_ui_get_types() {
   $result = $query->execute();
 
   if (empty($result['message_type'])) {
-    return;
+    return NULL;
   }
 
   $message_types = MessageType::loadMultiple($result);
@@ -54,12 +54,11 @@ function message_ui_get_types() {
  * @return array|bool
  *  TRUE or FALSE for a specific message type or an array of the message types
  */
-function message_ui_user_can_create_message($type = NULL, $account = NULL) {
+function message_ui_user_can_create_message($type = NULL, User $account = NULL) {
   if (empty($account)) {
     $account = \Drupal::currentUser();
   }
 
-  $account = entity_metadata_wrapper('user', $account)->value();
   $types = message_ui_get_types();
 
   // User have access to create any instances.
@@ -72,7 +71,7 @@ function message_ui_user_can_create_message($type = NULL, $account = NULL) {
 
     // Didn't found that type.
     if (!in_array($type, $types)) {
-      return;
+      return FALSE;
     }
 
     if ($account->hasPermission('create a ' . $type . ' message instance')) {
@@ -122,13 +121,12 @@ function message_ui_admin_paths() {
  *
  * @return bool True or false.
  */
-function message_ui_access_control($operation, $message, Drupal\user\Entity\User $user = NULL) {
+function message_ui_access_control($operation, $message, User $user = NULL) {
   if (empty($user)) {
-    $user = \Drupal::currentUser();
-    $account = User::load($user->id());
+    $account = \Drupal::currentUser();
   }
   else {
-    $account = User::load($user->id());
+    $account = $user;
   }
 
   // Get the message type from the function argument or from the message object.
@@ -140,7 +138,7 @@ function message_ui_access_control($operation, $message, Drupal\user\Entity\User
   }
 
   // Allow other modules to alter the access.
-  $data = module_invoke_all('message_message_ui_access_control', $message, $operation, $account);
+  $data = \Drupal::moduleHandler()->invokeAll('message_message_ui_access_control', $message, $operation, $account);
   foreach ($data as $info) {
     return $info === MESSAGE_UI_ALLOW;
   }
@@ -245,8 +243,6 @@ function message_ui_create_new_message_instance_list() {
   $items = array();
   $allowed_types = message_ui_user_can_create_message();
 
-  drupal_set_title(t('Create a message instance'));
-
   if ($types = message_ui_get_types()) {
     foreach ($types as $type => $title) {
       if ($allowed_types || (is_array($allowed_types) && $allowed_types[$type])) {
@@ -254,10 +250,17 @@ function message_ui_create_new_message_instance_list() {
       }
     }
 
-    return theme('message_ui_create_message', array('items' => $items));
+    $item_list = array(
+      '#theme' => 'message_ui_create_message', // Should this be item_list?
+      '#items' => $items,
+      '#type' => 'ul',
+    );
+
+    return \Drupal::service('renderer')->render($item_list);
   }
   else {
-    return t("There are no messages types. You can create a new message type <a href='@url'>here</a>.", array('@url' => url('admin/structure/messages/add')));
+    $url = Url::fromRoute('message.type_add');
+    return t("There are no messages types. You can create a new message type <a href='$url'>here</a>.");
   }
 
 }
@@ -273,10 +276,11 @@ function message_ui_create_new_message_instance_list() {
  *  The number of the arguments.
  */
 function message_ui_message_arguments($type, $count = FALSE) {
-  $message_type = message_type_load($type);
+  /* @var $message_type MessageType */
+  $message_type = MessageType::load($type);
 
   if (!$output = $message_type->getText()) {
-    return;
+    return FALSE;
   }
 
   preg_match_all('/[@|%|\!]\{([a-z0-9:_\-]+?)\}/i', $output, $matches);

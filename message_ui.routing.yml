@@ -9,7 +9,7 @@ message_ui.show_message:
 message_ui.create_message:
   path: '/admin/content/message/create'
   defaults:
-      _title: 'Create a new message'
+      _title: 'Create a new message instance'
       _controller: '\Drupal\message_ui\Controller\MessageUiController::show_types'
       # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
 
