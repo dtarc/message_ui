@@ -1,0 +1,6 @@
+update_tokens:
+  update_tokens: false
+  how_to_act: false # Is false correct?
+  number_items: 250
+show_preview: true
+anonymous: 'Anonymous' # What is this variable and how best to store/access it?

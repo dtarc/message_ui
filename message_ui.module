@@ -116,7 +116,7 @@ function message_ui_admin_paths() {
  *  The operation - create, view, update, delete.
  * @param $message
  *  The message object or message type.
- * @param stdClass $user
+ * @param User $user
  *  A user object. Optional.
  *
  * @return bool True or false.
@@ -134,7 +134,7 @@ function message_ui_access_control($operation, $message, User $user = NULL) {
 
   // The user can manage any type of message.
   if ($account->hasPermission('bypass message access control')) {
-    return TRUE;
+    return MESSAGE_UI_ALLOW;
   }
 
   // Allow other modules to alter the access.
@@ -145,8 +145,10 @@ function message_ui_access_control($operation, $message, User $user = NULL) {
 
   // Verify that the user can apply the op.
   if ($account->hasPermission($operation . ' any message instance', $account) || $account->hasPermission($operation . ' a ' . $type . ' message instance', $account)) {
-    return TRUE;
+    return MESSAGE_UI_ALLOW;
   }
+
+  return MESSAGE_UI_DENY;
 }
 
 /**
@@ -304,13 +306,13 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
     '#type' => 'checkbox',
     '#title' => t('Update messages arguments'),
     '#description' => t('When editing a message type, the user can add or delete arguments. When this is checked, you can choose how to update to messages arguments.'),
-    '#default_value' => variable_get('update_tokens_update_tokens', FALSE),
+    '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.update_tokens'),
   );
 
   $form['update_tokens']['update_tokens_how_to_act'] = array(
     '#type' => 'select',
     '#title' => t('Choose how to act'),
-    '#default_value' => variable_get('update_tokens_how_to_act'),
+    '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.how_to_act'),
     '#options' => array(
       'update_when_removed' => t('Update messages when tokens are removed'),
       'update_when_added' => t('Update messages when tokens are added'),
@@ -325,7 +327,7 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
   $form['update_tokens']['update_tokens_how_update'] = array(
     '#type' => 'select',
     '#title' => t('Choose how to update the messages'),
-    '#default_value' => variable_get('update_tokens_how_update'),
+    '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.update_tokens'),
     '#options' => array(
       'update_with_batch' => t('Update messages with batch API'),
       'update_when_item' => t('Update messages with queue item'),
@@ -342,7 +344,7 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
     '#size' => '10',
     '#title' => t('Items to process each time.'),
     '#description' => t('Choose how much items to process each iteration.'),
-    '#default_value' => variable_get('update_tokens_number_items', 250),
+    '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.number_items'),
     '#states' => array(
       'visible' => array(
         ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
@@ -353,7 +355,7 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
   $form['message_ui_show_preview'] = array(
     '#type' => 'radios',
     '#title' => t('Show/hide preview'),
-    '#default_value' => variable_get('message_ui_show_preview', TRUE),
+    '#default_value' => \Drupal::config('message_ui.settings')->get('show_preview'),
     '#options' =>  array(
       TRUE =>  t('Show preview'),
       FALSE => t('Hide preview'),
@@ -401,7 +403,7 @@ function message_ui_entity_update($entity, $type) {
 
   $old_arguments_number = count($message->getArguments());
   $new_arguments_number = count($new_arguments);
-  $how_to_act = variable_get('update_tokens_how_to_act');
+  $how_to_act = \Drupal::config('message_ui.settings')->get('update_tokens.how_to_act');
 
   $update['when_added'] = $old_arguments_number < $new_arguments_number && $how_to_act == 'update_when_added';
   $update['when_removed'] = $old_arguments_number > $new_arguments_number && $how_to_act == 'update_when_removed';
@@ -410,9 +412,10 @@ function message_ui_entity_update($entity, $type) {
     return FALSE;
   }
 
-  $item_to_process = variable_get('update_tokens_number_items', 250);
+  $item_to_process = \Drupal::config('message_ui.settings')->get('update_tokens.number_items');
+  $how_update = \Drupal::config('message_ui.settings')->get('update_tokens.how_update');
 
-  if (variable_get('update_tokens_how_update') == 'update_with_batch') {
+  if ($how_update == 'update_with_batch') {
 
     // Get all the messages.
     $query = \Drupal::entityQuery('message');
@@ -439,7 +442,7 @@ function message_ui_entity_update($entity, $type) {
     batch_set($batch);
     batch_process('admin/structure/messages');
   }
-  elseif (variable_get('update_tokens_how_update') == 'update_when_item') {
+  elseif ($how_update == 'update_when_item') {
     // Define the queue item data.
     $data = array(
       'type' => $type,
@@ -536,7 +539,7 @@ function message_ui_instance_message_manage($form, &$form_state, Message $messag
   $form_state['#entity'] = $message;
   $message_text = $message->view();
 
-  if (variable_get('message_ui_show_preview', TRUE)) {
+  if (\Drupal::config('message_ui.settings')->get('update_tokens.show_preview')) {
     $form['text'] = array(
       '#type' => 'item',
       '#title' => t('Message text'),
@@ -565,7 +568,8 @@ function message_ui_instance_message_manage($form, &$form_state, Message $messag
         drupal_get_path('module', 'message_ui') . '/js/message_ui.js',
         array(
           'type' => 'setting',
-          'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
+
+          'data' => array('anonymous' => \Drupal::config('message_ui.settings')->get('anonymous')),
         ),
       ),
     ),
@@ -578,7 +582,7 @@ function message_ui_instance_message_manage($form, &$form_state, Message $messag
     '#maxlength' => 60,
     '#weight' => 99,
     '#autocomplete_path' => 'user/autocomplete',
-    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => \Drupal::config('message_ui.settings')->get('anonymous'))),
     '#default_value' => User::load($message->getAuthorId())->getUsername(),
   );
 
