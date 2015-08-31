@@ -327,7 +327,7 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
   $form['update_tokens']['update_tokens_how_update'] = array(
     '#type' => 'select',
     '#title' => t('Choose how to update the messages'),
-    '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.update_tokens'),
+    '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.how_update'),
     '#options' => array(
       'update_with_batch' => t('Update messages with batch API'),
       'update_when_item' => t('Update messages with queue item'),
@@ -362,6 +362,38 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
     ),
     '#description' => t('Show/hide the text of the message when editing an instance of the message.'),
   );
+}
+
+/**
+ * Form submit handler for admin form message_user_admin_settings.
+ *
+ * Update message_ui configuration on form submit.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function message_ui_form_message_user_admin_settings_submit($form, &$form_state) {
+  // @todo - step through & check if nested 'update_tokens' index is required.
+  \Drupal::config('message_ui.settings')
+    ->set('update_tokens.update_tokens', $form_state['values']['update_tokens_update_tokens'] )
+    ->save();
+
+  \Drupal::config('message_ui.settings')
+    ->set('update_tokens.how_to_act', $form_state['values']['update_tokens_how_to_act'] )
+    ->save();
+
+  // @todo: Does how_update need a default setting explicitly set in yaml file?
+  \Drupal::config('message_ui.settings')
+    ->set('update_tokens.how_update', $form_state['values']['update_tokens_how_update'] )
+    ->save();
+
+  \Drupal::config('message_ui.settings')
+    ->set('update_tokens.number_items', $form_state['values']['update_tokens_number_items'] )
+    ->save();
+
+  \Drupal::config('message_ui.settings')
+    ->set('show_preview', $form_state['values']['message_ui_show_preview'] )
+    ->save();
 }
 
 /**
@@ -519,7 +551,8 @@ function _message_ui_arguments_update(Message $message, $arguments) {
   foreach ($arguments as $token) {
     // Get the hard coded value of the message and him in the message.
     $token_name = str_replace(array('@{', '}'), array('[', ']'), $token);
-    $value = token_replace($token_name, array('message' => $message));
+    $token_service = Drupal::token();
+    $value = $token_service->replace($token_name, array('message' => $message));
 
     $message_arguments[$token] = $value;
   }
@@ -687,7 +720,8 @@ function message_ui_instance_message_create_submit($form, &$form_state) {
         if ($token_actions == 'update') {
           // Get the hard coded value of the message and him in the message.
           $token_name = str_replace(array('@{', '}'), array('[', ']'), $token);
-          $value = token_replace($token_name, array('message' => $message));
+          $token_service = Drupal::token();
+          $value = $token_service->replace($token_name, array('message' => $message));
         }
         else {
           // Hard coded value given from the user.
