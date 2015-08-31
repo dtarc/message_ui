@@ -26,6 +26,26 @@ class MessageUiController extends ControllerBase {
     $account = $this->currentUser();
 
     // @todo add access control on user account, see message_ui_access_control.
+    /**
+     * Display the message.
+
+    function message_ui_show_message(Message $message) {
+      $build = $message->view();
+
+      $build += array(
+        '#theme' => 'message',
+        '#entity' => $message,
+        '#view_mode' => 'full',
+      );
+
+      $build['#contextual_links']['message'] = array('message', array($message->identifier()));
+
+      // Allow modules to modify the structured node.
+      drupal_alter('message_ui_view', $build, $message);
+
+      return $build;
+    }
+     * */
 
     // @todo build the proper array following message_ui_show_message.
     $build = array(
