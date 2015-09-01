@@ -41,11 +41,20 @@ class MessageDeleteConfirm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->entity->delete();
-    $t_args = array('%id' => $this->entity->id());
-    drupal_set_message(t('The message %id has been deleted.', $t_args));
-    $this->logger('content')->notice('Deleted message %id', $t_args);
-    $form_state->setRedirectUrl($this->getCancelUrl());
+    /*
+    * Deleting the sub theme submit handler.
+
+    function message_ui_instance_delete_submit($form, &$form_state) {
+      if ($form_state['clicked_button']['#type']) {
+        $form_state['#entity']->delete();
+
+        $form_state['redirect'] = 'admin/content/message';
+        drupal_set_message(t('The message instance @type deleted successfully', array(
+          '@type' => $form_state['#entity']->type,
+        )));
+      }
+    }
+    */
   }
 
   /**

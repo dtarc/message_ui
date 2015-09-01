@@ -121,14 +121,42 @@ class DeleteMultiple extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    if ($form_state['values']['confirm'] && !empty($this->messages)) {
-      $this->storage->delete($this->messages);
-      $this->tempStoreFactory->get('message_multiple_delete_confirm')->delete(\Drupal::currentUser()->id());
-      $count = count($this->messages);
-      $this->logger('message')->notice('Deleted @count posts.', array('@count' => $count));
-      drupal_set_message(\Drupal::translation()->formatPlural($count, 'Deleted 1 message.', 'Deleted @count messages.'));
+    /*
+    * Submit handler - delete the messages.
+
+    function message_ui_delete_multiple_messages_submit($form, $form_state) {
+      // Get the message IDs.
+      $query = \Drupal::entityQuery('message');
+      $result = $query
+        ->condition('type', $form_state['values']['types'], 'IN')
+        ->execute();
+
+      if (empty($result['message'])) {
+        // No messages found, return.
+        drupal_set_message(t('No messages were found according to the parameters you entered'), 'error');
+        return;
+      }
+
+      // Prepare the message IDs chunk array for batch operation.
+      $chunks = array_chunk(array_keys($result['message']), 100);
+      $operations = array();
+
+      foreach ($chunks as $chunk) {
+        $operations[] = array('message_delete_multiple', array($chunk));
+      }
+
+      // Set the batch.
+      $batch = array(
+        'operations' => $operations,
+        'title' => t('deleting messages.'),
+        'init_message' => t('Starting to delete messages.'),
+        'progress_message' => t('Processed @current out of @total.'),
+        'error_message' => t('The batch operation has failed.'),
+      );
+      batch_set($batch);
+      batch_process($_GET['q']);
     }
-    $form_state->setRedirect('message.messages');
+     * */
   }
 
   /**

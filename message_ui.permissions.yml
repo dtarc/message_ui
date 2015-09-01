@@ -1,0 +1,10 @@
+bypass message access control:
+  title: Bypass message access control
+  description: Grant to the user the permission to apply CRUD option on any messages. Grant this permission to trusty users!
+
+update tokens:
+  title: Manage the message tokens
+  description: Grant to the user the permission to update the tokens of the message - manually or automatically with a checkbox
+
+permission_callbacks:
+  - \Drupal\message_ui\MessagePermissions::messageTypePermissions

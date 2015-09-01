@@ -10,6 +10,7 @@ namespace Drupal\message_ui\Tests;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
 use Drupal\message\Entity\Message;
+use Drupal\message_ui\MessageAccessControlHandler;
 
 /**
  * Testing the message access use case.
@@ -153,7 +154,8 @@ class MessageUiPermissions extends MessageTestBase {
         '@value' => $value,
       );
 
-      $this->assertEqual(message_ui_access_control($op, $message, $this->user), $value, format_string('The hook return @value for @operation', $params));
+      $access_handler = new MessageAccessControlHandler('message');
+      $this->assertEqual($access_handler->checkAccess($message, $op, \Drupal::currentUser()), $value, format_string('The hook return @value for @operation', $params));
     }
   }
 }

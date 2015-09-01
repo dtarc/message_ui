@@ -1,3 +1,13 @@
+custom_block.add_page:
+  path: '/block/add'
+  defaults:
+    _controller: 'Drupal\custom_block\Controller\CustomBlockController::add'
+    _title: 'Add custom block'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer blocks'
+
 message_ui.show_message:
   path: '/message/{message}'
   defaults:
@@ -26,12 +36,16 @@ message_ui.edit_message:
   defaults:
         _title:  'Edit'
         _controller: '\Drupal\message_ui\Controller\MessageUiController::add'
+  options:
+      _admin_route: TRUE
 
 message_ui.delete_message:
   path: '/message/{message}/delete'
   defaults:
     _title: 'Delete'
     _controller: '\Drupal\message_ui\Controller\MessageUiController::delete'
+  options:
+      _admin_route: TRUE
 
 message_ui.delete_multiple:
   path: 'admin/config/development/message_delete_multiple'
@@ -39,5 +53,7 @@ message_ui.delete_multiple:
     _title: 'Message delete multiple'
     _controller: '\Drupal\message_ui\Controller\MessageUiController::delete_multiple'
 
+# @todo Add devel admin routes from D7: message/*/devel
+
 route_callbacks:
-  - '\Drupal\message_ui\Routing\ExampleRoutes::routes'
+  - '\Drupal\message_ui\Routing\MessageRoutes::routes'
