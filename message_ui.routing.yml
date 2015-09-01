@@ -1,13 +1,3 @@
-custom_block.add_page:
-  path: '/block/add'
-  defaults:
-    _controller: 'Drupal\custom_block\Controller\CustomBlockController::add'
-    _title: 'Add custom block'
-  options:
-    _admin_route: TRUE
-  requirements:
-    _permission: 'administer blocks'
-
 message_ui.show_message:
   path: '/message/{message}'
   defaults:
