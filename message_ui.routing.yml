@@ -10,7 +10,7 @@ message_ui.create_message:
   path: '/admin/content/message/create'
   defaults:
       _title: 'Create a new message instance'
-      _controller: '\Drupal\message_ui\Controller\MessageUiController::show_types'
+      _controller: '\Drupal\message_ui\Controller\MessageUiController::showTypes'
       # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
 
 message_ui.create_message_by_type:
@@ -41,9 +41,8 @@ message_ui.delete_multiple:
   path: 'admin/config/development/message_delete_multiple'
   defaults:
     _title: 'Message delete multiple'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::delete_multiple'
+    _controller: '\Drupal\message_ui\Controller\MessageUiController::deleteMultiple'
 
-# @todo Add devel admin routes from D7: message/*/devel
-
+# @todo Add devel admin routes from D7: message/*/devel in route callback.
 route_callbacks:
   - '\Drupal\message_ui\Routing\MessageRoutes::routes'

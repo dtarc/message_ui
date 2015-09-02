@@ -114,6 +114,34 @@ class DeleteMultiple extends ConfirmFormBase {
     $form = parent::buildForm($form, $form_state);
 
     $form['actions']['cancel']['#href'] = $this->getCancelRoute();
+
+    /**
+     * Delete multiple messages
+
+    // @todo : move to DeleteMultiple form class.
+    function message_ui_delete_multiple_messages($form, $form_state) {
+      $types = message_ui_get_types();
+
+      $form['types'] = array(
+        '#type' => 'select',
+        '#title' => t('Message types'),
+        '#description' => t('Select the message type your would like to delete message from.'),
+        '#options' => $types,
+        '#multiple' => TRUE,
+        '#required' => TRUE,
+      );
+
+      $form['actions'] = array(
+        '#type' => 'actions',
+        'submit' => array(
+          '#type' => 'submit',
+          '#value' => t('Send'),
+        ),
+      );
+
+      return $form;
+    }*/
+
     return $form;
   }
 

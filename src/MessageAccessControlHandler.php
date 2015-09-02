@@ -127,6 +127,53 @@ class MessageAccessControlHandler extends EntityAccessControlHandler implements 
   }
 
   /**
+   * Check if the user can create an instance for a message type.
+   *
+   * @param $type
+   *  The message type for which the info shall be returned, or NULL to return an
+   *  array with info about all types.
+   * @param $account
+   *  The user object or user uid.
+   *
+   * @return array|bool
+   *  TRUE or FALSE for a specific message type or an array of the message types
+   */
+  // @todo remove note: previously message_ui_user_can_create_message.
+  public function userCreateMessageAccess($type = NULL, AccountInterface $account = NULL) {
+    if (empty($account)) {
+      $account = \Drupal::currentUser();
+    }
+
+    $types = message_ui_get_types();
+
+    // User have access to create any instances.
+    if ($account->hasPermission('create any message instance')) {
+      return TRUE;
+    }
+
+    // Check access for a specific message.
+    if ($type) {
+
+      // Didn't found that type.
+      if (!in_array($type, $types)) {
+        return FALSE;
+      }
+
+      if ($account->hasPermission('create a ' . $type . ' message instance')) {
+        return TRUE;
+      }
+    }
+
+    // Build list of arrays for the permissions.
+    $permissions = array();
+    foreach (array_keys($types) as $type) {
+      $permissions[$type] = $account->hasPermission('create a ' . $type . ' message instance');
+    }
+
+    return $permissions;
+  }
+
+  /**
    * Merges cacheable metadata from conditions onto the access result object.
    *
    * @param \Drupal\Core\Access\AccessResult $access
