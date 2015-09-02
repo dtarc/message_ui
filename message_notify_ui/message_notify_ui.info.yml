@@ -1,0 +1,12 @@
+name: 'Message Notify UI'
+type: module
+description: 'Integrating the message notify into the UI functionality.'
+core: 8.x
+package: Message
+
+dependencies:
+ - views
+ - views_bulk_operations
+ - message
+ - message_ui
+ - message_notify

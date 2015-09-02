@@ -46,16 +46,6 @@ function message_notify_ui_permission() {
 }
 
 /**
- * Implements hook_views_api().
- */
-function message_notify_ui_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'message_notify_ui') . '/views',
-  );
-}
-
-/**
  * Send notification of a message.
  */
 function message_notify_ui_send_notification($form, &$form_state, Message $message) {
