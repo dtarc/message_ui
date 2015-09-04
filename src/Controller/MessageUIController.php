@@ -26,12 +26,16 @@ class MessageUiController extends ControllerBase {
     if ($types = message_ui_get_types()) {
       foreach ($types as $type => $title) {
         if ($allowed_types || (is_array($allowed_types) && $allowed_types[$type])) {
-          $items[] = array('type' => $type, 'name' => $title,);
+          $items[] = array(
+            'type' => $type,
+            'name' => $title,
+            'internal_link' => \Drupal::l(ucfirst(str_replace('_', ' ', $type)), Url::fromUri('admin/content/message/create/' . str_replace('_', '-', $type))),
+          );
         }
       }
 
       $item_list = array(
-        '#theme' => 'message_ui_create_message', // Should this be item_list?
+        '#theme' => 'instance_item_list',
         '#items' => $items,
         '#type' => 'ul',
       );

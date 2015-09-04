@@ -5,10 +5,8 @@
  */
 
 use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 use Drupal\message\Entity\Message;
-use Drupal\message\Entity\MessageType;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker;
 
 /**
  * Grant permission for the operation upon message.
@@ -21,77 +19,15 @@ define('MESSAGE_UI_ALLOW', TRUE);
 define('MESSAGE_UI_DENY', FALSE);
 
 /**
- * Implements hook_queue_info().
- *
- * @todo: do I need to create a queue worker? https://www.drupal.org/node/2341649
- */
-function message_ui_queue_info() {
-  $items['message_ui_arguments'] = array(
-    'title' => t('Message UI arguments'),
-    'worker callback' => 'message_ui_arguments_worker',
-    'time' => 60,
-  );
-  return $items;
-}
-
-/**
  * Implements hook_theme().
  */
-// @todo: should this be moved to Twig template?
+// @todo: Is instance_item_list correct naming convention for new template?
 function message_ui_theme() {
   return array(
-    'message_ui_create_message' => array(
+    'instance_item_list' => array(
       'variables' => array('items' => NULL),
     ),
   );
-}
-
-/**
- * Theme callback - display list of the message types in the proper way.
- */
-// @todo: should this be moved to Twig template?
-function theme_message_ui_create_message($variables) {
-  $items = $variables['items'];
-
-  $output = '<ul class="admin-list">';
-
-  foreach ($items as $item) {
-    $output .= '<li class="clearfix">';
-
-    $url = Url::fromUri('admin/content/message/create/' . str_replace('_', '-', $item['type']));
-    $internal_link = \Drupal::l(ucfirst(str_replace('_', ' ', $item['type'])), $url);
-
-    $output .= '<span class="label">' . $internal_link;
-    $output .= '<div class="description">' . t('Create a message instance of @type', array('@type' => $item['name'])) . '</div>';
-    $output .= '</li>';
-  }
-
-  $output .= '</ul>';
-
-  return $output;
-}
-
-/**
- * Get hard coded arguments.
- *
- * @param $type
- *  The message type.
- * @param $count
- *  Determine weather to the count the arguments or return a list of them.
- * @return int
- *  The number of the arguments.
- */
-function message_ui_message_arguments($type, $count = FALSE) {
-  /* @var $message_type MessageType */
-  $message_type = MessageType::load($type);
-
-  if (!$output = $message_type->getText()) {
-    return FALSE;
-  }
-
-  preg_match_all('/[@|%|\!]\{([a-z0-9:_\-]+?)\}/i', $output, $matches);
-
-  return $count ? count($matches[0]) : $matches[0];
 }
 
 /**
@@ -226,7 +162,7 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
 
   $keys = array_keys($result['message']);
   $message = Message::load(reset($keys));
-  $new_arguments = message_ui_message_arguments($type);
+  $new_arguments = ArgumentsWorker::getArguments($type);
 
   $old_arguments_number = count($message->getArguments());
   $new_arguments_number = count($new_arguments);
@@ -282,6 +218,7 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
     $queue = \Drupal::queue('message_ui_arguments');
     return $queue->createItem($data);
   }
+  return NULL;
 }
 
 /**
@@ -297,61 +234,6 @@ function message_ui_arguments_update($mids, $arguments) {
   $messages = Message::loadMultiple($mids);
 
   foreach ($messages as $message) {
-    _message_ui_arguments_update($message, $arguments);
+    ArgumentsWorker::updateArguments($message, $arguments);
   }
-}
-
-/**
- * Update the message arguments via a queue worker.
- */
-function message_ui_arguments_worker($data) {
-
-  // Load all of the messages.
-  $query = \Drupal::entityQuery('message');
-  $result = $query
-    ->condition('type', $data['type'])
-    ->sort('mid', 'DESC')
-    ->condition('mid', $data['last_mid'], '>=')
-    ->range(0, $data['item_to_process'])
-    ->execute();
-
-  if (empty($result['message'])) {
-    return FALSE;
-  }
-  
-  // Update the messages.
-  $messages = Message::loadMultiple(array_keys($result['message']));
-  foreach ($messages as $message) {
-    _message_ui_arguments_update($message, $data['new_arguments']);
-    $data['last_mid'] = $message->id();
-  }
-
-  // Create the next queue worker.
-  $queue = \Drupal::queue('message_ui_arguments');
-  return $queue->createItem($data);
-}
-
-/**
- * A helper function for generate a new array of the message's arguments.
- *
- * @param Message $message
- *  The message which her arguments need an update.
- * @param array $arguments
- *  The new arguments need to be calculated.
- */
-function _message_ui_arguments_update(Message $message, $arguments) {
-
-  $message_arguments = array();
-
-  foreach ($arguments as $token) {
-    // Get the hard coded value of the message and him in the message.
-    $token_name = str_replace(array('@{', '}'), array('[', ']'), $token);
-    $token_service = Drupal::token();
-    $value = $token_service->replace($token_name, array('message' => $message));
-
-    $message_arguments[$token] = $value;
-  }
-
-  $message->getArguments() = $message_arguments;
-  $message->save();
 }
