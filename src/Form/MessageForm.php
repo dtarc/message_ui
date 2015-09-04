@@ -65,14 +65,12 @@ class MessageForm extends EntityForm {
           'class' => array('message-form-owner'),
         ),
         '#attached' => array(
-          'js' => array(
-            drupal_get_path('module', 'message_ui') . '/js/message_ui.js',
-            array(
-              'type' => 'setting',
-
-              'data' => array('anonymous' => \Drupal::config('message_ui.settings')->get('anonymous')),
-            ),
+          'library' => array(
+            '/message_ui/message-ui',
           ),
+        'drupalSettings' => array(
+          'message_ui' => array('anonymous' => \Drupal::config('message_ui.settings')->get('anonymous')),
+        ),
         ),
         '#weight' => 90,
       );
