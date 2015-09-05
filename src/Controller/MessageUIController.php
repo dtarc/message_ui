@@ -11,6 +11,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\message\MessageInterface;
 use Drupal\message\MessageTypeInterface;
 use Drupal\message\Entity\MessageType;
+use Drupal\message_ui\MessageAccessControlHandler;
 
 
 class MessageUiController extends ControllerBase {
@@ -21,9 +22,10 @@ class MessageUiController extends ControllerBase {
   // @todo - remove note: message_ui_create_new_message_instance_list in D7.
   public function getInstanceList() {
     $items = array();
-    $allowed_types = message_ui_user_can_create_message();
+    $access_controller = new MessageAccessControlHandler('message');
+    $allowed_types = $access_controller->userCreateMessageAccess();
 
-    if ($types = message_ui_get_types()) {
+    if ($types = $this->getTypes()) {
       foreach ($types as $type => $title) {
         if ($allowed_types || (is_array($allowed_types) && $allowed_types[$type])) {
           $items[] = array(
@@ -75,7 +77,7 @@ class MessageUiController extends ControllerBase {
   }
 
   /**
-   * Generates output for viewing a message entity.
+   * Generates output for displaying a message entity.
    *
    * @param \Drupal\message\MessageInterface $message
    *   A message object.
@@ -87,32 +89,22 @@ class MessageUiController extends ControllerBase {
     $account = $this->currentUser();
 
     // @todo add access control on user account, see message_ui_access_control.
-    /**
-     * Display the message.
 
-    function message_ui_show_message(Message $message) {
-      $build = $message->view();
+    $view_builder = \Drupal::entityManager()->getViewBuilder('message');
 
-      $build += array(
-        '#theme' => 'message',
-        '#entity' => $message,
-        '#view_mode' => 'full',
-      );
+    $build = $view_builder->view($message);
 
-      $build['#contextual_links']['message'] = array('message', array($message->identifier()));
-
-      // Allow modules to modify the structured node.
-      drupal_alter('message_ui_view', $build, $message);
-
-      return $build;
-    }
-     * */
-
-    // @todo build the proper array following message_ui_show_message.
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => t(__FUNCTION__ . ' method called correctly'),
+    $build += array(
+      '#theme' => 'message',
+      '#entity' => $message,
+      '#view_mode' => 'full',
     );
+
+    $build['#contextual_links']['message'] = array('message', array($message->id()));
+
+    // Allow modules to modify the structured node.
+    \Drupal::moduleHandler()->alter('message_ui_view', $build, $message);
+
     return $build;
   }
 

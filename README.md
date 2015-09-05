@@ -1,6 +1,8 @@
 # message_ui
 UI for the Message module
 
+** N.B. - D8 version currently under development - not functional! **
+
 CONTENTS OF THIS FILE
 ---------------------
    

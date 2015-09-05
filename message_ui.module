@@ -4,7 +4,6 @@
  * Main file for the message UI module.
  */
 
-use Drupal\Core\Url;
 use Drupal\message\Entity\Message;
 use Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker;
 
@@ -33,7 +32,7 @@ function message_ui_theme() {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) {
+function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
   $form['update_tokens'] = array(
     '#type' => 'fieldset',
     '#itle' => t('Token update settings'),
@@ -188,15 +187,18 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
       ->execute();
 
     $chunks = array_chunk(array_keys($result['message']), $item_to_process);
+
+    // @todo : Correct location for operations callback?
     $operations = array();
     foreach ($chunks as $chunk) {
-      $operations[] = array('message_ui_arguments_update', array($chunk, $new_arguments));
+      $operations[] = array('\Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker::argumentsUpdate', array($chunk, $new_arguments));
     }
 
+    // @todo : Correct location for finished callback?
     // Set the batch.
     $batch = array(
       'operations' => $operations,
-      'finished' => 'message_ui_message_arguments_update',
+      'finished' => '\Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker::messageArgumentsUpdate',
       'title' => t('Updating the messages arguments.'),
       'init_message' => t('Start process messages.'),
       'progress_message' => t('Processed @current out of @total.'),
@@ -219,21 +221,4 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
     return $queue->createItem($data);
   }
   return NULL;
-}
-
-/**
- * The message batch or queue item callback function.
- *
- * @param $mids
- *  The messages ID for process.
- * @param $arguments
- *  The new state arguments.
- */
-function message_ui_arguments_update($mids, $arguments) {
-  // Load the messages and update them.
-  $messages = Message::loadMultiple($mids);
-
-  foreach ($messages as $message) {
-    ArgumentsWorker::updateArguments($message, $arguments);
-  }
 }

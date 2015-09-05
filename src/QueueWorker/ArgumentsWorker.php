@@ -42,7 +42,7 @@ class ArgumentsWorker extends QueueWorkerBase {
       // Update the messages.
       $messages = Message::loadMultiple(array_keys($result['message']));
       foreach ($messages as $message) {
-        $this->updateArguments($message, $data['new_arguments']);
+        $this->messageArgumentsUpdate($message, $data['new_arguments']);
         $data['last_mid'] = $message->id();
       }
 
@@ -84,7 +84,7 @@ class ArgumentsWorker extends QueueWorkerBase {
    * @param array $arguments
    *  The new arguments need to be calculated.
    */
-  public static function updateArguments(Message $message, $arguments) {
+  public static function messageArgumentsUpdate(Message $message, $arguments) {
 
     $message_arguments = array();
 
@@ -99,6 +99,23 @@ class ArgumentsWorker extends QueueWorkerBase {
 
     $message->getArguments() = $message_arguments;
     $message->save();
+  }
+
+  /**
+   * The message batch or queue item callback function.
+   *
+   * @param $mids
+   *  The messages ID for process.
+   * @param $arguments
+   *  The new state arguments.
+   */
+  public static function argumentsUpdate($mids, $arguments) {
+    // Load the messages and update them.
+    $messages = Message::loadMultiple($mids);
+
+    foreach ($messages as $message) {
+      ArgumentsWorker::messageArgumentsUpdate($message, $arguments);
+    }
   }
 }
 

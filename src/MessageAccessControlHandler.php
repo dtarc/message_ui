@@ -9,6 +9,7 @@ namespace Drupal\message_ui;
 
 // @todo : strip down all of the below to the minimum needed.
 
+use Drupal\user\Entity\User;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableDependencyInterface;
@@ -17,11 +18,9 @@ use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityHandlerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Executable\ExecutableManagerInterface;
-use Drupal\Core\Plugin\Context\ContextHandlerInterface;
-use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\message_ui\Controller\MessageUiController;
 
 /**
  * Defines the access control handler for the message entity type.
@@ -144,7 +143,8 @@ class MessageAccessControlHandler extends EntityAccessControlHandler implements 
       $account = \Drupal::currentUser();
     }
 
-    $types = message_ui_get_types();
+    $message_ui_controller = new MessageUiController();
+    $types = $message_ui_controller->getTypes();
 
     // User have access to create any instances.
     if ($account->hasPermission('create any message instance')) {
