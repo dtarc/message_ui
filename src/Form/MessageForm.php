@@ -181,17 +181,21 @@ class MessageForm extends EntityForm {
     // E.g. drupal_set_message($this->t('Your phone number is @number', array('@number' => $form_state->getValue('phone_number'))));
 
     // Submit handler - create/edit new message via the UI.
+    /* @var $message Message */
     $message = $form_state['#entity'];
 
+    // @todo: submit handlers are removed, what is needed below? https://www.drupal.org/node/1846648
     field_attach_submit('message', $message, $form, $form_state);
 
     // Update the tokens.
     $token_actions = empty($form_state['values']['replace_tokens']) ? array() : $form_state['values']['replace_tokens'];
 
-    if (is_object($message) && !empty($message->arguments)) {
+    $args = $message->getArguments();
+
+    if (is_object($message) && !empty($args)) {
       if (!empty($token_actions) && $token_actions != 'no_update') {
 
-        foreach (array_keys($message->arguments) as $token) {
+        foreach (array_keys($args) as $token) {
           // Loop through the arguments of the message.
 
           if ($token_actions == 'update') {
@@ -205,16 +209,15 @@ class MessageForm extends EntityForm {
             $value = $form_state['values'][$token];
           }
 
-          $message->arguments[$token] = $value;
+          $args[$token] = $value;
         }
       }
     }
 
-    $wrapper = entity_metadata_wrapper('message', $message);
-    $wrapper->user->set(user_load_by_name($form_state['values']['name']));
-    $wrapper->timestamp->set(strtotime($form_state['values']['date']));
-    $wrapper->save();
+    $message->setAuthorId(user_load_by_name($form_state['values']['name']));
+    $message->setCreatedTime(strtotime($form_state['values']['date']));
+    $message->save();
 
-    $form_state['redirect'] = 'message/' . $wrapper->getIdentifier();
+    $form_state['redirect'] = 'message/' . $message->id();
   }
 }

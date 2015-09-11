@@ -139,13 +139,11 @@ class MessageUiController extends ControllerBase {
   public function add(MessageTypeInterface $message_type) {
     $account = $this->currentUser();
 
-    // @todo for specific message_type display /Drupal/message_ui/Form/MessageForm.
-
     // @todo add access control for message_type, see message_ui_access_control.
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => t(__FUNCTION__ . ' method called correctly'),
-    );
+
+    // @todo : how should form args be wrapped in this case, or a better method?
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageForm', $message_type);
+
     return $build;
   }
 
@@ -163,13 +161,10 @@ class MessageUiController extends ControllerBase {
 
     // @todo add access control on user account, see message_ui_access_control.
 
-    // @todo load and populate form at /Drupal/message_ui/Form/MessageForm.
+    // @todo : how should form args be wrapped in this case, or a better method?
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageForm', $message);
 
     // @todo build the proper array following message_ui_show_message.
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => t(__FUNCTION__ . ' method called correctly'),
-    );
     return $build;
   }
 
@@ -187,44 +182,29 @@ class MessageUiController extends ControllerBase {
 
     // @todo add access control on user account, see message_ui_access_control.
 
-    // @todo display confirm form at /Drupal/message_ui/Form/MessageDeleteConfirm.
+    // @todo : how should form args be wrapped in this case, or a better method?
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageDeleteConfirm', $message);
 
-    // @todo copy method at message_ui_instance_delete.
-    /**
-     * Deleting the message.
-
-    function message_ui_instance_delete($form, &$form_state, Message $message) {
-    // When the bundle is exported - display a message to the user.
-    $form_state['#entity'] = $message;
-
-    // Always provide entity id in the same form key as in the entity edit form.
-    return confirm_form($form,
-    t('Are you sure you want to delete the @type message instance?',
-    array('@type' => $message->getType())),
-    'admin/content/message',
-    t('Are you sure you want to delete the message instance? This action cannot be undone.'),
-    t('Delete'),
-    t('Cancel'));
-    }*/
-
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => t(__FUNCTION__ . ' method called correctly'),
-    );
     return $build;
   }
 
+  /**
+   * Generates form output for deleting of multiple message entities.
+   *
+   * @param \Drupal\message\MessageInterface $message
+   *   A message object.
+   *
+   * @return array
+   *   An array as expected by drupal_render().
+   */
   public function deleteMultiple() {
     $account = $this->currentUser();
 
     // @todo add access control on user account, see message_ui_access_control.
 
-    // @todo display form at /Drupal/message_ui/Form/DeleteMultiple.
+    // @todo pass messages to be deleted in args?
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\DeleteMultiple');
 
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => t(__FUNCTION__ . ' method called correctly'),
-    );
     return $build;
   }
 }

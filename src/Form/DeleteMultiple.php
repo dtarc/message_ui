@@ -15,6 +15,7 @@ use Drupal\message\Entity\Message;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\message_ui\Controller\MessageUiController;
 
 /**
  * Provides a message deletion confirmation form.
@@ -95,6 +96,7 @@ class DeleteMultiple extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    // @todo - below is from Message module, remove?
     $this->messages = $this->tempStoreFactory->get('message_multiple_delete_confirm')->get(\Drupal::currentUser()->id());
     if (empty($this->messages)) {
       return new RedirectResponse($this->getCancelUrl()->setAbsolute()->toString());
@@ -114,32 +116,27 @@ class DeleteMultiple extends ConfirmFormBase {
 
     $form['actions']['cancel']['#href'] = $this->getCancelRoute();
 
-    /**
-     * Delete multiple messages
+    // Delete multiple messages.
+    // @todo from D7 message_ui module, merge with above?
+    $message_ui_controller = new MessageUiController();
+    $types = $message_ui_controller->getTypes();
 
-    // @todo : move to DeleteMultiple form class.
-    function message_ui_delete_multiple_messages($form, $form_state) {
-      $types = message_ui_get_types();
+    $form['types'] = array(
+      '#type' => 'select',
+      '#title' => t('Message types'),
+      '#description' => t('Select the message type your would like to delete message from.'),
+      '#options' => $types,
+      '#multiple' => TRUE,
+      '#required' => TRUE,
+    );
 
-      $form['types'] = array(
-        '#type' => 'select',
-        '#title' => t('Message types'),
-        '#description' => t('Select the message type your would like to delete message from.'),
-        '#options' => $types,
-        '#multiple' => TRUE,
-        '#required' => TRUE,
-      );
-
-      $form['actions'] = array(
-        '#type' => 'actions',
-        'submit' => array(
-          '#type' => 'submit',
-          '#value' => t('Send'),
-        ),
-      );
-
-      return $form;
-    }*/
+    $form['actions'] = array(
+      '#type' => 'actions',
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Send'),
+      ),
+    );
 
     return $form;
   }
@@ -148,42 +145,38 @@ class DeleteMultiple extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    /*
-    * Submit handler - delete the messages.
+    //Submit handler - delete the messages.
+    // Get the message IDs.
+    $query = \Drupal::entityQuery('message');
+    $result = $query
+      ->condition('type', $form_state['values']['types'], 'IN')
+      ->execute();
 
-    function message_ui_delete_multiple_messages_submit($form, $form_state) {
-      // Get the message IDs.
-      $query = \Drupal::entityQuery('message');
-      $result = $query
-        ->condition('type', $form_state['values']['types'], 'IN')
-        ->execute();
-
-      if (empty($result['message'])) {
-        // No messages found, return.
-        drupal_set_message(t('No messages were found according to the parameters you entered'), 'error');
-        return;
-      }
-
-      // Prepare the message IDs chunk array for batch operation.
-      $chunks = array_chunk(array_keys($result['message']), 100);
-      $operations = array();
-
-      foreach ($chunks as $chunk) {
-        $operations[] = array('message_delete_multiple', array($chunk));
-      }
-
-      // Set the batch.
-      $batch = array(
-        'operations' => $operations,
-        'title' => t('deleting messages.'),
-        'init_message' => t('Starting to delete messages.'),
-        'progress_message' => t('Processed @current out of @total.'),
-        'error_message' => t('The batch operation has failed.'),
-      );
-      batch_set($batch);
-      batch_process($_GET['q']);
+    if (empty($result['message'])) {
+      // No messages found, return.
+      drupal_set_message(t('No messages were found according to the parameters you entered'), 'error');
+      return;
     }
-     * */
+
+    // Prepare the message IDs chunk array for batch operation.
+    $chunks = array_chunk(array_keys($result['message']), 100);
+    $operations = array();
+
+    // @todo : update the operation below to new structure.
+    foreach ($chunks as $chunk) {
+      $operations[] = array('message_delete_multiple', array($chunk));
+    }
+
+    // Set the batch.
+    $batch = array(
+      'operations' => $operations,
+      'title' => t('deleting messages.'),
+      'init_message' => t('Starting to delete messages.'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('The batch operation has failed.'),
+    );
+    batch_set($batch);
+    batch_process($_GET['q']);
   }
 
   /**
@@ -192,5 +185,4 @@ class DeleteMultiple extends ConfirmFormBase {
   public function getCancelUrl() {
     return new Url('message.messages');
   }
-
 }
