@@ -118,13 +118,35 @@ class MessageUiController extends ControllerBase {
     $account = $this->currentUser();
 
     // @todo build render array using message_ui_create_new_message_instance_list.
+    // $build = $this->getInstanceList();
 
     // @todo add access control for message_type, see message_ui_access_control.
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => t(__FUNCTION__ . ' method called correctly'),
+
+
+    $content = array();
+
+    // Only use node types the user has access to.
+    foreach ($this->entityManager()->getStorage('message_type')->loadMultiple() as $type) {
+      // @todo - get access control working below.
+      // \Doctrine\Common\Util\Debug::dump($this->entityManager()->getAccessControlHandler('message')->createAccess($type->id()));
+      // if ($this->entityManager()->getAccessControlHandler('message')->createAccess($type->id())) {
+        $content[$type->id()] = $type;
+      \Doctrine\Common\Util\Debug::dump($content);
+      // }
+    }
+
+    // Bypass the node/add listing if only one content type is available.
+    /* if (count($content) == 1) {
+      $type = array_shift($content);
+      return $this->redirect('message_ui.create_message_by_type', array('message_type' => $type->id()));
+    } */
+
+    \Doctrine\Common\Util\Debug::dump($content);
+
+    return array(
+      '#theme' => 'instance_item_list',
+      '#content' => $content,
     );
-    return $build;
   }
 
   /**
@@ -136,15 +158,18 @@ class MessageUiController extends ControllerBase {
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function add(MessageTypeInterface $message_type) {
+  public function add($message_type) {
+    \Doctrine\Common\Util\Debug::dump($message_type);
+    // @todo add & pass arg as : MessageTypeInterface $message_type
     $account = $this->currentUser();
 
     // @todo add access control for message_type, see message_ui_access_control.
 
     // @todo : how should form args be wrapped in this case, or a better method?
-    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageForm', $message_type);
+    // $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageForm');
 
-    return $build;
+    // return $build;
+    return array();
   }
 
   /**
