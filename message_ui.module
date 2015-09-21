@@ -24,7 +24,8 @@ define('MESSAGE_UI_DENY', FALSE);
 function message_ui_theme() {
   return array(
     'instance_item_list' => array(
-      'variables' => array('items' => NULL),
+      'template' => 'instance-item-list',
+      'variables' => array('items' => array(), 'title' => '', 'list_type' => 'ul', 'attributes' => array(), 'empty' => NULL, 'context' => array()),
     ),
   );
 }

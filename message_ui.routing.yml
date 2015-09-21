@@ -2,7 +2,9 @@ message_ui.show_message:
   path: '/message/{message}'
   defaults:
     _title:  'Viewing a message'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::show'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::view'
+  requirements:
+    _permission: 'adminster messages' # @todo : change to correct permission.
 
 # Should this be 'message/add' in D8, see drupal.org issue #2500559.
 # Beneficial for message_private, user facing module dependant on message_ui.
@@ -10,7 +12,7 @@ message_ui.create_message:
   path: '/admin/content/message/create'
   defaults:
     _title: 'Create a new message instance'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::showTypes'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::showTypes'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
     _permission: 'adminster messages' # @todo : change to correct permission.
@@ -20,7 +22,7 @@ message_ui.create_message_by_type:
   defaults:
     _title:  'Create a new message'
     #_title_callback: # Add title callback to display message type.
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::add'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
     _permission: 'adminster messages' # @todo : change to correct permission.
@@ -29,7 +31,7 @@ message_ui.edit_message:
   path: 'message/{message}/edit'
   defaults:
     _title:  'Edit'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::add'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
   options:
     _admin_route: TRUE
 
@@ -37,7 +39,7 @@ message_ui.delete_message:
   path: '/message/{message}/delete'
   defaults:
     _title: 'Delete'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::delete'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::delete'
   options:
     _admin_route: TRUE
 
@@ -45,7 +47,7 @@ message_ui.delete_multiple:
   path: 'admin/config/development/message_delete_multiple'
   defaults:
     _title: 'Message delete multiple'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::deleteMultiple'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::deleteMultiple'
 
 # @todo Add devel admin routes from D7: message/*/devel in route callback.
 route_callbacks:

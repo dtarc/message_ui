@@ -29,7 +29,7 @@
         <li{{ item.attributes.addClass('clearfix') }}>
           <span class="label">{{ item.internal_link }}</span>
           <div class="description">
-            {% trans %}Create a message instance of {{ item.name }}.{% endtrans %}
+            {% trans %}Create a message instance of {{ item.type }}.{% endtrans %}
           </div>
         </li>
       {%- endfor -%}

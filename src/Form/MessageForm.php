@@ -9,15 +9,20 @@ namespace Drupal\message_ui\Form;
 
 use Drupal\Core\Url;
 use Drupal\user\Entity\User;
-use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\message\Entity\Message;
+use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\user\PrivateTempStoreFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for node type forms.
+ *
+ * @ingroup message
  */
-class MessageForm extends EntityForm {
+class MessageForm extends ContentEntityForm {
 
   /**
    * The entity being used by this form.
@@ -29,7 +34,7 @@ class MessageForm extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
     /** @var Message $message */
@@ -75,9 +80,9 @@ class MessageForm extends EntityForm {
         'library' => array(
           '/message_ui/message-ui',
         ),
-      'drupalSettings' => array(
-        'message_ui' => array('anonymous' => \Drupal::config('message_ui.settings')->get('anonymous')),
-      ),
+        'drupalSettings' => array(
+          'message_ui' => array('anonymous' => \Drupal::config('message_ui.settings')->get('anonymous')),
+        ),
       ),
       '#weight' => 90,
     );
