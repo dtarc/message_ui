@@ -2,7 +2,7 @@ message_ui.show_message:
   path: '/message/{message}'
   defaults:
     _title:  'Viewing a message'
-    _controller: '\Drupal\message_ui\Controller\MessageUIController::view'
+    _controller: '\Drupal\message_ui\Controller\MessageUIController::show'
   requirements:
     _permission: 'adminster messages' # @todo : change to correct permission.
 
@@ -23,6 +23,7 @@ message_ui.create_message_by_type:
     _title:  'Create a new message'
     #_title_callback: # Add title callback to display message type.
     _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
+    # _entity_form: 'message.add'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
     _permission: 'adminster messages' # @todo : change to correct permission.
@@ -31,7 +32,8 @@ message_ui.edit_message:
   path: 'message/{message}/edit'
   defaults:
     _title:  'Edit'
-    _controller: '\Drupal\message_ui\Controller\MessageUIController::add'
+    #_controller: '\Drupal\message_ui\Controller\MessageUIController::add'
+    _entity_form: 'message.edit'
   options:
     _admin_route: TRUE
 
@@ -39,7 +41,8 @@ message_ui.delete_message:
   path: '/message/{message}/delete'
   defaults:
     _title: 'Delete'
-    _controller: '\Drupal\message_ui\Controller\MessageUIController::delete'
+    #_controller: '\Drupal\message_ui\Controller\MessageUIController::delete'
+    _entity_form: 'message.delete'
   options:
     _admin_route: TRUE
 

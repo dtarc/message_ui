@@ -141,9 +141,17 @@ function message_ui_entity_type_build(array &$entity_types) {
       'form',
       array(
         'default' => 'Drupal\message_ui\Form\MessageForm',
+        'add' => 'Drupal\message_ui\Form\MessageForm',
+        'edit' => 'Drupal\message_ui\Form\MessageForm',
         'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
-        'edit' => 'Drupal\message_ui\Form\MessageForm'
-    ));
+      ));
+    $message_config->set(
+      'links',
+      array(
+        'add-form' => '/admin/content/message/create/{message_type}',
+        'edit-form' => '/message/{message}/edit',
+        'delete-form' => '/message/{message}/delete',
+      ));
   }
 }
 

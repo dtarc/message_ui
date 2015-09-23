@@ -34,7 +34,7 @@ class MessageForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
     /** @var Message $message */
@@ -46,7 +46,7 @@ class MessageForm extends ContentEntityForm {
       $message = Message::create($message);
     }
 
-    $form_state['#entity'] = $message;
+    // $form_state['#entity'] = $message;
 
     $view_builder = \Drupal::entityManager()->getViewBuilder('message');
     $message_text = $view_builder->view($message);
@@ -94,7 +94,7 @@ class MessageForm extends ContentEntityForm {
       '#weight' => 99,
       '#autocomplete_path' => 'user/autocomplete',
       '#description' => t('Leave blank for %anonymous.', array('%anonymous' => \Drupal::config('message_ui.settings')->get('anonymous'))),
-      '#default_value' => User::load($message->getAuthorId())->getUsername(),
+      '#default_value' => ($message->getAuthorId() ? User::load($message->getAuthorId())->getUsername() : NULL),
     );
 
     $form['owner']['date'] = array(

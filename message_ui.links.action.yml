@@ -1,0 +1,5 @@
+message_ui.create_message:
+  route_name: message_ui.create_message
+  title: 'Add message'
+  appears_on:
+    - message.messages

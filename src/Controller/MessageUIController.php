@@ -12,12 +12,15 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\message\MessageInterface;
 use Drupal\message\Entity\MessageType;
 use Drupal\message\Entity\Message;
+use Drupal\Core\Datetime\DateFormatter;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\message_ui\MessageAccessControlHandler;
 use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\Core\Entity\EntityInterface;
 
 
-class MessageUIController extends EntityViewController {
+class MessageUIController extends ControllerBase  implements ContainerInjectionInterface {
 
   /**
    * Display list of message types to create an instance for them.
@@ -44,30 +47,16 @@ class MessageUIController extends EntityViewController {
   /**
    * Generates output for displaying a message entity.
    *
-   * @param \Drupal\message\MessageInterface $message
+   * @param int $id
    *   A message object.
    *
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function view(EntityInterface $message, $view_mode = 'full', $langcode = NULL) {
-    // $account = $this->currentUser();
-    $build = parent::view($message);
-
-    // @todo add access control on user account, see message_ui_access_control.
-
-    $build += array(
-      '#theme' => 'message',
-      '#entity' => $message,
-      '#view_mode' => $view_mode,
-    );
-
-    $build['#contextual_links']['message'] = array('message', array($message->id()));
-
-    // Allow modules to modify the structured node.
-    // \Drupal::moduleHandler()->alter('message_ui_view', $build, $message);
-
-    return $build;
+  public function show($id) {
+    $message = $this->entityManager()->getStorage('message')->load($id);
+    $message_view_controller = new MessageViewController($this->entityManager, $this->renderer);
+    return $message_view_controller->view($message);
   }
 
   /**
@@ -143,7 +132,7 @@ class MessageUIController extends EntityViewController {
 
     $message = Message::create(array('type' => $message_type->id()));
 
-    $form = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageForm', $message);
+    $form = $this->entityFormBuilder()->getForm($message);
 
     return $form;
   }
