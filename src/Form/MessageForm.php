@@ -153,18 +153,20 @@ class MessageForm extends ContentEntityForm {
     }
 
     $mid = $message->id();
-    $url = is_object($message) && !empty($mid) ? Url::fromRoute('message_ui.show_message', $message) : Url::fromRoute('message.overview_types');
+    $url = is_object($message) && !empty($mid) ? Url::fromRoute('message_ui.show_message', ['message' => $mid]) : Url::fromRoute('message.overview_types');
+
+    $link =  \Drupal::l(t('Cancel'), $url);
 
     $form['actions'] = array(
       '#type' => 'actions',
       'submit' => array(
         '#type' => 'submit',
-        '#value' => empty($message->is_new) ? t('Update') : t('Create'),
+        '#value' => $message->isNew() ? t('Update') : t('Create'),
         '#submit' => array('message_ui_instance_message_create_submit'),
       ),
       'cancel' => array(
         '#type' => 'markup',
-        '#markup' => \Drupal::l(t('Cancel'), $url)
+        '#markup' => $link
       ),
     );
 

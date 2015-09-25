@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\message_ui\Controller\MessageUIController.
+ * Contains \Drupal\message_ui\Controller\MessageUiController.
  */
 
 namespace Drupal\message_ui\Controller;
@@ -18,9 +18,18 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\message_ui\MessageAccessControlHandler;
 use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityManagerInterface;
 
 
-class MessageUIController extends ControllerBase  implements ContainerInjectionInterface {
+class MessageUiController extends ControllerBase implements ContainerInjectionInterface {
+
+  /**
+   * Constructs a MessageUiController object.
+   */
+  public function __construct() {
+    // @todo: should I be using Dependency Injection here?
+    $this->entityManager = \Drupal::entityManager();
+  }
 
   /**
    * Display list of message types to create an instance for them.
@@ -47,15 +56,14 @@ class MessageUIController extends ControllerBase  implements ContainerInjectionI
   /**
    * Generates output for displaying a message entity.
    *
-   * @param int $id
+   * @param Message $message
    *   A message object.
    *
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function show($id) {
-    $message = $this->entityManager()->getStorage('message')->load($id);
-    $message_view_controller = new MessageViewController($this->entityManager, $this->renderer);
+  public function show(Message $message) {
+    $message_view_controller = new MessageViewController($this->entityManager, \Drupal::service('renderer'));
     return $message_view_controller->view($message);
   }
 

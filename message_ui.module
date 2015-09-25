@@ -148,6 +148,7 @@ function message_ui_entity_type_build(array &$entity_types) {
     $message_config->set(
       'links',
       array(
+        'canonical' => '/message/{message}',
         'add-form' => '/admin/content/message/create/{message_type}',
         'edit-form' => '/message/{message}/edit',
         'delete-form' => '/message/{message}/delete',
