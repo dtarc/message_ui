@@ -25,18 +25,19 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MessageForm extends ContentEntityForm {
 
   /**
-   * The entity being used by this form.
+   * Constructs a ContentEntityForm object.
    *
-   * @var \Drupal\message\Entity\Message
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager.
    */
-  protected $entity;
+  public function __construct(EntityManagerInterface $entity_manager) {
+    parent::__construct($entity_manager);
+  }
 
   /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $form = parent::form($form, $form_state);
-
     /** @var Message $message */
     $message = $this->entity;
 
@@ -59,6 +60,8 @@ class MessageForm extends ContentEntityForm {
       );
     }
 
+    $form = parent::form($form, $form_state);
+
     $display = EntityFormDisplay::collectRenderDisplay($message, 'default');
     $display->buildForm($message, $form, $form_state);
 
@@ -77,12 +80,10 @@ class MessageForm extends ContentEntityForm {
         'class' => array('message-form-owner'),
       ),
       '#attached' => array(
-        'library' => array(
-          '/message_ui/message-ui',
-        ),
+        'library' => array('message_ui/message_ui.message'),
         'drupalSettings' => array(
           'message_ui' => array('anonymous' => \Drupal::config('message_ui.settings')->get('anonymous')),
-        ),
+        )
       ),
       '#weight' => 90,
     );

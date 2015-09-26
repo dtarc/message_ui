@@ -3,6 +3,7 @@ entity.message.canonical:
   defaults:
     _title: 'Viewing a message'
     _controller: '\Drupal\message_ui\Controller\MessageUiController::show'
+    #_entity_view: 'message.full'
   requirements:
     _permission: 'adminster messages'
 
@@ -10,6 +11,7 @@ message_ui.show_message:
   path: '/message/{message}'
   defaults:
     _title:  'Viewing a message'
+    # _entity_view: 'message.full' # Calls MessageViewBuilder ???
     _controller: '\Drupal\message_ui\Controller\MessageUiController::show'
   requirements:
     _permission: 'adminster messages' # @todo : change to correct permission.
@@ -24,6 +26,8 @@ message_ui.create_message:
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
     _permission: 'adminster messages' # @todo : change to correct permission.
+  options:
+    _admin_route: TRUE
 
 message_ui.create_message_by_type:
   path: '/admin/content/message/create/{message_type}'
@@ -35,6 +39,8 @@ message_ui.create_message_by_type:
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
     _permission: 'adminster messages' # @todo : change to correct permission.
+  options:
+    _admin_route: TRUE
 
 message_ui.edit_message:
   path: '/message/{message}/edit'
@@ -43,6 +49,8 @@ message_ui.edit_message:
     _entity_form: 'message.edit'
   requirements:
     _permission: 'adminster messages'
+  options:
+    _admin_route: TRUE
 
 message_ui.delete_message:
   path: '/message/{message}/delete'
@@ -51,12 +59,16 @@ message_ui.delete_message:
     _entity_form: 'message.delete'
   requirements:
     _permission: 'adminster messages'
+  options:
+    _admin_route: TRUE
 
 message_ui.delete_multiple:
   path: '/admin/config/development/message_delete_multiple'
   defaults:
     _title: 'Message delete multiple'
     _controller: '\Drupal\message_ui\Controller\MessageUiController::deleteMultiple'
+  options:
+    _admin_route: TRUE
 
 # @todo Add devel admin routes from D7: message/*/devel in route callback.
 route_callbacks:
