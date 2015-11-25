@@ -8,17 +8,10 @@ namespace Drupal\message_ui\Controller;
 
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\message\MessageInterface;
 use Drupal\message\Entity\MessageType;
 use Drupal\message\Entity\Message;
-use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Render\RendererInterface;
-use Drupal\message_ui\MessageAccessControlHandler;
-use Drupal\Core\Entity\Controller\EntityViewController;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 
 
 class MessageUiController extends ControllerBase implements ContainerInjectionInterface {
@@ -62,7 +55,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function show(Message $message) {
+  public function show(MessageInterface $message) {
     $message_view_controller = new MessageViewController($this->entityManager, \Drupal::service('renderer'));
     return $message_view_controller->view($message);
   }
@@ -86,7 +79,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
       // \Doctrine\Common\Util\Debug::dump($this->entityManager()->getAccessControlHandler('message')->createAccess($type->id()));
       // if ($this->entityManager()->getAccessControlHandler('message')->createAccess($type->id())) {
       /* @var $entity MessageType */
-      $url = Url::fromUri('internal:/admin/content/message/create/' . str_replace('_', '-', $type));
+      $url = Url::fromUri('internal:/admin/content/messages/create/' . str_replace('_', '-', $type));
       $items[] = array(
         'type' => $type,
         'name' => $entity->label(),
@@ -96,7 +89,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
       // }
     }
 
-    // Bypass the admin/content/message/create listing if only one content type is available.
+    // Bypass the admin/content/messages/create listing if only one content type is available.
     /* if (count($content) == 1) {
       $type = array_shift($content);
       return $this->redirect('message_ui.create_message_by_type', array('message_type' => $type->id()));

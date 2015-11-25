@@ -190,17 +190,20 @@ class MessageForm extends ContentEntityForm {
 
     // Submit handler - create/edit new message via the UI.
     /* @var $message Message */
-    $message = $form_state['#entity'];
+    $message = $this->getEntity();
 
     // @todo: submit handlers are removed, what is needed below? https://www.drupal.org/node/1846648
-    field_attach_submit('message', $message, $form, $form_state);
+    // field_attach_submit('message', $message, $form, $form_state);
+
+    $replace_tokens = $form_state->getValue('replace_tokens');
 
     // Update the tokens.
-    $token_actions = empty($form_state['values']['replace_tokens']) ? array() : $form_state['values']['replace_tokens'];
+    $token_actions = empty($replace_tokens) ? array() : $replace_tokens;
 
     $args = $message->getArguments();
 
     if (is_object($message) && !empty($args)) {
+      // @todo : get tokens and token actions working.
       if (!empty($token_actions) && $token_actions != 'no_update') {
 
         foreach (array_keys($args) as $token) {
@@ -222,10 +225,10 @@ class MessageForm extends ContentEntityForm {
       }
     }
 
-    $message->setAuthorId(user_load_by_name($form_state['values']['name']));
-    $message->setCreatedTime(strtotime($form_state['values']['date']));
+    $message->setAuthorId(user_load_by_name($form_state->getValue('name')));
+    $message->setCreatedTime(strtotime($form_state->getValue('date')));
     $message->save();
 
-    $form_state['redirect'] = 'message/' . $message->id();
+    $form_state->setRedirect('message_ui.show_message', ['message' => $message->id()]);
   }
 }

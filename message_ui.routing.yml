@@ -19,7 +19,7 @@ message_ui.show_message:
 # Should this be 'message/add' in D8, see drupal.org issue #2500559.
 # Beneficial for message_private, user facing module dependant on message_ui.
 message_ui.create_message:
-  path: '/admin/content/message/create'
+  path: '/admin/content/messages/create'
   defaults:
     _title: 'Create a new message instance'
     _controller: '\Drupal\message_ui\Controller\MessageUiController::showTypes'
@@ -30,7 +30,7 @@ message_ui.create_message:
     _admin_route: TRUE
 
 message_ui.create_message_by_type:
-  path: '/admin/content/message/create/{message_type}'
+  path: '/admin/content/messages/create/{message_type}'
   defaults:
     _title:  'Create a new message'
     #_title_callback: # Add title callback to display message type.

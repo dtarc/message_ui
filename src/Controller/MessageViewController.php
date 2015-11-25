@@ -19,7 +19,7 @@ class MessageViewController extends EntityViewController {
    * {@inheritdoc}
    */
   public function view(EntityInterface $message, $view_mode = 'full', $langcode = NULL) {
-    debug($message);
-    return parent::view($message);
+    $build = parent::view($message, $view_mode);
+    return $build;
   }
 }

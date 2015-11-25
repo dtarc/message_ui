@@ -31,10 +31,12 @@ class MessageRoutes {
     //      'weight' => 20,
     //    );
 
-    $devel_enabled = \Drupal::moduleHandler()->moduleExists('devel');
+
+    // @todo : enabled for testing.
+    // $devel_enabled = \Drupal::moduleHandler()->moduleExists('devel');
 
     // If the devel module is installed, create this route.
-    if ($devel_enabled) {
+    if (!empty($devel_enabled)) {
       // Declares a single route under the name 'message_ui.show_message'.
       // Returns an array of Route objects.
       $routes['message_ui.show_message.devel'] = new Route(

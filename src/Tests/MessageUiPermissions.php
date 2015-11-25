@@ -65,12 +65,12 @@ class MessageUiPermissions extends MessageTestBase {
   function testMessageUiPermissions() {
     // verify the user can't create the message.
     $this->drupalLogin($this->user);
-    $this->drupalGet('admin/content/message/create/foo');
+    $this->drupalGet('admin/content/messages/create/foo');
     $this->assertResponse(403, t("The user can't create message."));
 
     // Create the message.
     $this->grantMessageUiPermission('create');
-    $this->drupalPost('admin/content/message/create/foo', array(), t('Create'));
+    $this->drupalPost('admin/content/messages/create/foo', array(), t('Create'));
 
     // Verify the user now can see the text.
     $this->grantMessageUiPermission('view');
@@ -99,7 +99,7 @@ class MessageUiPermissions extends MessageTestBase {
     $this->assertResponse(403, t("The user can't access the over view page."));
 
     user_role_grant_permissions($this->rid, array('administer message types'));
-    $this->drupalGet('admin/content/message');
+    $this->drupalGet('admin/content/messages');
     $this->assertResponse(200, "The user can access the over view page.");
 
     // Create a new user with the bypass access permission and verify the bypass.
@@ -108,7 +108,7 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Verify the user can by pass the message access control.
     $this->drupalLogin($user);
-    $this->drupalGet('admin/content/message/create/foo');
+    $this->drupalGet('admin/content/messages/create/foo');
     $this->assertResponse(200, 'The user can bypass the message access control.');
   }
 

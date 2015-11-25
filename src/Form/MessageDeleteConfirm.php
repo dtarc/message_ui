@@ -45,7 +45,7 @@ class MessageDeleteConfirm extends EntityConfirmFormBase {
     if ($form_state['clicked_button']['#type']) {
       $form_state['#entity']->delete();
 
-      $form_state['redirect'] = 'admin/content/message';
+      $form_state['redirect'] = 'admin/content/messages';
       drupal_set_message(t('The message instance @type deleted successfully', array(
         '@type' => $form_state['#entity']->type,
       )));
