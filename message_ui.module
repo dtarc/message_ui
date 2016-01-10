@@ -10,12 +10,12 @@ use Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker;
 /**
  * Grant permission for the operation upon message.
  */
-define('MESSAGE_UI_ALLOW', TRUE);
+const MESSAGE_UI_ALLOW = TRUE;
 
 /**
  * Deny permission for the operation upon message.
  */
-define('MESSAGE_UI_DENY', FALSE);
+const MESSAGE_UI_DENY = TRUE;
 
 /**
  * Implements hook_theme().

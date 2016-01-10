@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\MessagePermissions.
+ * Contains \Drupal\message_ui\MessageUiPermissions.
  */
 
 // @todo : remove permissions not available in D7.
@@ -16,7 +16,7 @@ use Drupal\message\Entity\MessageType;
 /**
  * Defines a class containing permission callbacks.
  */
-class MessagePermissions {
+class MessageUiPermissions {
 
   use StringTranslationTrait;
   use UrlGeneratorTrait;

@@ -7,4 +7,4 @@ update tokens:
   description: Grant to the user the permission to update the tokens of the message - manually or automatically with a checkbox
 
 permission_callbacks:
-  - \Drupal\message_ui\MessagePermissions::messageTypePermissions
+  - \Drupal\message_ui\MessageUiPermissions::messageTypePermissions
