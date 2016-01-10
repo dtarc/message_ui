@@ -154,7 +154,7 @@ class MessageUiForm extends ContentEntityForm {
     }
 
     $mid = $message->id();
-    $url = is_object($message) && !empty($mid) ? Url::fromRoute('message_ui.show_message', ['message' => $mid]) : Url::fromRoute('message.overview_types');
+    $url = is_object($message) && !empty($mid) ? Url::fromRoute('entity.message.canonical', ['message' => $mid]) : Url::fromRoute('message.overview_types');
 
     $link =  \Drupal::l(t('Cancel'), $url);
 
@@ -229,6 +229,6 @@ class MessageUiForm extends ContentEntityForm {
     $message->setCreatedTime(strtotime($form_state->getValue('date')));
     $message->save();
 
-    $form_state->setRedirect('message_ui.show_message', ['message' => $message->id()]);
+    $form_state->setRedirect('entity.message.canonical', ['message' => $message->id()]);
   }
 }

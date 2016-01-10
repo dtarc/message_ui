@@ -1,11 +1,11 @@
-message_ui.edit_message:
-  route_name: message_ui.edit_message
+entity.message.edit_form:
+  route_name: entity.message.edit_form
   group: message-ui
   title:  'Edit'
   weight: 0
 
-message_ui.delete_message:
-  route_name: message_ui.delete_message
+entity.message.delete_form:
+  route_name: entity.message.delete_form
   group: message-ui
   title: 'Delete'
   weight: 10

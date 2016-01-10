@@ -59,6 +59,6 @@ class MessageUiDeleteConfirm extends EntityConfirmFormBase {
    *   A URL object.
    */
   public function getCancelUrl() {
-    return new Url('message_ui.show_message', $this->entity);
+    return new Url('entity.message.canonical', $this->entity);
   }
 }

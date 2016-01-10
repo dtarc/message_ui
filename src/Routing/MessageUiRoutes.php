@@ -37,9 +37,9 @@ class MessageUiRoutes {
 
     // If the devel module is installed, create this route.
     if (!empty($devel_enabled)) {
-      // Declares a single route under the name 'message_ui.show_message'.
+      // Declares a single route under the name 'entity.message.canonical'.
       // Returns an array of Route objects.
-      $routes['message_ui.show_message.devel'] = new Route(
+      $routes['entity.message.canonical.devel'] = new Route(
       // Path to attach this route to:
         '/message/{message}/devel',
         // Route defaults:

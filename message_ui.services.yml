@@ -1,0 +1,10 @@
+#services:
+##  message_ui.route_subscriber:
+##    class: Drupal\message\Routing\RouteSubscriber
+##    tags:
+##      - { name: event_subscriber }
+#  access_check.message_ui.add:
+#    class: Drupal\message_ui\Access\MessageUiAddAccessCheck
+#    arguments: ['@entity.manager']
+#    tags:
+#      - { name: access_check, applies_to: _message_ui_add_access }

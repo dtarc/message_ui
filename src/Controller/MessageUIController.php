@@ -6,6 +6,7 @@
 
 namespace Drupal\message_ui\Controller;
 
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\message\MessageInterface;
@@ -66,7 +67,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function showTypes() {
+  protected function showTypes() {
     // $account = $this->currentUser();
 
     // @todo add access control for message_type, see message_ui_access_control.
@@ -83,7 +84,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
       $items[] = array(
         'type' => $type,
         'name' => $entity->label(),
-        'internal_link' => \Drupal::l(ucfirst(str_replace('_', ' ', $type)), $url),
+        'internal_link' => Link::fromTextAndUrl(ucfirst(str_replace('_', ' ', $type)), $url),
       );
       //\Doctrine\Common\Util\Debug::dump($content);
       // }
@@ -106,6 +107,22 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
       $url = Url::fromRoute('message.type_add');
       return t("There are no messages types. You can create a new message type <a href='$url'>here</a>.");
     }
+  }
+
+  /**
+   * Displays add content links for available message types.
+   *
+   * @todo Redirects to message/add/[type] if only one message type available.
+   *
+   * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   A render array for a list of the node types that can be added; however,
+   *   if there is only one node type defined for the site, the function
+   *   will return a RedirectResponse to the node add page for that one node
+   *   type.
+   */
+  public function addPage() {
+    // @todo: see NodeController for details.
+    return $this->showTypes();
   }
 
   /**
@@ -194,7 +211,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
     // @todo add access control on user account, see message_ui_access_control.
 
     // @todo pass messages to be deleted in args?
-    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageUiDeleteMultiple');
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\eleteMultiple');
 
     return $build;
   }

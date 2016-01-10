@@ -7,11 +7,12 @@
 
 namespace Drupal\message_ui\Plugin\views\field;
 
+use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\message_ui\MessageUiAccessControlHandler;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\message\Entity\Message;
-use Drupal\message_ui\MessageAccessControlHandler;
 
 /**
  * Field handler to present an View button for a message instance.
@@ -40,11 +41,10 @@ class ViewButton extends FieldPluginBase {
   public function render(ResultRow $values) {
     $message = Message::load($values->_entity->id());
 
-    $access_handler = new MessageAccessControlHandler('message');
-    if ($access_handler->checkAccess($message, 'view', \Drupal::currentUser())) {
-      $url = Url::fromRoute('message_ui.show_message', $message);
-      return \Drupal::l(t('View'), $url);
+    $access_handler = new MessageUiAccessControlHandler($message->getEntityType());
+    if ($access_handler->access($message, 'view', \Drupal::currentUser())) {
+      $url = Url::fromRoute('entity.message.canonical', $message);
+      return Link::fromTextAndUrl(t('View'), $url);
     }
   }
-
 }

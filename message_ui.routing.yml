@@ -1,20 +1,11 @@
-entity.message.canonical:
-  path: '/message/{message}'
-  defaults:
-    _title: 'Viewing a message'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::show'
-    #_entity_view: 'message.full'
-  requirements:
-    _permission: 'adminster messages'
-
-message_ui.show_message:
-  path: '/message/{message}'
-  defaults:
-    _title:  'Viewing a message'
-    # _entity_view: 'message.full' # Calls MessageViewBuilder ???
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::show'
-  requirements:
-    _permission: 'adminster messages' # @todo : change to correct permission.
+#entity.message.canonical:
+#  path: '/message/{message}'
+#  defaults:
+#    _title: 'Viewing a message'
+#    _controller: '\Drupal\message_ui\Controller\MessageUiController::show'
+#    #_entity_view: 'message.full'
+#  requirements:
+#    _permission: 'adminster messages'
 
 # Should this be 'message/add' in D8, see drupal.org issue #2500559.
 # Beneficial for message_private, user facing module dependant on message_ui.
@@ -22,10 +13,12 @@ message_ui.create_message:
   path: '/admin/content/messages/create'
   defaults:
     _title: 'Create a new message instance'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::showTypes'
+    _controller: '\Drupal\message_ui\Controller\MessageUiController::addPage'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
-    _permission: 'adminster messages' # @todo : change to correct permission.
+    _permission: 'adminster messages'
+#  requirements:
+#    _message_ui_add_access: 'message'
   options:
     _admin_route: TRUE
 
@@ -38,37 +31,39 @@ message_ui.create_message_by_type:
     # _entity_form: 'message.add'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
-    _permission: 'adminster messages' # @todo : change to correct permission.
-  options:
-    _admin_route: TRUE
-
-message_ui.edit_message:
-  path: '/message/{message}/edit'
-  defaults:
-    _title:  'Edit'
-    _entity_form: 'message.edit'
-  requirements:
     _permission: 'adminster messages'
+#  requirements:
+#    _message_ui_add_access: 'message:{message_type}'
   options:
     _admin_route: TRUE
 
-message_ui.delete_message:
-  path: '/message/{message}/delete'
-  defaults:
-    _title: 'Delete'
-    _entity_form: 'message.delete'
-  requirements:
-    _permission: 'adminster messages'
-  options:
-    _admin_route: TRUE
-
-message_ui.delete_multiple:
-  path: '/admin/config/development/message_delete_multiple'
-  defaults:
-    _title: 'Message delete multiple'
-    _controller: '\Drupal\message_ui\Controller\MessageUiController::deleteMultiple'
-  options:
-    _admin_route: TRUE
+#message_ui.edit_message:
+#  path: '/message/{message}/edit'
+#  defaults:
+#    _title:  'Edit'
+#    _entity_form: 'message.edit'
+#  requirements:
+#    _permission: 'adminster messages'
+#  options:
+#    _admin_route: TRUE
+#
+#message_ui.delete_message:
+#  path: '/message/{message}/delete'
+#  defaults:
+#    _title: 'Delete'
+#    _entity_form: 'message.delete'
+#  requirements:
+#    _permission: 'adminster messages'
+#  options:
+#    _admin_route: TRUE
+#
+#message_ui.delete_multiple:
+#  path: '/admin/config/development/message_delete_multiple'
+#  defaults:
+#    _title: 'Message delete multiple'
+#    _controller: '\Drupal\message_ui\Controller\MessageUiController::deleteMultiple'
+#  options:
+#    _admin_route: TRUE
 
 # @todo Add devel admin routes from D7: message/*/devel in route callback.
 route_callbacks:
