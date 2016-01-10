@@ -56,7 +56,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    *   An array as expected by drupal_render().
    */
   public function show(MessageInterface $message) {
-    $message_view_controller = new MessageViewController($this->entityManager, \Drupal::service('renderer'));
+    $message_view_controller = new MessageUiViewController($this->entityManager, \Drupal::service('renderer'));
     return $message_view_controller->view($message);
   }
 
@@ -127,7 +127,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
     // @todo add access control for message_type, see message_ui_access_control.
 
     // @todo : how should form args be wrapped in this case, or a better method?
-    // $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageForm');
+    // $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageUiForm');
 
     // return $build;
 
@@ -153,7 +153,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
     // @todo add access control on user account, see message_ui_access_control.
 
     // @todo : how should form args be wrapped in this case, or a better method?
-    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageForm', $message);
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageUiForm', $message);
 
     // @todo build the proper array following message_ui_show_message.
     return $build;
@@ -174,7 +174,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
     // @todo add access control on user account, see message_ui_access_control.
 
     // @todo : how should form args be wrapped in this case, or a better method?
-    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageDeleteConfirm', $message);
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageUiDeleteConfirm', $message);
 
     return $build;
   }
@@ -194,7 +194,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
     // @todo add access control on user account, see message_ui_access_control.
 
     // @todo pass messages to be deleted in args?
-    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\DeleteMultiple');
+    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\MessageUiDeleteMultiple');
 
     return $build;
   }

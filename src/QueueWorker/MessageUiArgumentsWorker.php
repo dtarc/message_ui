@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker.
+ * Contains \Drupal\message_ui\Plugin\QueueWorker\MessageUiArgumentsWorker.
  */
 
 namespace Drupal\message_ui\Plugin\QueueWorker;
@@ -18,7 +18,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
  *   cron = {"time" = 60}
  * )
  */
-class ArgumentsWorker extends QueueWorkerBase {
+class MessageUiArgumentsWorker extends QueueWorkerBase {
 
   /**
    * {@inheritdoc}
@@ -97,7 +97,7 @@ class ArgumentsWorker extends QueueWorkerBase {
       $message_arguments[$token] = $value;
     }
 
-    $message->getArguments() = $message_arguments;
+    $message->setArguments($message_arguments);
     $message->save();
   }
 
@@ -114,7 +114,7 @@ class ArgumentsWorker extends QueueWorkerBase {
     $messages = Message::loadMultiple($mids);
 
     foreach ($messages as $message) {
-      ArgumentsWorker::messageArgumentsUpdate($message, $arguments);
+      MessageUiArgumentsWorker::messageArgumentsUpdate($message, $arguments);
     }
   }
 }

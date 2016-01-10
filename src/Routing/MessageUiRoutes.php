@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\message_ui\Routing\MessageRoutes.
+ * Contains \Drupal\message_ui\Routing\MessageUiRoutes.
  */
 
 namespace Drupal\message_ui\Routing;
@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Route;
 /**
  * Defines dynamic routes.
  */
-class MessageRoutes {
+class MessageUiRoutes {
   /**
    * {@inheritdoc}
    */
@@ -44,7 +44,7 @@ class MessageRoutes {
         '/message/{message}/devel',
         // Route defaults:
         array(
-          '_controller' => '\Drupal\message_ui\Controller\MessageUIController::devel',
+          '_controller' => '\Drupal\message_ui\Controller\MessageUiController::devel',
           '_title' => 'Devel'
         ),
         // Route requirements:

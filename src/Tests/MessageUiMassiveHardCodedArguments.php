@@ -68,7 +68,8 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     // Fire the queue worker.
     $queue = \Drupal::queue('message_ui_arguments');
     $item = $queue->claimItem();
-    message_ui_arguments_worker($item->data);
+    // @todo : check the below calls MessageUiArgumentsWorker::processItem.
+    $queue->createItem($item->data);
 
     // Verify the arguments has changed.
     $message = Message::load($message->id());
@@ -90,7 +91,8 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     // Fire the queue worker.
     $queue = \Drupal::queue('message_ui_arguments');
     $item = $queue->claimItem();
-    message_ui_arguments_worker($item->data);
+    // @todo : check the below calls MessageUiArgumentsWorker::processItem.
+    $queue->createItem($item->data);
 
     // Verify the arguments has changed.
     $message = Message::load($message->id());

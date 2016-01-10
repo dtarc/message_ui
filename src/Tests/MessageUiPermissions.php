@@ -7,10 +7,10 @@
 
 namespace Drupal\message_ui\Tests;
 
+use Drupal\message_ui\MessageUiAccessControlHandler;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
 use Drupal\message\Entity\Message;
-use Drupal\message_ui\MessageAccessControlHandler;
 
 /**
  * Testing the message access use case.
@@ -125,7 +125,7 @@ class MessageUiPermissions extends MessageTestBase {
   /**
    * Checking the alteration flow for other modules.
    */
-  public function testMessageUIAccessHook() {
+  public function testMessageUiAccessHook() {
     \Drupal::service('module_installer')->install('message_ui_test');
 
     $this->drupalLogin($this->user);
@@ -154,8 +154,8 @@ class MessageUiPermissions extends MessageTestBase {
         '@value' => $value,
       );
 
-      $access_handler = new MessageAccessControlHandler('message');
-      $this->assertEqual($access_handler->checkAccess($message, $op, \Drupal::currentUser()), $value, format_string('The hook return @value for @operation', $params));
+      $access_handler = new MessageUiAccessControlHandler($message_type->getEntityType());
+      $this->assertEqual($access_handler->access($message, $op, \Drupal::currentUser()), $value, format_string('The hook return @value for @operation', $params));
     }
   }
 }

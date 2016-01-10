@@ -72,4 +72,4 @@ message_ui.delete_multiple:
 
 # @todo Add devel admin routes from D7: message/*/devel in route callback.
 route_callbacks:
-  - '\Drupal\message_ui\Routing\MessageRoutes::routes'
+  - '\Drupal\message_ui\Routing\MessageUiRoutes::routes'

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\Form\DeleteMultiple.
+ * Contains \Drupal\message_ui\Form\MessageUiDeleteMultiple.
  */
 
 namespace Drupal\message_ui\Form;
@@ -20,7 +20,7 @@ use Drupal\message_ui\Controller\MessageUiController;
 /**
  * Provides a message deletion confirmation form.
  */
-class DeleteMultiple extends ConfirmFormBase {
+class MessageUiDeleteMultiple extends ConfirmFormBase {
   /**
    * The array of nodes to delete.
    *

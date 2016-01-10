@@ -140,10 +140,10 @@ function message_ui_entity_type_alter(array &$entity_types) {
     $message_config->setHandlerClass(
       'form',
       array(
-        'default' => 'Drupal\message_ui\Form\MessageForm',
-        'add' => 'Drupal\message_ui\Form\MessageForm',
-        'edit' => 'Drupal\message_ui\Form\MessageForm',
-        'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
+        'default' => 'Drupal\message_ui\Form\MessageUiForm',
+        'add' => 'Drupal\message_ui\Form\MessageUiForm',
+        'edit' => 'Drupal\message_ui\Form\MessageUiForm',
+        'delete' => 'Drupal\message_ui\Form\MessageUiDeleteForm',
       ));
     $message_config->set(
       'links',

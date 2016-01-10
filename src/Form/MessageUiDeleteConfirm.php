@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\Form\MessageDeleteConfirm.
+ * Contains \Drupal\message_ui\Form\MessageUiDeleteConfirm.
  */
 
 namespace Drupal\message_ui\Form;
@@ -14,7 +14,7 @@ use Drupal\Core\Url;
 /**
  * Provides a form for message deletion.
  */
-class MessageDeleteConfirm extends EntityConfirmFormBase {
+class MessageUiDeleteConfirm extends EntityConfirmFormBase {
 
   /**
    * {@inheritdoc}

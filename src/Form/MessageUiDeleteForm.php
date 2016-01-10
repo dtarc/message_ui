@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\Form\MessageDeleteForm.
+ * Contains \Drupal\message_ui\Form\MessageUiDeleteForm.
  */
 
 namespace Drupal\message_ui\Form;
@@ -12,7 +12,7 @@ use Drupal\Core\Entity\ContentEntityDeleteForm;
 /**
  * Provides a form for deleting a message.
  */
-class MessageDeleteForm extends ContentEntityDeleteForm {
+class MessageUiDeleteForm extends ContentEntityDeleteForm {
 
   /**
    * {@inheritdoc}

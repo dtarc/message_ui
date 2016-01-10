@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\MessageForm.
+ * Contains \Drupal\message_ui\MessageUiForm.
  */
 
 namespace Drupal\message_ui\Form;
@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @ingroup message
  */
-class MessageForm extends ContentEntityForm {
+class MessageUiForm extends ContentEntityForm {
 
   /**
    * Constructs a ContentEntityForm object.

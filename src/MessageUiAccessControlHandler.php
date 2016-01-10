@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MessageUiAccessControlHandler extends EntityAccessControlHandler implements EntityHandlerInterface {
 
   /**
-   * Constructs a NodeAccessControlHandler object.
+   * Constructs a MessageUiAccessControlHandler object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.

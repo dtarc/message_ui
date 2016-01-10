@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\Controller\MessageViewController.
+ * Contains \Drupal\message_ui\Controller\MessageUiViewController.
  */
 
 namespace Drupal\message_ui\Controller;
@@ -13,7 +13,7 @@ use Drupal\Core\Entity\Controller\EntityViewController;
 /**
  * Defines a controller to render a single message.
  */
-class MessageViewController extends EntityViewController {
+class MessageUiViewController extends EntityViewController {
 
   /**
    * {@inheritdoc}
