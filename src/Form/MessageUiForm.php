@@ -177,17 +177,19 @@ class MessageUiForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
+  /*
   public function validateForm(array &$form, FormStateInterface $form_state) {
     // @todo Custom validation.
     // D7: field_attach_form_validate('message', $form_state['#entity'], $form, $form_state);
   }
+  */
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function save(array $form, FormStateInterface $form_state) {
     // E.g. drupal_set_message($this->t('Your phone number is @number', array('@number' => $form_state->getValue('phone_number'))));
-
+    // parent::submitForm($form, $form_state);
     // Submit handler - create/edit new message via the UI.
     /* @var $message Message */
     $message = $this->getEntity();

@@ -38,13 +38,13 @@ class MessageUiAddAccessCheck implements AccessInterface {
   }
 
   /**
-   * Checks access to the node add page for the node type.
+   * Checks access to the node add page for the message type.
    *
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The currently logged in account.
-   * @param \Drupal\node\NodeTypeInterface $node_type
-   *   (optional) The node type. If not specified, access is allowed if there
-   *   exists at least one node type for which the user may create a node.
+   * @param \Drupal\message\MessageTypeInterface $message_type
+   *   (optional) The message type. If not specified, access is allowed if there
+   *   exists at least one message type for which the user may create a message.
    *
    * @return string
    *   A \Drupal\Core\Access\AccessInterface constant value.
