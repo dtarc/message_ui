@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Contains \Drupal\message_ui\MessageUiAccessControlHandler.
@@ -16,10 +15,10 @@ use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines the access control handler for the node entity type.
+ * Defines the access control handler for the message entity type.
  *
- * @see \Drupal\node\Entity\Node
- * @ingroup node_access
+ * @see \Drupal\message\Entity\Message
+ * @ingroup message_access
  */
 class MessageUiAccessControlHandler extends EntityAccessControlHandler implements EntityHandlerInterface {
 
@@ -42,21 +41,24 @@ class MessageUiAccessControlHandler extends EntityAccessControlHandler implement
     );
   }
 
-
   /**
    * {@inheritdoc}
    */
   public function access(EntityInterface $entity, $operation, AccountInterface $account = NULL, $return_as_object = FALSE) {
     $account = $this->prepareUser($account);
 
-    if ($account->hasPermission('bypass node access')) {
+    if ($account->hasPermission('bypass message access control')) {
       $result = AccessResult::allowed()->cachePerPermissions();
       return $return_as_object ? $result : $result->isAllowed();
     }
-    if (!$account->hasPermission('access content')) {
-      $result = AccessResult::forbidden()->cachePerPermissions();
+    // User have access to operation on an instance of any message type.
+    if ($account->hasPermission($operation . ' any message type')) {
+      $result = AccessResult::allowed()->cachePerPermissions();
       return $return_as_object ? $result : $result->isAllowed();
     }
+
+    // @todo Check that the below checks remaing permissions correctly.
+    /* @var $result \Drupal\Core\Access\AccessResult */
     $result = parent::access($entity, $operation, $account, TRUE)->cachePerPermissions();
     return $return_as_object ? $result : $result->isAllowed();
   }
@@ -65,51 +67,18 @@ class MessageUiAccessControlHandler extends EntityAccessControlHandler implement
    * {@inheritdoc}
    */
   public function createAccess($entity_bundle = NULL, AccountInterface $account = NULL, array $context = array(), $return_as_object = FALSE) {
-    /*
-    // @todo remove note: previously message_ui_user_can_create_message.
-    if (empty($account)) {
-      $account = \Drupal::currentUser();
-    }
-
-    $message_ui_controller = new MessageUiController();
-    $types = $message_ui_controller->getTypes();
-
-    // User have access to create any instances.
-    if ($account->hasPermission('create any message instance')) {
-      return TRUE;
-    }
-
-    // Check access for a specific message.
-    if ($type) {
-
-      // Didn't found that type.
-      if (!in_array($type, $types)) {
-        return FALSE;
-      }
-
-      if ($account->hasPermission('create a ' . $type . ' message instance')) {
-        return TRUE;
-      }
-    }
-
-    // Build list of arrays for the permissions.
-    $permissions = array();
-    foreach (array_keys($types) as $type) {
-      $permissions[$type] = $account->hasPermission('create a ' . $type . ' message instance');
-    }
-    */
-
     $account = $this->prepareUser($account);
 
-    if ($account->hasPermission('bypass node access')) {
+    if ($account->hasPermission('bypass message access control')) {
       $result = AccessResult::allowed()->cachePerPermissions();
       return $return_as_object ? $result : $result->isAllowed();
     }
-    if (!$account->hasPermission('access content')) {
-      $result = AccessResult::forbidden()->cachePerPermissions();
+    // User have access to create an instance of any message type.
+    if ($account->hasPermission('create any message type')) {
+      $result = AccessResult::allowed()->cachePerPermissions();
       return $return_as_object ? $result : $result->isAllowed();
     }
-
+    /* @var $result \Drupal\Core\Access\AccessResult */
     $result = parent::createAccess($entity_bundle, $account, $context, TRUE)->cachePerPermissions();
     return $return_as_object ? $result : $result->isAllowed();
   }
@@ -117,20 +86,9 @@ class MessageUiAccessControlHandler extends EntityAccessControlHandler implement
   /**
    * {@inheritdoc}
    */
-  protected function checkAccess(EntityInterface $node, $operation, AccountInterface $account) {
-    /** @var \Drupal\node\NodeInterface $node */
-
-    // Fetch information from the node object if possible.
-    $status = $node->isPublished();
-    $uid = $node->getOwnerId();
-
-    // Check if authors can view their own unpublished nodes.
-    if ($operation === 'view' && !$status && $account->hasPermission('view own unpublished content') && $account->isAuthenticated() && $account->id() == $uid) {
-      return AccessResult::allowed()->cachePerPermissions()->cachePerUser()->cacheUntilEntityChanges($node);
-    }
-
-    // Evaluate node grants.
-    return $this->grantStorage->access($node, $operation, $account);
+  protected function checkAccess(EntityInterface $message, $operation, AccountInterface $account) {
+    // Evaluate message access.
+    return $this->access($message, $operation, $account);
   }
 
   /**

@@ -24,9 +24,8 @@ class MessageUiRouteProvider implements EntityRouteProviderInterface {
     $route_collection = new RouteCollection();
     $route = (new Route('/message/{message}'))
       ->addDefaults([
-        '_controller' => '\Drupal\message_ui\Controller\MessageUiController::show',
+        '_controller' => '\Drupal\message_ui\Controller\MessageUiViewController::view',
         '_title' => 'Viewing a message',
-        //'_title_callback' => '\Drupal\node\Controller\NodeViewController::title',
       ])
       ->setRequirement('_message_ui_access', 'view');
     $route_collection->add('entity.message.canonical', $route);

@@ -31,12 +31,20 @@ class MessageUiRoutes {
     //      'weight' => 20,
     //    );
 
-
     // @todo : enabled for testing.
     // $devel_enabled = \Drupal::moduleHandler()->moduleExists('devel');
 
     // If the devel module is installed, create this route.
     if (!empty($devel_enabled)) {
+      // @todo Add this route for deleting via devel module.
+      //    message_ui.delete_multiple:
+      //  path: '/admin/config/development/message_delete_multiple'
+      //  defaults:
+      //    _title: 'Message delete multiple'
+      //    _controller: '\Drupal\message_ui\Controller\MessageUiController::deleteMultiple'
+      //  options:
+      //    _admin_route: TRUE
+
       // Declares a single route under the name 'entity.message.canonical'.
       // Returns an array of Route objects.
       $routes['entity.message.canonical.devel'] = new Route(

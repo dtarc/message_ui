@@ -5,8 +5,6 @@
  * Contains \Drupal\message_ui\MessageUiPermissions.
  */
 
-// @todo : remove permissions not available in D7.
-
 namespace Drupal\message_ui;
 
 use Drupal\Core\Routing\UrlGeneratorTrait;
@@ -25,7 +23,7 @@ class MessageUiPermissions {
    * Gets an array of message type permissions.
    *
    * @return array
-   *   The node type permissions.
+   *   The message type permissions.
    *   @see \Drupal\user\PermissionHandlerInterface::getPermissions()
    */
   public function messageTypePermissions() {
@@ -52,20 +50,17 @@ class MessageUiPermissions {
     $type_params = array('%type_name' => $type->label());
 
     return array(
+      "view $type_id message" => array(
+        'title' => $this->t('%type_name: View a message instance', $type_params),
+      ),
+      "edit $type_id message" => array(
+        'title' => $this->t('%type_name: Edit a message instance', $type_params),
+      ),
       "create $type_id message" => array(
-        'title' => $this->t('%type_name: Create new message', $type_params),
+        'title' => $this->t('%type_name: Create a new message instance', $type_params),
       ),
-      "edit own $type_id message" => array(
-        'title' => $this->t('%type_name: Edit own message', $type_params),
-      ),
-      "edit any $type_id message" => array(
-        'title' => $this->t('%type_name: Edit any message', $type_params),
-      ),
-      "delete own $type_id message" => array(
-        'title' => $this->t('%type_name: Delete own message', $type_params),
-      ),
-      "delete any $type_id message" => array(
-        'title' => $this->t('%type_name: Delete any message', $type_params),
+      "delete $type_id message" => array(
+        'title' => $this->t('%type_name: Delete a message instance', $type_params),
       ),
     );
   }

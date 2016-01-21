@@ -14,11 +14,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\message\Entity\Message;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\user\PrivateTempStoreFactory;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Form controller for node type forms.
+ * Form controller for message type forms.
  *
  * @ingroup message
  */
@@ -41,13 +39,10 @@ class MessageUiForm extends ContentEntityForm {
     /** @var Message $message */
     $message = $this->entity;
 
-    // @todo follow MessageType form and message_ui_instance_message_manage.
     // The UI for creating/editing the message.
     if (!is_object($message)) {
       $message = Message::create($message);
     }
-
-    // $form_state['#entity'] = $message;
 
     $view_builder = \Drupal::entityManager()->getViewBuilder('message');
     $message_text = $view_builder->view($message);
@@ -179,7 +174,7 @@ class MessageUiForm extends ContentEntityForm {
    */
   /*
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    // @todo Custom validation.
+    // @todo Custom validation, what validation is needed?
     // D7: field_attach_form_validate('message', $form_state['#entity'], $form, $form_state);
   }
   */
@@ -188,11 +183,12 @@ class MessageUiForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    // E.g. drupal_set_message($this->t('Your phone number is @number', array('@number' => $form_state->getValue('phone_number'))));
-    // parent::submitForm($form, $form_state);
-    // Submit handler - create/edit new message via the UI.
     /* @var $message Message */
-    $message = $this->getEntity();
+    $message = $this->entity;
+    $insert = $message->isNew();
+    $message_link = $message->link($this->t('View'));
+    $context = array('@type' => $message->getType(), '%title' => $message->label(), 'link' => $message_link);
+    $t_args = array('@type' => $message->getEntityType()->getLabel(), '%title' => $message->label());
 
     // @todo: submit handlers are removed, what is needed below? https://www.drupal.org/node/1846648
     // field_attach_submit('message', $message, $form, $form_state);
@@ -230,6 +226,15 @@ class MessageUiForm extends ContentEntityForm {
     $message->setAuthorId(user_load_by_name($form_state->getValue('name')));
     $message->setCreatedTime(strtotime($form_state->getValue('date')));
     $message->save();
+
+    if ($insert) {
+      $this->logger('content')->notice('@type: added %title.', $context);
+      drupal_set_message(t('@type %title has been created.', $t_args));
+    }
+    else {
+      $this->logger('content')->notice('@type: updated %title.', $context);
+      drupal_set_message(t('@type %title has been updated.', $t_args));
+    }
 
     $form_state->setRedirect('entity.message.canonical', ['message' => $message->id()]);
   }

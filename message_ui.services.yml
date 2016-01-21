@@ -9,7 +9,3 @@ services:
     arguments: ['@entity.manager']
     tags:
       - { name: access_check, applies_to: _message_ui_access }
-##  message_ui.route_subscriber:
-##    class: Drupal\message\Routing\RouteSubscriber
-##    tags:
-##      - { name: event_subscriber }

@@ -12,6 +12,7 @@ use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\message\Entity\Message;
+use Drupal\message\Entity\MessageType;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -21,12 +22,13 @@ use Drupal\message_ui\Controller\MessageUiController;
  * Provides a message deletion confirmation form.
  */
 class DeleteMultiple extends ConfirmFormBase {
+
   /**
-   * The array of nodes to delete.
+   * The array of messages to delete.
    *
    * @var array
    */
-  protected $nodes = array();
+  protected $messages = array();
 
   /**
    * The tempstore factory.
@@ -36,7 +38,7 @@ class DeleteMultiple extends ConfirmFormBase {
   protected $tempStoreFactory;
 
   /**
-   * The node storage.
+   * The message storage.
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
@@ -116,27 +118,26 @@ class DeleteMultiple extends ConfirmFormBase {
 
     $form['actions']['cancel']['#href'] = $this->getCancelRoute();
 
+    // @todo - from message_ui in D7.
     // Delete multiple messages.
-    // @todo from D7 message_ui module, merge with above?
-    $message_ui_controller = new MessageUiController();
-    $types = $message_ui_controller->getTypes();
-
-    $form['types'] = array(
-      '#type' => 'select',
-      '#title' => t('Message types'),
-      '#description' => t('Select the message type your would like to delete message from.'),
-      '#options' => $types,
-      '#multiple' => TRUE,
-      '#required' => TRUE,
-    );
-
-    $form['actions'] = array(
-      '#type' => 'actions',
-      'submit' => array(
-        '#type' => 'submit',
-        '#value' => t('Send'),
-      ),
-    );
+    //    $types = MessageType::loadMultiple();
+    //
+    //    $form['types'] = array(
+    //      '#type' => 'select',
+    //      '#title' => t('Message types'),
+    //      '#description' => t('Select the message type your would like to delete message from.'),
+    //      '#options' => $types,
+    //      '#multiple' => TRUE,
+    //      '#required' => TRUE,
+    //    );
+    //
+    //    $form['actions'] = array(
+    //      '#type' => 'actions',
+    //      'submit' => array(
+    //        '#type' => 'submit',
+    //        '#value' => t('Send'),
+    //      ),
+    //    );
 
     return $form;
   }

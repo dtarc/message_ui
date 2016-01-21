@@ -6,5 +6,21 @@ update tokens:
   title: Manage the message tokens
   description: Grant to the user the permission to update the tokens of the message - manually or automatically with a checkbox
 
+view any message type:
+  title: View any message type
+  description: Allowing to view message from any message type
+
+edit any message type:
+  title: Edit any message type
+  description: Allowing to edit message from any message type
+
+create any message type:
+  title: Create any message type
+  description: Allowing to create message from any message type
+
+delete any message type:
+  title: Delete any message type
+  description: Allowing to delete message from any message type
+
 permission_callbacks:
   - \Drupal\message_ui\MessageUiPermissions::messageTypePermissions

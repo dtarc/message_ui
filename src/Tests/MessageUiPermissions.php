@@ -55,7 +55,7 @@ class MessageUiPermissions extends MessageTestBase {
     $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
 
     // Load 'authenticated' user role.
-    $role = entity_load('user_role', RoleInterface::AUTHENTICATED_ID);
+    $role = RoleInterface::load(RoleInterface::AUTHENTICATED_ID);
     $this->rid = $role->id();
   }
 

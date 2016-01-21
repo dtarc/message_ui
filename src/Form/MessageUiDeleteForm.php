@@ -42,9 +42,9 @@ class MessageUiDeleteForm extends ContentEntityDeleteForm {
    * {@inheritdoc}
    */
   protected function logDeletionMessage() {
-    /** @var \Drupal\node\NodeInterface $entity */
+    /** @var \Drupal\message\MessageInterface $entity */
     $entity = $this->getEntity();
-    $this->logger('content')->notice('@type: deleted %title.', ['@type' => $entity->getType(), '%title' => $entity->label()]);
+    $this->logger('content')->notice('@type: deleted %title.', ['@type' => $entity->getEntityType(), '%title' => $entity->label()]);
   }
 
 }

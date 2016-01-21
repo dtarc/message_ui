@@ -5,7 +5,7 @@
  */
 
 use Drupal\message\Entity\Message;
-use Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker;
+use Drupal\message_ui\Plugin\QueueWorker\MessageUiArgumentsWorker;
 
 /**
  * Grant permission for the operation upon message.
@@ -20,7 +20,6 @@ const MESSAGE_UI_DENY = TRUE;
 /**
  * Implements hook_theme().
  */
-// @todo: Is instance_item_list correct naming convention for new template?
 function message_ui_theme() {
   return array(
     'instance_item_list' => array(
@@ -131,12 +130,12 @@ function message_ui_form_message_user_admin_settings_submit($form, &$form_state)
  * Implements hook_entity_type_alter.
  *
  * Extend the message entity type by providing form handlers.
- * @todo : test if defined form handlers are removed on message_ui uninstall.
  */
 function message_ui_entity_type_alter(array &$entity_types) {
   if (isset($entity_types['message'])) {
     /* @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType */
     $message_config = $entity_types['message'];
+    $message_config->setAccessClass('Drupal\message\MessageUiAccessControlHandler');
     $message_config->setHandlerClass(
       'form',
       array(
@@ -195,10 +194,10 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
 
   $keys = array_keys($result['message']);
   $message = Message::load(reset($keys));
-  $new_arguments = ArgumentsWorker::getArguments($type);
+  $new_arguments = MessageUiArgumentsWorker::getArguments($type);
 
   $old_arguments_number = count($message->getArguments());
-  $new_arguments_number = count($new_arguments);
+  $new_arguments_number = $new_arguments;
   $how_to_act = \Drupal::config('message_ui.settings')->get('update_tokens.how_to_act');
 
   $update['when_added'] = $old_arguments_number < $new_arguments_number && $how_to_act == 'update_when_added';
