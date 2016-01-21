@@ -17,15 +17,20 @@ use Drupal\message\Entity\Message;
  */
 class MessageUiMassiveHardCodedArguments extends MessageTestBase {
 
-  public $user1;
+  /**
+   * The user object.
+   * @var
+   */
+  public $user;
 
   /**
    * Modules to enable.
    *
+   * @todo: is entity_token required in D8?
+   *
    * @var array
    */
-  // @todo: is entity_token required in D8?
-  public static $modules = array('message', 'message_ui'/*, 'entity_token'*/);
+  public static $modules = ['message', 'message_ui'];
 
   public static function getInfo() {
     return array(
@@ -36,24 +41,31 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp();
 
+    $this->user = $this->drupalCreateUser();
+  }
+
+  /**
+   * Test removal of added arguments.
+   */
+  public function testRemoveAddingArguments() {
     // Create Message Type of 'Dummy Test.
     $this->createMessageType('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
 
     // Set a queue worker for the update arguments when updating a message type.
     $this->configSet('update', TRUE, 'message_ui.update_tokens');
     $this->configSet('how', 'update_when_item', 'message_ui.update_tokens');
-  }
 
-  public function testRemoveAddingArguments() {
     // Create a message.
-    $this->user1 = $this->drupalCreateUser();
     $message_type = $this->loadMessageType('dummy_message');
     $message = Message::create(array('type' => $message_type->id()))
-      ->setAuthorId($this->user1->id());
-    $message->setAuthorId($this->user1->id());
+      ->setAuthorId($this->user->id());
+    $message->setAuthorId($this->user->id());
     $message->save();
 
     $original_arguments = $message->getArguments();
@@ -77,7 +89,7 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
 
     // Creating a new message and her hard coded arguments.
     $message = Message::create('dummy_message');
-    $message->setAuthorId($this->user1->uid);
+    $message->setAuthorId($this->user->uid);
     $message->save();
     $original_arguments = $message->getArguments();
 

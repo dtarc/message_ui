@@ -26,8 +26,8 @@ class MessageUiPermissions extends MessageTestBase {
   public $user;
 
   /**
-   * @var
    * The user role.
+   * @var
    */
   public $rid;
 
@@ -36,7 +36,7 @@ class MessageUiPermissions extends MessageTestBase {
    *
    * @var array
    */
-  public static $modules = array('message', 'message_ui');
+  public static $modules = ['message', 'message_ui'];
 
   public static function getInfo() {
     return array(
@@ -46,17 +46,13 @@ class MessageUiPermissions extends MessageTestBase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setUp();
 
     $this->user = $this->drupalCreateUser();
-
-    // Create Message type foo.
-    $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
-
-    // Load 'authenticated' user role.
-    $role = RoleInterface::load(RoleInterface::AUTHENTICATED_ID);
-    $this->rid = $role->id();
   }
 
   /**
@@ -126,6 +122,7 @@ class MessageUiPermissions extends MessageTestBase {
    * Checking the alteration flow for other modules.
    */
   public function testMessageUiAccessHook() {
+    // Install the message ui test dummy module.
     \Drupal::service('module_installer')->install('message_ui_test');
 
     $this->drupalLogin($this->user);
@@ -137,6 +134,13 @@ class MessageUiPermissions extends MessageTestBase {
       'delete' => FALSE,
       'update' => FALSE,
     );
+
+    // Create Message type foo.
+    $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
+
+    // Load 'authenticated' user role.
+    $role = RoleInterface::load(RoleInterface::AUTHENTICATED_ID);
+    $this->rid = $role->id();
 
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('foo');

@@ -8,7 +8,6 @@
 namespace Drupal\message_ui\Tests;
 
 use Drupal\user\RoleInterface;
-use Drupal\user\Entity\Role;
 use Drupal\message\Tests\MessageTestBase;
 use Drupal\message\Entity\Message;
 
@@ -34,10 +33,11 @@ class MessageUiHardCodedArguments extends MessageTestBase {
   /**
    * Modules to enable.
    *
+   * @todo: is entity_token required in D8?
+   *
    * @var array
    */
-  // @todo: is entity_token required in D8?
-  public static $modules = array('message', 'message_ui'/*, 'entity_token'*/);
+  public static $modules = ['message', 'message_ui'];
 
   public static function getInfo() {
     return array(
@@ -48,27 +48,28 @@ class MessageUiHardCodedArguments extends MessageTestBase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp();
 
-    // Create Message Type of 'Dummy Test'.
-    $this->createMessageType('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
-
     $this->user1 = $this->drupalCreateUser();
     $this->user2 = $this->drupalCreateUser();
-
-    // Load 'authenticated' user role.
-    /* @var $role Role */
-    $role = Role::load(RoleInterface::AUTHENTICATED_ID);
-
-    user_role_grant_permissions($role->id(), array('bypass message access control'));
   }
 
   /**
    * Verify that a user can update the arguments for each instance.
    */
   public function testHardCoded() {
+    // Load 'authenticated' user role.
+    $role = RoleInterface::load(RoleInterface::AUTHENTICATED_ID);
+    user_role_grant_permissions($role->id(), array('bypass message access control'));
+
     $this->drupalLogin($this->user1);
+
+    // Create Message Type of 'Dummy Test'.
+    $this->createMessageType('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
 
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('dummy_message');
@@ -81,7 +82,7 @@ class MessageUiHardCodedArguments extends MessageTestBase {
 
     $this->assertText($this->user1->name, 'The message token is set to the user 1.');
 
-    $message->setAuthorId($this->user2->uid);
+    $message->setAuthorId($this->user2->id());
     $message->save();
     $this->drupalGet('message/' . $message->id());
 
