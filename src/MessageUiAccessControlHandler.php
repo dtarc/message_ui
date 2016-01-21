@@ -57,7 +57,6 @@ class MessageUiAccessControlHandler extends EntityAccessControlHandler implement
       return $return_as_object ? $result : $result->isAllowed();
     }
 
-    // @todo Check that the below checks remaing permissions correctly.
     /* @var $result \Drupal\Core\Access\AccessResult */
     $result = parent::access($entity, $operation, $account, TRUE)->cachePerPermissions();
     return $return_as_object ? $result : $result->isAllowed();

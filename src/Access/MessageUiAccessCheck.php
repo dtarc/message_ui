@@ -53,8 +53,10 @@ class MessageUiAccessCheck implements AccessInterface {
    */
   public function access(Route $route, AccountInterface $account, MessageInterface $message = NULL) {
     if ($operation = $route->getRequirement('_message_ui_access')) {
-      // @todo: switch on operation and determine message access.
-      return AccessResult::allowed();
+      if ($account->hasPermission($operation . ' any message type')
+        || $account->hasPermission($operation . ' ' . $message->bundle() . ' message')) {
+        return AccessResult::allowed()->cachePerPermissions();
+      }
     }
     return AccessResult::neutral();
   }

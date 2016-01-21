@@ -11,7 +11,10 @@ matrix:
 
 env:
   global:
-    - MODULE_NAME='message'
+    - MESSAGE_MODULE='message'
+    - MESSAGE_REPO='https://github.com/mccrodp/message.git'
+    - $MESSAGE_VERSION='add-message-template-hook'
+    - MODULE_NAME='message_ui'
     - MODULE_TEST_GROUP='Message'
     - DRUPAL_REPO='git://drupalcode.org/project/drupal.git'
     - DRUPAL_VERSION='8.0.x'
@@ -50,7 +53,9 @@ install:
   - mv * /tmp/$MODULE_NAME/
   - git clone --branch $DRUPAL_VERSION $DRUPAL_REPO drupal --depth 1
   - mv /tmp/$MODULE_NAME drupal/modules/
-  - cd drupal
+  - cd drupal/modules
+  - git clone --branch $MESSAGE_VERSION $MESSAGE_REPO
+  - cd ../
 
 before_script:
 
