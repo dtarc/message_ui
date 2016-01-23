@@ -7,6 +7,7 @@
 
 namespace Drupal\message_ui\Tests;
 
+use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
 use Drupal\message\Entity\Message;
@@ -63,7 +64,8 @@ class MessageUiHardCodedArguments extends MessageTestBase {
    */
   public function testHardCoded() {
     // Load 'authenticated' user role.
-    $role = RoleInterface::load(RoleInterface::AUTHENTICATED_ID);
+    $role = Role::load(RoleInterface::AUTHENTICATED_ID);
+    /* @var $role Role */
     user_role_grant_permissions($role->id(), array('bypass message access control'));
 
     $this->drupalLogin($this->user1);

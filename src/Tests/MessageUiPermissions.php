@@ -8,6 +8,7 @@
 namespace Drupal\message_ui\Tests;
 
 use Drupal\message_ui\MessageUiAccessControlHandler;
+use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
 use Drupal\message\Entity\Message;
@@ -139,7 +140,8 @@ class MessageUiPermissions extends MessageTestBase {
     $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
 
     // Load 'authenticated' user role.
-    $role = RoleInterface::load(RoleInterface::AUTHENTICATED_ID);
+    /* @var $role Role */
+    $role = Role::load(RoleInterface::AUTHENTICATED_ID);
     $this->rid = $role->id();
 
     // Get the message type and create an instance.
