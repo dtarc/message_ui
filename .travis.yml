@@ -13,7 +13,7 @@ env:
   global:
     - MESSAGE_MODULE='message'
     - MESSAGE_REPO='https://github.com/mccrodp/message.git'
-    - $MESSAGE_VERSION='add-message-template-hook'
+    - $MESSAGE_VERSION='remove-views-schema-errors'
     - MODULE_NAME='message_ui'
     - MODULE_TEST_GROUP='Message UI'
     - DRUPAL_REPO='git://drupalcode.org/project/drupal.git'
