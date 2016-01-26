@@ -59,8 +59,8 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
 
     // @todo : validate / fix this config access.
     // Set a queue worker for the update arguments when updating a message type.
-    $this->configSet('update', TRUE, 'message_ui.update_tokens');
-    $this->configSet('how', 'update_when_item', 'message_ui.update_tokens');
+    $this->configSet('update_tokens.update_tokens', TRUE, 'message_ui.settings');
+    $this->configSet('update_tokens.how_to_act', 'update_when_item', 'message_ui.settings');
 
     // Create a message.
     $message_type = $this->loadMessageType('dummy_message');
@@ -74,7 +74,7 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
 
     // @todo : validate / fix this config access.
     // Update message instance when removing a hard coded argument.
-    $this->configSet('when', 'update_when_removed', 'message_ui.update_tokens');
+    $this->configSet('update_tokens.how_to_act', 'update_when_removed', 'message_ui.settings');
 
     // Set message text.
     $message_type->setData(array('text' => '[message:user:name].'));
@@ -98,7 +98,7 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
 
     // @todo : validate / fix this config access.
     // Process the message instance when adding hard coded arguments.
-    $this->configSet('when', 'update_when_added', 'message_ui.update_tokens');
+    $this->configSet('update_tokens.how_to_act', 'update_when_added', 'message_ui.settings');
 
     $message_type = $this->loadMessageType('dummy_message');
     $message_type->setData(array('text' => '@{message:user:name}.'));

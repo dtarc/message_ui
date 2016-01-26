@@ -20,7 +20,7 @@ message_ui.update_tokens:
       type: boolean
       label: 'Update Tokens'
     how_to_act:
-      type: boolean
+      type: string
       label: 'How to Act'
     number_items:
       type: integer
