@@ -7,6 +7,7 @@
 
 namespace Drupal\message_ui\Tests;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\message_ui\MessageUiAccessControlHandler;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
@@ -67,7 +68,7 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Create the message.
     $this->grantMessageUiPermission('create');
-    $this->drupalPost('admin/content/messages/create/foo', array(), t('Create'));
+    $this->drupalPost('admin/content/messages/create/foo', array(), t('Create')->render());
 
     // Verify the user now can see the text.
     $this->grantMessageUiPermission('view');
@@ -89,7 +90,7 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Grant the permission to the user.
     $this->grantMessageUiPermission('delete');
-    $this->drupalPost('message/1/delete', array(), t('Delete'));
+    $this->drupalPost('message/1/delete', array(), t('Delete')->render());
 
     // The user did not have the permission to the overview page - verify access
     // denied.
@@ -147,7 +148,7 @@ class MessageUiPermissions extends MessageTestBase {
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('foo');
     $message = Message::create(array('type' => $message_type->id()));
-    $message->setAuthorId($this->user->uid);
+    $message->setAuthorId($this->user->id());
     $message->save();
 
     foreach ($permissions as $op => $value) {
@@ -160,8 +161,9 @@ class MessageUiPermissions extends MessageTestBase {
         '@value' => $value,
       );
 
+      // @todo: fix access handler use, see nodes tests.
       $access_handler = new MessageUiAccessControlHandler($message_type->getEntityType());
-      $this->assertEqual($access_handler->access($message, $op, \Drupal::currentUser()), $value, format_string('The hook return @value for @operation', $params));
+      $this->assertEqual($access_handler->access($message, $op, \Drupal::currentUser()), $value, new FormattableMarkup('The hook return @value for @operation', $params));
     }
   }
 }

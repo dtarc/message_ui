@@ -57,6 +57,7 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     // Create Message Type of 'Dummy Test.
     $this->createMessageType('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
 
+    // @todo : validate / fix this config access.
     // Set a queue worker for the update arguments when updating a message type.
     $this->configSet('update', TRUE, 'message_ui.update_tokens');
     $this->configSet('how', 'update_when_item', 'message_ui.update_tokens');
@@ -68,8 +69,10 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     $message->setAuthorId($this->user->id());
     $message->save();
 
+    // @todo : check what args are returned in D7.
     $original_arguments = $message->getArguments();
 
+    // @todo : validate / fix this config access.
     // Update message instance when removing a hard coded argument.
     $this->configSet('when', 'update_when_removed', 'message_ui.update_tokens');
 
@@ -89,10 +92,11 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
 
     // Creating a new message and her hard coded arguments.
     $message = Message::create('dummy_message');
-    $message->setAuthorId($this->user->uid);
+    $message->setAuthorId($this->user->id());
     $message->save();
     $original_arguments = $message->getArguments();
 
+    // @todo : validate / fix this config access.
     // Process the message instance when adding hard coded arguments.
     $this->configSet('when', 'update_when_added', 'message_ui.update_tokens');
 

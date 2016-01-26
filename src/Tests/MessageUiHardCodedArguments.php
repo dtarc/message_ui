@@ -76,35 +76,36 @@ class MessageUiHardCodedArguments extends MessageTestBase {
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('dummy_message');
     $message = Message::create(array('type' => $message_type->id()));
-    $message->setAuthorId($this->user1->uid);
+    $message->setAuthorId($this->user1->id());
     $message->save();
 
     // Verifying the message hard coded value is set to the user 1.
     $this->drupalGet('message/' . $message->id());
 
-    $this->assertText($this->user1->name, 'The message token is set to the user 1.');
+    $this->assertText($this->user1->getUsername(), 'The message token is set to the user 1.');
 
     $message->setAuthorId($this->user2->id());
     $message->save();
     $this->drupalGet('message/' . $message->id());
 
-    $this->assertNoText($this->user2->name, 'The message token is set to the user 1 after editing the message.');
+    $this->assertNoText($this->user2->getUsername(), 'The message token is set to the user 1 after editing the message.');
 
     // Update the message arguments automatically.
     $edit = array(
-      'name' => $this->user2->name,
+      'name' => $this->user2->getUsername(),
       'replace_tokens' => 'update',
     );
-    $this->drupalPost('message/' . $message->id() . '/edit', $edit, t('Update'));
+
+    $this->drupalPost('message/' . $message->id() . '/edit', $edit, t('Update')->render());
     $this->assertText($this->user2->name, 'The message token as updated automatically.');
 
     // Update the message arguments manually.
     $edit = array(
-      'name' => $this->user2->name,
+      'name' => $this->user2->getUsername(),
       'replace_tokens' => 'update_manually',
       '@{message:user:name}' => 'Dummy name',
     );
-    $this->drupalPost('message/' . $message->id() . '/edit', $edit, t('Update'));
+    $this->drupalPost('message/' . $message->id() . '/edit', $edit, t('Update')->render());
     $this->assertText('Dummy name', 'The hard coded token was updated with a custom value.');
   }
 }
