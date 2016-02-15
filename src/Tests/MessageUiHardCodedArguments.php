@@ -45,7 +45,6 @@ class MessageUiHardCodedArguments extends MessageTestBase {
       'name' => 'Message UI arguments single update',
       'description' => 'Testing the editing of the hard coded arguments.',
       'group' => 'Message UI',
-      // 'dependencies' => array('entity_token'), // @todo: is this required?
     );
   }
 
@@ -75,8 +74,9 @@ class MessageUiHardCodedArguments extends MessageTestBase {
 
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('dummy_message');
+    /* @var $message Message */
     $message = Message::create(array('type' => $message_type->id()));
-    $message->setAuthorId($this->user1->id());
+    $message->setOwner($this->user1);
     $message->save();
 
     // Verifying the message hard coded value is set to the user 1.
@@ -84,7 +84,7 @@ class MessageUiHardCodedArguments extends MessageTestBase {
 
     $this->assertText($this->user1->getUsername(), 'The message token is set to the user 1.');
 
-    $message->setAuthorId($this->user2->id());
+    $message->setOwner($this->user2);
     $message->save();
     $this->drupalGet('message/' . $message->id());
 

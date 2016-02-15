@@ -37,7 +37,6 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
       'name' => 'Message UI arguments massive update',
       'description' => 'Testing the removing/updating an hard coded arguments.',
       'group' => 'Message UI',
-      // 'dependencies' => array('entity_token'), // // @todo: is this required?
     );
   }
 
@@ -64,9 +63,9 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
 
     // Create a message.
     $message_type = $this->loadMessageType('dummy_message');
+    /* @var $message Message */
     $message = Message::create(array('type' => $message_type->id()))
-      ->setAuthorId($this->user->id());
-    $message->setAuthorId($this->user->id());
+      ->setOwner($this->user);
     $message->save();
 
     // @todo : check what args are returned in D7.
@@ -77,7 +76,7 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     $this->configSet('update_tokens.how_to_act', 'update_when_removed', 'message_ui.settings');
 
     // Set message text.
-    $message_type->setData(array('text' => '[message:user:name].'));
+    $message_type->set('text', array('[message:user:name].'));
     $message_type->save();
 
     // Fire the queue worker.
@@ -91,8 +90,8 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     $this->assertTrue($original_arguments != $message->getArguments(), 'The message arguments has changed during the queue worker work.');
 
     // Creating a new message and her hard coded arguments.
-    $message = Message::create('dummy_message');
-    $message->setAuthorId($this->user->id());
+    $message = Message::create(array('type' => $message_type->id()))
+      ->setOwner($this->user);
     $message->save();
     $original_arguments = $message->getArguments();
 
@@ -101,13 +100,14 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     $this->configSet('update_tokens.how_to_act', 'update_when_added', 'message_ui.settings');
 
     $message_type = $this->loadMessageType('dummy_message');
-    $message_type->setData(array('text' => '@{message:user:name}.'));
+    $message_type->set('text', array('@{message:user:name}.'));
     $message_type->save();
 
     // Fire the queue worker.
     $queue = \Drupal::queue('message_ui_arguments');
     $item = $queue->claimItem();
-    // @todo : check the below calls MessageUiArgumentsWorker::processItem.
+    // @todo: item->data currently returning null, do we need a check for that?
+    // @todo : check the below calls MessageUiArgumentsWorker::createItem.
     $queue->createItem($item->data);
 
     // Verify the arguments has changed.

@@ -147,8 +147,9 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('foo');
+    /* @var $message Message */
     $message = Message::create(array('type' => $message_type->id()));
-    $message->setAuthorId($this->user->id());
+    $message->setOwner($this->user);
     $message->save();
 
     foreach ($permissions as $op => $value) {
@@ -163,6 +164,7 @@ class MessageUiPermissions extends MessageTestBase {
 
       // @todo: fix access handler use, see nodes tests.
       $access_handler = new MessageUiAccessControlHandler($message_type->getEntityType());
+      // @todo: below causes an fn nesting loop currently.
       $this->assertEqual($access_handler->access($message, $op, \Drupal::currentUser()), $value, new FormattableMarkup('The hook return @value for @operation', $params));
     }
   }
