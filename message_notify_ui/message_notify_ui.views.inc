@@ -20,6 +20,9 @@ function message_notify_ui_views_data() {
 
 /**
  * Implements hook_views_default_views_alter().
+ *
+ * @todo: perhaps can be swapped for hook_views_data_alter(array &$data)?
+ * @todo: see https://api.drupal.org/api/drupal/core%21modules%21views%21views.api.php/function/hook_views_data_alter/8
  */
 function message_notify_ui_views_default_views_alter(&$views) {
 

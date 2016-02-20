@@ -96,7 +96,7 @@ class MessageUiHardCodedArguments extends MessageTestBase {
       'replace_tokens' => 'update',
     );
 
-    $this->drupalPost('message/' . $message->id() . '/edit', $edit, t('Update')->render());
+    $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
     $this->assertText($this->user2->name, 'The message token as updated automatically.');
 
     // Update the message arguments manually.
@@ -105,7 +105,7 @@ class MessageUiHardCodedArguments extends MessageTestBase {
       'replace_tokens' => 'update_manually',
       '@{message:user:name}' => 'Dummy name',
     );
-    $this->drupalPost('message/' . $message->id() . '/edit', $edit, t('Update')->render());
+    $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
     $this->assertText('Dummy name', 'The hard coded token was updated with a custom value.');
   }
 }

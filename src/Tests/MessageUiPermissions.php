@@ -68,7 +68,7 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Create the message.
     $this->grantMessageUiPermission('create');
-    $this->drupalPost('admin/content/messages/create/foo', array(), t('Create')->render());
+    $this->drupalPostForm('admin/content/messages/create/foo', array(), t('Create'));
 
     // Verify the user now can see the text.
     $this->grantMessageUiPermission('view');
@@ -90,7 +90,7 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Grant the permission to the user.
     $this->grantMessageUiPermission('delete');
-    $this->drupalPost('message/1/delete', array(), t('Delete')->render());
+    $this->drupalPostForm('message/1/delete', array(), t('Delete'));
 
     // The user did not have the permission to the overview page - verify access
     // denied.
@@ -125,7 +125,7 @@ class MessageUiPermissions extends MessageTestBase {
    */
   public function testMessageUiAccessHook() {
     // Install the message ui test dummy module.
-    \Drupal::service('module_installer')->install('message_ui_test');
+    \Drupal::service('module_installer')->install(['message_ui_test']);
 
     $this->drupalLogin($this->user);
 
