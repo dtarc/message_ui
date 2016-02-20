@@ -135,7 +135,8 @@ function message_ui_entity_type_alter(array &$entity_types) {
   if (isset($entity_types['message'])) {
     /* @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType */
     $message_config = $entity_types['message'];
-    $message_config->setAccessClass('Drupal\message\MessageUiAccessControlHandler');
+    // @todo: do we need both of these methods to set access class?
+    $message_config->setAccessClass('Drupal\message_ui\MessageUiAccessControlHandler');
     $message_config->setHandlerClass(
       'form',
       array(

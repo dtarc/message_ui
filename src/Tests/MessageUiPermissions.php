@@ -8,7 +8,6 @@
 namespace Drupal\message_ui\Tests;
 
 use Drupal\Component\Render\FormattableMarkup;
-use Drupal\message_ui\MessageUiAccessControlHandler;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
@@ -61,6 +60,11 @@ class MessageUiPermissions extends MessageTestBase {
    * Test message_access use case.
    */
   function testMessageUiPermissions() {
+    // Load 'authenticated' user role.
+    /* @var $role Role */
+    $role = Role::load(RoleInterface::AUTHENTICATED_ID);
+    $this->rid = $role->id();
+
     // verify the user can't create the message.
     $this->drupalLogin($this->user);
     $this->drupalGet('admin/content/messages/create/foo');
@@ -140,11 +144,6 @@ class MessageUiPermissions extends MessageTestBase {
     // Create Message type foo.
     $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
 
-    // Load 'authenticated' user role.
-    /* @var $role Role */
-    $role = Role::load(RoleInterface::AUTHENTICATED_ID);
-    $this->rid = $role->id();
-
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('foo');
     /* @var $message Message */
@@ -162,10 +161,8 @@ class MessageUiPermissions extends MessageTestBase {
         '@value' => $value,
       );
 
-      // @todo: fix access handler use, see nodes tests.
-      $access_handler = new MessageUiAccessControlHandler($message_type->getEntityType());
-      // @todo: below causes an fn nesting loop currently.
-      $this->assertEqual($access_handler->access($message, $op, \Drupal::currentUser()), $value, new FormattableMarkup('The hook return @value for @operation', $params));
+      $access_handler = \Drupal::entityManager()->getAccessControlHandler('message');
+      $this->assertEqual($value, $access_handler->access($message, $op, \Drupal::currentUser()), new FormattableMarkup('The hook return @value for @operation', $params));
     }
   }
 }
