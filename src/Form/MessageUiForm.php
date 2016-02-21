@@ -90,7 +90,7 @@ class MessageUiForm extends ContentEntityForm {
       '#weight' => 99,
       '#autocomplete_path' => 'user/autocomplete',
       '#description' => t('Leave blank for %anonymous.', array('%anonymous' => \Drupal::config('message_ui.settings')->get('anonymous'))),
-      '#default_value' => ($message->getAuthorId() ? User::load($message->getAuthorId())->getUsername() : NULL),
+      '#default_value' => ($message->getOwnerId() ? User::load($message->getOwnerId())->getUsername() : NULL),
     );
 
     $form['owner']['date'] = array(
@@ -186,6 +186,10 @@ class MessageUiForm extends ContentEntityForm {
     /* @var $message Message */
     $message = $this->entity;
     $insert = $message->isNew();
+    // Save new entity to get access to URIs.
+    if ($insert) {
+      $message->save(); // @todo: Is there a better way to prevent no URI error?
+    }
     $message_link = $message->link($this->t('View'));
     $context = array('@type' => $message->getType(), '%title' => $message->label(), 'link' => $message_link);
     $t_args = array('@type' => $message->getEntityType()->getLabel(), '%title' => $message->label());
@@ -223,7 +227,7 @@ class MessageUiForm extends ContentEntityForm {
       }
     }
 
-    $message->setAuthorId(user_load_by_name($form_state->getValue('name')));
+    $message->setOwnerId(user_load_by_name($form_state->getValue('name')));
     $message->setCreatedTime(strtotime($form_state->getValue('date')));
     $message->save();
 

@@ -12,6 +12,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\message\Entity\MessageType;
 use Drupal\message\Entity\Message;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\message\MessageTypeInterface;
 
 
 class MessageUiController extends ControllerBase implements ContainerInjectionInterface {
@@ -106,20 +107,13 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
   /**
    * Generates form output for adding a new message entity of message_type.
    *
-   * @todo pass : @param \Drupal\message\MessageTypeInterface $message_type
-   *   A message_type object.
-   *
+   * @param $message_type
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function add($message_type) {
-    $types = MessageType::loadMultiple();; // @todo : remove.
-    $message_type = $types[str_replace('-', '_', $message_type)]; // @todo : remove.
-    // \Doctrine\Common\Util\Debug::dump($message_type);
-    // @todo add & pass arg as : MessageTypeInterface $message_type
+  public function add(MessageTypeInterface $message_type) {
 
     $message = Message::create(array('type' => $message_type->id()));
-
     $form = $this->entityFormBuilder()->getForm($message);
 
     return $form;
@@ -127,9 +121,6 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
 
   /**
    * Generates form output for deleting of multiple message entities.
-   *
-   * @param \Drupal\message\MessageInterface $message
-   *   A message object.
    *
    * @return array
    *   An array as expected by drupal_render().

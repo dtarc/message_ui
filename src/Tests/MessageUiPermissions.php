@@ -74,7 +74,7 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Create the message.
     $this->grantMessageUiPermission('create');
-    $this->drupalPostForm('admin/content/messages/create/foo', array(), t('Create'));
+    $this->drupalPostForm('admin/content/messages/create/foo', array(), t('Save'));
 
     // Verify the user now can see the text.
     $this->grantMessageUiPermission('view');

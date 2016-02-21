@@ -7,9 +7,7 @@ message_ui.create_message:
     _controller: '\Drupal\message_ui\Controller\MessageUiController::addPage'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
-    _permission: 'adminster messages'
-#  requirements:
-#    _message_ui_add_access: 'message'
+    _message_ui_add_access: 'message'
   options:
     _admin_route: TRUE
 
@@ -19,12 +17,10 @@ message_ui.create_message_by_type:
     _title:  'Create a new message'
     #_title_callback: # Add title callback to display message type.
     _controller: '\Drupal\message_ui\Controller\MessageUiController::add'
-    # _entity_form: 'message.add'
+    _entity_form: 'message.add'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
-    _permission: 'adminster messages'
-#  requirements:
-#    _message_ui_add_access: 'message:{message_type}'
+    _message_ui_add_access: 'message:{message_type}'
   options:
     _admin_route: TRUE
 

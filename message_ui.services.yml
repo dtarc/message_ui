@@ -9,3 +9,13 @@ services:
     arguments: ['@entity.manager']
     tags:
       - { name: access_check, applies_to: _message_ui_access }
+  access_check.message_ui.edit:
+      class: Drupal\message_ui\Access\MessageUiAccessCheck
+      arguments: ['@entity.manager']
+      tags:
+        - { name: access_check, applies_to: _message_ui_access }
+  access_check.message_ui.delete:
+      class: Drupal\message_ui\Access\MessageUiAccessCheck
+      arguments: ['@entity.manager']
+      tags:
+        - { name: access_check, applies_to: _message_ui_access }
