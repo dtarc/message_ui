@@ -54,19 +54,21 @@ class MessageUiPermissions extends MessageTestBase {
     parent::setUp();
 
     $this->user = $this->drupalCreateUser();
+
+    // Load 'authenticated' user role.
+    $this->rid = Role::load(RoleInterface::AUTHENTICATED_ID)->id();
+
+    // Create Message type foo.
+    $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
   }
 
   /**
    * Test message_access use case.
    */
   function testMessageUiPermissions() {
-    // Load 'authenticated' user role.
-    /* @var $role Role */
-    $role = Role::load(RoleInterface::AUTHENTICATED_ID);
-    $this->rid = $role->id();
-
     // verify the user can't create the message.
     $this->drupalLogin($this->user);
+
     $this->drupalGet('admin/content/messages/create/foo');
     $this->assertResponse(403, t("The user can't create message."));
 
@@ -121,7 +123,7 @@ class MessageUiPermissions extends MessageTestBase {
    *  The type of operation - create, update, delete or view.
    */
   private function grantMessageUiPermission($operation) {
-    user_role_grant_permissions($this->rid, array($operation . ' a foo message instance'));
+    user_role_grant_permissions($this->rid, array($operation . ' foo message'));
   }
 
   /**
@@ -140,9 +142,6 @@ class MessageUiPermissions extends MessageTestBase {
       'delete' => FALSE,
       'update' => FALSE,
     );
-
-    // Create Message type foo.
-    $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
 
     // Get the message type and create an instance.
     $message_type = $this->loadMessageType('foo');

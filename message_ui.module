@@ -111,16 +111,11 @@ function message_ui_form_message_user_admin_settings_submit($form, &$form_state)
 
   $config = \Drupal::configFactory()->getEditable('message_ui.settings');
 
-  // @todo - step through & check if nested 'update_tokens' index is required.
+  // @todo: check if form_state values are accessed correctly.
   $config->set('update_tokens.update_tokens', $form_state['values']['update_tokens_update_tokens'] );
-
   $config->set('update_tokens.how_to_act', $form_state['values']['update_tokens_how_to_act'] );
-
-  // @todo: Does how_update need a default setting explicitly set in yaml file?
   $config->set('update_tokens.how_update', $form_state['values']['update_tokens_how_update'] );
-
   $config->set('update_tokens.number_items', $form_state['values']['update_tokens_number_items'] );
-
   $config->set('show_preview', $form_state['values']['message_ui_show_preview'] );
 
   $config->save();
@@ -135,7 +130,6 @@ function message_ui_entity_type_alter(array &$entity_types) {
   if (isset($entity_types['message'])) {
     /* @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType */
     $message_config = $entity_types['message'];
-    // @todo: do we need both of these methods to set access class?
     $message_config->setAccessClass('Drupal\message_ui\MessageUiAccessControlHandler');
     $message_config->setHandlerClass(
       'form',
