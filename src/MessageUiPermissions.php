@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\MessageUiPermissions.
+ * Contains Drupal\message_ui\MessageUiPermissions.
  */
 
 namespace Drupal\message_ui;
