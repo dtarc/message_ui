@@ -21,16 +21,16 @@ use Drupal\message\Entity\Message;
 class MessageUiPermissions extends MessageTestBase {
 
   /**
-   * The user object.
+   * The user account object.
    * @var
    */
-  public $user;
+  protected $account;
 
   /**
    * The user role.
    * @var
    */
-  public $rid;
+  protected $rid;
 
   /**
    * Modules to enable.
@@ -53,7 +53,7 @@ class MessageUiPermissions extends MessageTestBase {
   function setUp() {
     parent::setUp();
 
-    $this->user = $this->drupalCreateUser();
+    $this->account = $this->drupalCreateUser();
 
     // Load 'authenticated' user role.
     $this->rid = Role::load(RoleInterface::AUTHENTICATED_ID)->id();
@@ -67,10 +67,10 @@ class MessageUiPermissions extends MessageTestBase {
    */
   function testMessageUiPermissions() {
     // verify the user can't create the message.
-    $this->drupalLogin($this->user);
+    $this->drupalLogin($this->account);
 
-    $this->drupalGet('admin/content/messages/create/foo');
-    $this->assertResponse(403, t("The user can't create message."));
+    $this->drupalGet('/admin/content/messages/create/foo');
+    $this->assertResponse(403, t("The user can't create a message."));
 
     // Create the message.
     $this->grantMessageUiPermission('create');
@@ -79,16 +79,16 @@ class MessageUiPermissions extends MessageTestBase {
     // Verify the user now can see the text.
     $this->grantMessageUiPermission('view');
     $this->drupalGet('message/1');
-    $this->assertResponse(200, "The user can't view message.");
+    $this->assertResponse(200, "The user can view a message.");
 
     // Verify can't edit the message.
     $this->drupalGet('message/1/edit');
-    $this->assertResponse(403, "The user can't edit message.");
+    $this->assertResponse(403, "The user can't edit a message.");
 
     // Grant permission to the user.
     $this->grantMessageUiPermission('edit');
     $this->drupalGet('message/1/edit');
-    $this->assertResponse(200, "The user can't edit message.");
+    $this->assertResponse(200, "The user can't edit a message.");
 
     // Verify the user can't delete the message.
     $this->drupalGet('message/1/delete');
@@ -98,7 +98,7 @@ class MessageUiPermissions extends MessageTestBase {
     $this->grantMessageUiPermission('delete');
     $this->drupalPostForm('message/1/delete', array(), t('Delete'));
 
-    // The user did not have the permission to the overview page - verify access
+    // User did not have permission to the overview page - verify access
     // denied.
     $this->assertResponse(403, t("The user can't access the over view page."));
 
@@ -133,7 +133,7 @@ class MessageUiPermissions extends MessageTestBase {
     // Install the message ui test dummy module.
     \Drupal::service('module_installer')->install(['message_ui_test']);
 
-    $this->drupalLogin($this->user);
+    $this->drupalLogin($this->account);
 
     // Setting up the operation and the expected value from the access callback.
     $permissions = array(
@@ -147,7 +147,7 @@ class MessageUiPermissions extends MessageTestBase {
     $message_type = $this->loadMessageType('foo');
     /* @var $message Message */
     $message = Message::create(array('type' => $message_type->id()));
-    $message->setOwner($this->user);
+    $message->setOwner($this->account);
     $message->save();
 
     foreach ($permissions as $op => $value) {

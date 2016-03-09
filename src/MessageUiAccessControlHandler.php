@@ -94,6 +94,6 @@ class MessageUiAccessControlHandler extends EntityAccessControlHandler implement
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIf($account->hasPermission('create ' . $entity_bundle . ' content'))->cachePerPermissions();
+    return AccessResult::allowedIf($account->hasPermission('create ' . $entity_bundle . ' message'))->cachePerPermissions();
   }
 }
