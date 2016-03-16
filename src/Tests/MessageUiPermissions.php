@@ -66,37 +66,46 @@ class MessageUiPermissions extends MessageTestBase {
    * Test message_access use case.
    */
   function testMessageUiPermissions() {
-    // verify the user can't create the message.
-    $this->drupalLogin($this->account);
+    $this->drupalLogin($this->account); // User login.
+    $create_url = 'admin/content/messages/create/foo'; // Set our create url.
 
-    $this->drupalGet('/admin/content/messages/create/foo');
+    // Verify the user can't create the message.
+    $this->drupalGet($create_url);
     $this->assertResponse(403, t("The user can't create a message."));
 
-    // Create the message.
+    // Grant and check create permissions for a message.
     $this->grantMessageUiPermission('create');
-    $this->drupalPostForm('admin/content/messages/create/foo', array(), t('Save'));
+    $this->drupalGet($create_url);
+
+    // If we get a valid response, create a message.
+    if ($this->assertResponse(200, t("The user can create a message."))) {
+      // Create a message at current page / url.
+      $this->drupalPostForm($create_url, array(), t('Save'));
+    }
+
+    $msg_url = 'message/1'; // Create the message url.
 
     // Verify the user now can see the text.
     $this->grantMessageUiPermission('view');
-    $this->drupalGet('message/1');
+    $this->drupalGet($msg_url);
     $this->assertResponse(200, "The user can view a message.");
 
     // Verify can't edit the message.
-    $this->drupalGet('message/1/edit');
+    $this->drupalGet($msg_url . '/edit');
     $this->assertResponse(403, "The user can't edit a message.");
 
     // Grant permission to the user.
     $this->grantMessageUiPermission('edit');
-    $this->drupalGet('message/1/edit');
+    $this->drupalGet($msg_url . '/edit');
     $this->assertResponse(200, "The user can't edit a message.");
 
     // Verify the user can't delete the message.
-    $this->drupalGet('message/1/delete');
+    $this->drupalGet($msg_url . '/delete');
     $this->assertResponse(403, "The user can't delete the message");
 
     // Grant the permission to the user.
     $this->grantMessageUiPermission('delete');
-    $this->drupalPostForm('message/1/delete', array(), t('Delete'));
+    $this->drupalPostForm($msg_url . '/delete', array(), t('Delete'));
 
     // User did not have permission to the overview page - verify access
     // denied.
@@ -112,7 +121,7 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Verify the user can by pass the message access control.
     $this->drupalLogin($user);
-    $this->drupalGet('admin/content/messages/create/foo');
+    $this->drupalGet($create_url);
     $this->assertResponse(200, 'The user can bypass the message access control.');
   }
 
