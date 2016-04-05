@@ -25,3 +25,7 @@ message_ui.update_tokens:
     number_items:
       type: integer
       label: 'Number Items'
+
+action.configuration.message_save_action:
+  type: action_configuration_default
+  label: 'Save message configuration'
