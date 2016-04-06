@@ -12,8 +12,8 @@ matrix:
 env:
   global:
     - MESSAGE_MODULE='message'
-    - MESSAGE_REPO='https://github.com/mccrodp/message.git'
-    - $MESSAGE_VERSION='remove-views-schema-issues'
+    - MESSAGE_REPO='https://github.com/Gizra/message.git'
+    - $MESSAGE_VERSION='8.x-1.x'
     - MODULE_NAME='message_ui'
     - MODULE_TEST_GROUP='Message UI'
     - DRUPAL_REPO='git://drupalcode.org/project/drupal.git'

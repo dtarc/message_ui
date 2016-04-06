@@ -21,6 +21,13 @@ use Drupal\message\Entity\Message;
 class MessageUiPermissions extends MessageTestBase {
 
   /**
+   * The message access control handler.
+   *
+   * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface
+   */
+  protected $accessHandler;
+
+  /**
    * The user account object.
    * @var
    */
@@ -52,6 +59,8 @@ class MessageUiPermissions extends MessageTestBase {
    */
   function setUp() {
     parent::setUp();
+
+    $this->accessHandler = \Drupal::entityManager()->getAccessControlHandler('message');
 
     $this->account = $this->drupalCreateUser();
 
@@ -169,8 +178,7 @@ class MessageUiPermissions extends MessageTestBase {
         '@value' => $value,
       );
 
-      $access_handler = \Drupal::entityManager()->getAccessControlHandler('message');
-      $this->assertEqual($value, $access_handler->access($message, $op, \Drupal::currentUser()), new FormattableMarkup('The hook return @value for @operation', $params));
+      $this->assertEqual($value, $this->accessHandler->access($message, $op, $this->account), new FormattableMarkup('The hook return @value for @operation', $params));
     }
   }
 }

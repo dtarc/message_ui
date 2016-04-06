@@ -113,7 +113,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    */
   public function add(MessageTypeInterface $message_type) {
 
-    $message = Message::create(array('type' => $message_type->id()));
+    $message = Message::create(['type' => $message_type->id()]);
     $form = $this->entityFormBuilder()->getForm($message);
 
     return $form;
