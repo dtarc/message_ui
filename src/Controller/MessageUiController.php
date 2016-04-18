@@ -18,27 +18,41 @@ use Drupal\message\MessageTypeInterface;
 class MessageUiController extends ControllerBase implements ContainerInjectionInterface {
 
   /**
+   * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface
+   */
+  private $accessHandler;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
    * Constructs a MessageUiController object.
    */
   public function __construct() {
     $this->entityManager = \Drupal::entityManager();
+    $this->accessHandler = \Drupal::entityManager()->getAccessControlHandler('message');
   }
 
   /**
    * Display list of message types to create an instance for them.
    *
+   * @return array|bool
    */
-  // @todo - remove note: message_ui_create_new_message_instance_list in D7.
   public function getAllowedInstanceList() {
 
-    // @todo - replace this line with access controlled type list:
-    $allowed_types = MessageType::loadMultiple();
+    $allowed_types = [];
 
-    if ($types = MessageType::loadMultiple()) {
-      foreach ($types as $type) {
-        if ($allowed_types || (is_array($allowed_types) && array_key_exists($type, $allowed_types))) {
-          return $allowed_types;
+    if ($message_types = MessageType::loadMultiple()) {
+      /* @var MessageType $message_type */
+      foreach ($message_types as $message_type) {
+        if ($this->accessHandler->access($message_type, 'create', \Drupal::currentUser())) {
+          $allowed_types[$message_type->getLabel()] = $message_type;
         }
+      }
+      if (!empty($allowed_types)) {
+        return $allowed_types;
       }
     }
     return FALSE;
@@ -47,37 +61,34 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
   /**
    * Generates output of all message type entities with permission to create.
    *
-   * @return array
-   *   An array as expected by drupal_render().
+   * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   A render array for a list of the message types that can be added; however,
+   *   if there is only one node type defined for the site, the function
+   *   will return a RedirectResponse to the message add page for that one message
+   *   type.
    */
-  protected function showTypes() {
+  public function addPage() {
 
-    $build = array();
-    // @todo : Use the following or MessageType's method? $this->entityManager()->getStorage('message_type')->loadMultiple()
     // Only use message types the user has access to.
-    $types = $this->getAllowedInstanceList();
-    foreach ($types as $type => $entity) {
-      // @todo - get access control working below.
-      // \Doctrine\Common\Util\Debug::dump($this->entityManager()->getAccessControlHandler('message')->createAccess($type->id()));
-      // if ($this->entityManager()->getAccessControlHandler('message')->createAccess($type->id())) {
+    $message_types = $this->getAllowedInstanceList();
+    foreach ($message_types as $id => $entity) {
       /* @var $entity MessageType */
-      $url = Url::fromUri('internal:/admin/content/messages/create/' . str_replace('_', '-', $type));
+      $url = Url::fromUri('internal:/admin/content/messages/create/' . str_replace('_', '-', $id));
       $build[] = array(
-        'type' => $type,
+        'type' => $id,
         'name' => $entity->label(),
-        'internal_link' => Link::fromTextAndUrl(ucfirst(str_replace('_', ' ', $type)), $url),
+        'internal_link' => Link::fromTextAndUrl(ucfirst(str_replace('_', ' ', $id)), $url),
       );
-      //\Doctrine\Common\Util\Debug::dump($content);
-      // }
     }
 
     // Bypass the admin/content/messages/create listing if only one content type is available.
-    if (count($types) == 1) {
-      $type = array_shift($types);
-      return $this->redirect('message_ui.create_message_by_type', array('message_type' => $type->id()));
+    if ($message_types && count($message_types) == 1) {
+      /* @var $message_type MessageType */
+      $message_type = array_shift($message_types);
+      return $this->redirect('message_ui.create_message_by_type', array('message_type' => $message_type->id()));
     }
 
-    if ($build) {
+    if (!empty($build)) {
       return array(
         '#theme' => 'instance_item_list',
         '#items' => $build,
@@ -88,20 +99,6 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
       $url = Url::fromRoute('message.type_add');
       return array('#markup' => 'There are no messages types. You can create a new message type <a href="/' . $url->getInternalPath() . '">here</a>.');
     }
-  }
-
-  /**
-   * Displays add content links for available message types.
-   *
-   * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
-   *   A render array for a list of the node types that can be added; however,
-   *   if there is only one node type defined for the site, the function
-   *   will return a RedirectResponse to the node add page for that one node
-   *   type.
-   */
-  public function addPage() {
-    // @todo: see NodeController for details.
-    return $this->showTypes();
   }
 
   /**

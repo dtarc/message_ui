@@ -42,6 +42,7 @@ class MessageUiArgumentsWorker extends QueueWorkerBase {
       // Update the messages.
       $messages = Message::loadMultiple(array_keys($result['message']));
       foreach ($messages as $message) {
+        /* @var Message $message */
         $this->messageArgumentsUpdate($message, $data['new_arguments']);
         $data['last_mid'] = $message->id();
       }
@@ -114,6 +115,7 @@ class MessageUiArgumentsWorker extends QueueWorkerBase {
     $messages = Message::loadMultiple($mids);
 
     foreach ($messages as $message) {
+      /* @var Message $message */
       MessageUiArgumentsWorker::messageArgumentsUpdate($message, $arguments);
     }
   }

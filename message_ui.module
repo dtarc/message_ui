@@ -164,7 +164,7 @@ function message_ui_entity_type_alter(array &$entity_types) {
  * If this has been defined, we need to update the arguments of the other
  * messages. This will be achieved by in two steps:
  * 1. Load an instance of the message from the same type
- * 2. Cont the number of the arguments and if there is a difference between the
+ * 2. Count the number of the arguments and if there is a difference between the
  *    number of the arguments from the old message to the current one - create
  *    a batch or a queue and update the messages.
  */
