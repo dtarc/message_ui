@@ -86,14 +86,21 @@ class MessageUiAccessControlHandler extends EntityAccessControlHandler implement
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $message, $operation, AccountInterface $account) {
+    if ($account->hasPermission('bypass message access control')) {
+      return AccessResult::allowed()->cachePerPermissions();
+    }
+    // User have access to perform operation on an instance of any message type.
+    if ($account->hasPermission($operation . ' any message type')) {
+      return AccessResult::allowed()->cachePerPermissions();
+    }
     // Evaluate message access.
-    return $this->access($message, $operation, $account);
+    return AccessResult::allowedIfHasPermission($account, $operation . ' ' . $message->bundle() . ' message')->cachePerPermissions();
   }
 
   /**
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIf($account->hasPermission('create ' . $entity_bundle . ' message'))->cachePerPermissions();
+    return AccessResult::allowedIfHasPermission($account, 'create ' . $entity_bundle . ' message')->cachePerPermissions();
   }
 }
