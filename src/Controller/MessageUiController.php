@@ -9,7 +9,6 @@ namespace Drupal\message_ui\Controller;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\message\Entity\MessageType;
 use Drupal\message\Entity\Message;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\message\MessageTypeInterface;
@@ -36,29 +35,6 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
   }
 
   /**
-   * Display list of message types to create an instance for them.
-   *
-   * @return array|bool
-   */
-  public function getAllowedInstanceList() {
-
-    $allowed_types = [];
-
-    if ($message_types = MessageType::loadMultiple()) {
-      /* @var MessageType $message_type */
-      foreach ($message_types as $message_type) {
-        if ($this->accessHandler->access($message_type, 'create', \Drupal::currentUser())) {
-          $allowed_types[$message_type->getLabel()] = $message_type;
-        }
-      }
-      if (!empty($allowed_types)) {
-        return $allowed_types;
-      }
-    }
-    return FALSE;
-  }
-
-  /**
    * Generates output of all message type entities with permission to create.
    *
    * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
@@ -68,32 +44,30 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    *   type.
    */
   public function addPage() {
+    $build = [
+        '#theme' => 'message_add_list',
+    ];
 
-    // Only use message types the user has access to.
-    $message_types = $this->getAllowedInstanceList();
-    foreach ($message_types as $id => $entity) {
-      /* @var $entity MessageType */
-      $url = Url::fromUri('internal:/admin/content/messages/create/' . str_replace('_', '-', $id));
-      $build[] = array(
-        'type' => $id,
-        'name' => $entity->label(),
-        'internal_link' => Link::fromTextAndUrl(ucfirst(str_replace('_', ' ', $id)), $url),
-      );
+    $content = array();
+
+    // Only use node types the user has access to.
+    foreach ($this->entityManager()->getStorage('message_type')->loadMultiple() as $type) {
+      //$access = $this->entityManager()->getAccessControlHandler('message')->createAccess($type->id(), NULL, [], TRUE);
+      //if ($access->isAllowed()) {
+        $content[$type->id()] = $type;
+      //}
     }
 
     // Bypass the admin/content/messages/create listing if only one content type is available.
-    if ($message_types && count($message_types) == 1) {
-      /* @var $message_type MessageType */
-      $message_type = array_shift($message_types);
-      return $this->redirect('message_ui.create_message_by_type', array('message_type' => $message_type->id()));
+    if (count($content) == 1) {
+      $type = array_shift($content);
+      return $this->redirect('message_ui.create_message_by_type', array('message_type' => $type->id()));
     }
 
+    $build['#content'] = $content;
+
     if (!empty($build)) {
-      return array(
-        '#theme' => 'instance_item_list',
-        '#items' => $build,
-        '#type' => 'ul'
-      );
+      return $build;
     }
     else {
       $url = Url::fromRoute('message.type_add');
@@ -108,7 +82,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function add(MessageTypeInterface $message_type) {
+  public function add($message_type) {
 
     $message = Message::create(['type' => $message_type->id()]);
     $form = $this->entityFormBuilder()->getForm($message);

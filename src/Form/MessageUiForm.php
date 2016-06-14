@@ -23,19 +23,10 @@ use Drupal\Core\Entity\EntityManagerInterface;
 class MessageUiForm extends ContentEntityForm {
 
   /**
-   * Constructs a ContentEntityForm object.
-   *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   */
-  public function __construct(EntityManagerInterface $entity_manager) {
-    parent::__construct($entity_manager);
-  }
-
-  /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $form = parent::buildForm($form, $form_state);
     /** @var Message $message */
     $message = $this->entity;
 
@@ -54,8 +45,6 @@ class MessageUiForm extends ContentEntityForm {
         '#markup' => render($message_text),
       );
     }
-
-    $form = parent::form($form, $form_state);
 
     $display = EntityFormDisplay::collectRenderDisplay($message, 'default');
     $display->buildForm($message, $form, $form_state);

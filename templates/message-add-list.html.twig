@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * Default theme implementation to list message types available for adding messages.
+ *
+ * This list is displayed on the Add message admin page.
+ *
+ * Available variables:
+ * - types: A list of message types, each with the following properties:
+ *   - add_link: Link to create a message of this type.
+ *   - description: Description of this type of message.
+ *
+ * @todo: add @see template_preprocess_message_add_list()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if types is not empty %}
+  <ul class="admin-list">
+    {% for type in types %}
+      <li class="clearfix"><span class="label">{{ type.add_link }}</span><div class="description">{{ type.description }}</div></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>
+    {% set create_message = path('message.type_add') %}
+    {% trans %}
+    You have not created any message types yet. Go to the <a href="{{ create_message }}">message type creation page</a> to add a new message type.
+    {% endtrans %}
+  </p>
+{% endif %}

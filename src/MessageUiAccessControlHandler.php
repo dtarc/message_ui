@@ -43,6 +43,8 @@ class MessageUiAccessControlHandler extends EntityAccessControlHandler implement
 
   /**
    * {@inheritdoc}
+   *
+   * @todo: from Entity API - Note that if you are creating your own access control handler, you should override the checkAccess() and checkCreateAccess() methods, not access().
    */
   public function access(EntityInterface $entity, $operation, AccountInterface $account = NULL, $return_as_object = FALSE) {
     $account = $this->prepareUser($account);

@@ -6,6 +6,7 @@
 
 use Drupal\message\Entity\Message;
 use Drupal\message_ui\Plugin\QueueWorker\MessageUiArgumentsWorker;
+use Drupal\Core\Url;
 
 /**
  * Grant permission for the operation upon message.
@@ -22,11 +23,36 @@ const MESSAGE_UI_DENY = TRUE;
  */
 function message_ui_theme() {
   return array(
-    'instance_item_list' => array(
-      'template' => 'instance-item-list',
-      'variables' => array('items' => array(), 'title' => '', 'list_type' => 'ul', 'attributes' => array(), 'empty' => NULL, 'context' => array()),
-    ),
+      'message_add_list' => array(
+          'variables' => array('content' => NULL),
+      )
   );
+}
+
+/**
+ * Prepares variables for list of available message type templates.
+ *
+ * Default template: message-add-list.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - content: An array of message types.
+ *
+ * @see message_add_page()
+ */
+function template_preprocess_message_add_list(&$variables) {
+  $variables['types'] = array();
+  if (!empty($variables['content'])) {
+    foreach ($variables['content'] as $type) {
+      $variables['types'][$type->id()] = array(
+          'type' => $type->id(),
+          'add_link' => \Drupal::l($type->label(), new Url('message_ui.create_message_by_type', array('message_type' => str_replace('_', '-', $type->id())))),
+          'description' => array(
+              '#markup' => $type->getDescription(),
+          ),
+      );
+    }
+  }
 }
 
 /**
