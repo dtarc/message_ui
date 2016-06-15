@@ -1,11 +1,11 @@
 # All action links for this module
 
-message_ui.add_by_type:
-  # Which route will be called by the link
-  route_name: message_ui.add_by_type
-  title: 'Add Message'
-
-  # Where will the link appear, defined by route name.
-  appears_on:
-    - entity.message.collection
-    - entity.message.canonical
+#message_ui.add_by_type:
+#  # Which route will be called by the link
+#  route_name: message_ui.add_by_type
+#  title: 'Add Message'
+#
+#  # Where will the link appear, defined by route name.
+#  appears_on:
+#    - entity.message.collection
+#    - entity.message.canonical
