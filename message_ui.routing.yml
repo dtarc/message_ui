@@ -1,29 +1,74 @@
-# Should this be 'message/add' in D8, see drupal.org issue #2500559.
-# Beneficial for message_private, user facing module dependant on message_ui.
-message_ui.create_message:
-  path: '/admin/content/messages/create'
+# This file brings everything together. Very nifty!
+
+# Route name can be used in several places; e.g. links, redirects, and local
+# actions.
+entity.message.canonical:
+  path: '/message/{message}'
+  defaults:
+  # Calls the view controller, defined in the annotation of the message entity
+    _entity_view: 'message'
+    _title: 'Message Content'
+  requirements:
+  # Calls the access controller of the entity, $operation 'view'
+    _entity_access: 'message.view'
+
+entity.message.collection:
+  path: '/message/list'
+  defaults:
+  # Calls the list controller, defined in the annotation of the message entity.
+    _entity_list: 'message'
+    _title: 'Message List'
+  requirements:
+  # Checks for permission directly.
+    _permission: 'view message entity'
+
+message_ui.add:
+  path: '/message/add'
   defaults:
     _title: 'Create a new message instance'
     _controller: '\Drupal\message_ui\Controller\MessageUiController::addPage'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
-    _message_ui_add_access: 'message'
+     _entity_create_access: 'message'
   options:
     _admin_route: TRUE
 
-message_ui.create_message_by_type:
-  path: '/admin/content/messages/create/{message_type}'
+message_ui.add_by_type:
+  path: '/message/add/{message_type}'
   defaults:
-    _title:  'Create a new message'
-    #_title_callback: # Add title callback to display message type.
+  # Calls the form.add controller, defined in the message entity.
     _controller: '\Drupal\message_ui\Controller\MessageUiController::add'
-    _entity_form: 'message.add'
-    # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
+    _title: 'Add Message'
   requirements:
-    _message_ui_add_access: 'message:{message_type}'
+    _entity_create_access: 'message'
   options:
     _admin_route: TRUE
+    parameters:
+      message_type:
+        with_config_overrides: FALSE
 
-# @todo Add devel admin routes from D7: message/*/devel in route callback.
-route_callbacks:
-  - '\Drupal\message_ui\Routing\MessageUiRoutes::routes'
+entity.message.edit_form:
+  path: '/message/{message}/edit'
+  defaults:
+  # Calls the form.edit controller, defined in the message entity.
+    _entity_form: message.edit
+    _title: 'Edit Message'
+  requirements:
+    _entity_access: 'message.edit'
+
+entity.message.delete_form:
+  path: '/message/{message}/delete'
+  defaults:
+    # Calls the form.delete controller, defined in the message entity.
+    _entity_form: message.delete
+    _title: 'Delete Message'
+  requirements:
+    _entity_access: 'message.delete'
+
+message_ui.message_settings:
+  path: '/admin/structure/message_settings'
+  defaults:
+    _form: '\Drupal\message_ui\Form\MessageSettingsForm'
+    _title: 'Message Settings'
+  requirements:
+    _permission: 'administer message entity'

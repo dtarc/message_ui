@@ -1,0 +1,12 @@
+# Define the menu links for this module
+
+entity.message.collection:
+  title: 'Message UI: Messages Listing'
+  route_name: entity.message.collection
+  description: 'List Messages'
+  weight: 10
+message.admin.structure.settings:
+  title: Message Settings
+  description: 'Configure Message entity'
+  route_name:  message_ui.message_settings
+  parent: system.admin_structure

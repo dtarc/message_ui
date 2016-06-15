@@ -1,5 +1,11 @@
-message_ui.create_message:
-  route_name: message_ui.create_message
-  title: 'Add message'
+# All action links for this module
+
+message_ui.add_by_type:
+  # Which route will be called by the link
+  route_name: message_ui.add_by_type
+  title: 'Add Message'
+
+  # Where will the link appear, defined by route name.
   appears_on:
-    - view.message.page_1
+    - entity.message.collection
+    - entity.message.canonical

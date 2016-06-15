@@ -6,7 +6,6 @@
 
 namespace Drupal\message_ui\Controller;
 
-use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\message\Entity\Message;
@@ -40,12 +39,12 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
    *   A render array for a list of the message types that can be added; however,
    *   if there is only one node type defined for the site, the function
-   *   will return a RedirectResponse to the message add page for that one message
+   *   will return a RedirectResponse to the message.add_by_type page for that one message
    *   type.
    */
   public function addPage() {
     $build = [
-        '#theme' => 'message_add_list',
+        '#theme' => 'add_list',
     ];
 
     $content = array();
@@ -61,7 +60,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
     // Bypass the admin/content/messages/create listing if only one content type is available.
     if (count($content) == 1) {
       $type = array_shift($content);
-      return $this->redirect('message_ui.create_message_by_type', array('message_type' => $type->id()));
+      return $this->redirect('message_ui.add_by_type', array('message_type' => $type->id()));
     }
 
     $build['#content'] = $content;
@@ -82,7 +81,7 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function add($message_type) {
+  public function add(MessageTypeInterface $message_type) {
 
     $message = Message::create(['type' => $message_type->id()]);
     $form = $this->entityFormBuilder()->getForm($message);
