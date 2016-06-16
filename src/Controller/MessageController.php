@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\message_ui\Controller\MessageUiController.
+ * Contains \Drupal\message_ui\Controller\MessageController.
  */
 
 namespace Drupal\message_ui\Controller;
@@ -13,7 +13,7 @@ use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\message\MessageTypeInterface;
 
 
-class MessageUiController extends ControllerBase implements ContainerInjectionInterface {
+class MessageController extends ControllerBase implements ContainerInjectionInterface {
 
   /**
    * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface
@@ -44,23 +44,23 @@ class MessageUiController extends ControllerBase implements ContainerInjectionIn
    */
   public function addPage() {
     $build = [
-        '#theme' => 'add_list',
+        '#theme' => 'message_add_list',
     ];
 
     $content = array();
 
     // Only use node types the user has access to.
     foreach ($this->entityManager()->getStorage('message_type')->loadMultiple() as $type) {
-      //$access = $this->entityManager()->getAccessControlHandler('message')->createAccess($type->id(), NULL, [], TRUE);
-      //if ($access->isAllowed()) {
+      $access = $this->entityManager()->getAccessControlHandler('message')->createAccess($type->id(), NULL, [], TRUE);
+      if ($access->isAllowed()) {
         $content[$type->id()] = $type;
-      //}
+      }
     }
 
     // Bypass the admin/content/messages/create listing if only one content type is available.
     if (count($content) == 1) {
       $type = array_shift($content);
-      return $this->redirect('message_ui.add_by_type', array('message_type' => $type->id()));
+      return $this->redirect('message_ui.add', array('message_type' => $type->id()));
     }
 
     $build['#content'] = $content;

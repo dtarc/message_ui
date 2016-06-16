@@ -17,7 +17,7 @@ class MessageDeleteForm extends ContentEntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->t('Are you sure you want to delete entity %name?', array('%name' => $this->entity->label()));
+    return $this->t('Are you sure you want to delete this message entity?');
   }
 
   /**
@@ -26,7 +26,7 @@ class MessageDeleteForm extends ContentEntityConfirmFormBase {
    * If the delete command is canceled, return to the message list.
    */
   public function getCancelUrl() {
-    return new Url('entity.message.collection');
+    return new Url('message.messages');
   }
 
   /**
@@ -45,12 +45,11 @@ class MessageDeleteForm extends ContentEntityConfirmFormBase {
     $entity = $this->getEntity();
     $entity->delete();
 
-    $this->logger('message_ui')->notice('@type: deleted %title.',
+    $this->logger('message_ui')->notice('@type: deleted message entity.',
       array(
         '@type' => $this->entity->bundle(),
-        '%title' => $this->entity->label(),
       ));
-    $form_state->setRedirect('entity.message.collection');
+    $form_state->setRedirect('message.messages');
   }
 
 }

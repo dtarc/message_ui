@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\message_ui\Entity\MessageUiRouteProvider.
+ * Contains \Drupal\message_ui\Entity\MessageRouteProvider.
  */
 
 namespace Drupal\message_ui\Entity;
@@ -15,20 +15,19 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * Provides routes for messages.
  */
-class MessageUiRouteProvider implements EntityRouteProviderInterface {
+class MessageRouteProvider implements EntityRouteProviderInterface {
 
   /**
    * {@inheritdoc}
    */
   public function getRoutes( EntityTypeInterface $entity_type) {
     $route_collection = new RouteCollection();
-    $route = (new Route('/message/{message}'))
-      ->addDefaults([
-        '_controller' => '\Drupal\message_ui\Controller\MessageUiViewController::view',
-        '_title' => 'Viewing a message',
-      ])
-      ->setRequirement('_message_ui_access', 'view');
-    $route_collection->add('entity.message.canonical', $route);
+
+    $route = (new Route('/message/{message}/edit'))
+        ->setDefault('_entity_form', 'message.edit')
+        ->setRequirement('_message_ui_access', 'edit')
+        ->setOption('_admin_route', TRUE);
+    $route_collection->add('entity.message.edit_form', $route);
 
     $route = (new Route('/message/{message}/delete'))
       ->addDefaults([
@@ -38,12 +37,6 @@ class MessageUiRouteProvider implements EntityRouteProviderInterface {
       ->setRequirement('_message_ui_access', 'delete')
       ->setOption('_admin_route', TRUE);
     $route_collection->add('entity.message.delete_form', $route);
-
-    $route = (new Route('/message/{message}/edit'))
-      ->setDefault('_entity_form', 'message.edit')
-      ->setRequirement('_message_ui_access', 'edit')
-      ->setOption('_admin_route', TRUE);
-    $route_collection->add('entity.message.edit_form', $route);
 
     return $route_collection;
   }

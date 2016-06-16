@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\message_ui\Plugin\QueueWorker\MessageUiArgumentsWorker.
+ * Contains \Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker.
  */
 
 namespace Drupal\message_ui\Plugin\QueueWorker;
@@ -18,7 +18,7 @@ use Drupal\Core\Queue\QueueWorkerBase;
  *   cron = {"time" = 60}
  * )
  */
-class MessageUiArgumentsWorker extends QueueWorkerBase {
+class MessageArgumentsWorker extends QueueWorkerBase {
 
   /**
    * {@inheritdoc}

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\message_ui\Routing\MessageUiRoutes.
+ * Contains \Drupal\message_ui\Routing\MessageRoutes.
  */
 
 namespace Drupal\message_ui\Routing;
@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Route;
 /**
  * Defines dynamic routes.
  */
-class MessageUiRoutes {
+class MessageRoutes {
   /**
    * {@inheritdoc}
    */
@@ -41,7 +41,7 @@ class MessageUiRoutes {
       //  path: '/admin/config/development/message_delete_multiple'
       //  defaults:
       //    _title: 'Message delete multiple'
-      //    _controller: '\Drupal\message_ui\Controller\MessageUiController::deleteMultiple'
+      //    _controller: '\Drupal\message_ui\Controller\MessageController::deleteMultiple'
       //  options:
       //    _admin_route: TRUE
 
@@ -52,7 +52,7 @@ class MessageUiRoutes {
         '/message/{message}/devel',
         // Route defaults:
         array(
-          '_controller' => '\Drupal\message_ui\Controller\MessageUiController::devel',
+          '_controller' => '\Drupal\message_ui\Controller\MessageController::devel',
           '_title' => 'Devel'
         ),
         // Route requirements:

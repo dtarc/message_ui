@@ -6,6 +6,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\message\MessageTypeInterface;
 
 /**
  * Access controller for the comment entity.
@@ -21,17 +22,13 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
    * $operation as defined in the routing.yml file.
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
-    switch ($operation) {
-      case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'view message entity');
-
-      case 'edit':
-        return AccessResult::allowedIfHasPermission($account, 'edit message entity');
-
-      case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete message entity');
+    // Return early if we have bypass or create any type permissions.
+    if ($account->hasPermission('bypass message access control')
+        || $account->hasPermission($operation . ' any message type')) {
+      return AccessResult::allowed()->cachePerPermissions();
     }
-    return AccessResult::allowed();
+
+    return AccessResult::allowedIfHasPermission($account, $operation . ' ' . $entity->bundle() . ' message')->cachePerPermissions();
   }
 
   /**
@@ -41,7 +38,13 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
    * will be created during the 'add' process.
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add message entity');
+    // Return early if we have bypass or create any type permissions.
+    if ($account->hasPermission('bypass message access control')
+        || $account->hasPermission('create any message type')) {
+      return AccessResult::allowed()->cachePerPermissions();
+    }
+
+    return AccessResult::allowedIfHasPermission($account, 'create ' . $entity_bundle . ' message')->cachePerPermissions();
   }
 
 }

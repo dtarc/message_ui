@@ -34,7 +34,7 @@ class MessageForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $form_state->setRedirect('entity.message.collection');
+    $form_state->setRedirect('message.messages');
     $entity = $this->getEntity();
     $entity->save();
   }

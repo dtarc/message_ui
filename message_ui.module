@@ -5,7 +5,7 @@
  */
 
 use Drupal\message\Entity\Message;
-use Drupal\message_ui\Plugin\QueueWorker\MessageUiArgumentsWorker;
+use Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker;
 use Drupal\Core\Url;
 
 /**
@@ -39,7 +39,7 @@ function message_ui_entity_type_alter(array &$entity_types) {
             ));
         $message_config->setHandlerClass('route_provider',
             array(
-                'html' => 'Drupal\message_ui\Entity\MessageUiRouteProvider',
+                'html' => 'Drupal\message_ui\Entity\MessageRouteProvider',
             ));
         $message_config->set(
             'links',
@@ -79,7 +79,7 @@ function template_preprocess_message_add_list(&$variables) {
         foreach ($variables['content'] as $type) {
             $variables['types'][$type->id()] = array(
                 'type' => $type->id(),
-                'add_link' => \Drupal::l($type->label(), new Url('message_ui.add_by_type', array('message_type' => str_replace('_', '-', $type->id())))),
+                'add_link' => \Drupal::l($type->label(), new Url('message_ui.add', array('message_type' => str_replace('_', '-', $type->id())))),
                 'description' => array(
                     '#markup' => $type->getDescription(),
                 ),
@@ -193,6 +193,9 @@ function message_ui_form_message_user_admin_settings_submit($form, &$form_state)
  * 2. Count the number of the arguments and if there is a difference between the
  *    number of the arguments from the old message to the current one - create
  *    a batch or a queue and update the messages.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ * @return bool|null
  */
 function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
     $type = $entity->getEntityType()->getLabel();
@@ -215,7 +218,7 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
 
     $keys = array_keys($result['message']);
     $message = Message::load(reset($keys));
-    $new_arguments = MessageUiArgumentsWorker::getArguments($type);
+    $new_arguments = MessageArgumentsWorker::getArguments($type);
 
     $old_arguments_number = count($message->getArguments());
     $new_arguments_number = $new_arguments;
@@ -245,14 +248,14 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
         // @todo : Correct location for operations callback?
         $operations = array();
         foreach ($chunks as $chunk) {
-            $operations[] = array('\Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker::argumentsUpdate', array($chunk, $new_arguments));
+            $operations[] = array('\Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker::argumentsUpdate', array($chunk, $new_arguments));
         }
 
         // @todo : Correct location for finished callback?
         // Set the batch.
         $batch = array(
             'operations' => $operations,
-            'finished' => '\Drupal\message_ui\Plugin\QueueWorker\ArgumentsWorker::messageArgumentsUpdate',
+            'finished' => '\Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker::messageArgumentsUpdate',
             'title' => t('Updating the messages arguments.'),
             'init_message' => t('Start process messages.'),
             'progress_message' => t('Processed @current out of @total.'),

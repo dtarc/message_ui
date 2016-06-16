@@ -1,5 +1,4 @@
 # Define the 'local' links for the module
-
 message.settings_tab:
   route_name: message_ui.message_settings
   title: Settings

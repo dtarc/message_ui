@@ -1,8 +1,8 @@
-name: Message UI
+name: 'Message UI'
 type: module
-description: 'Provides Message UI entity.'
-package: Message
+description: 'UI for the Message module'
 core: 8.x
-# These modules are required by the tests, must be available at bootstrap time
+package: Message
 dependencies:
-  - options
+ - message
+ - views
