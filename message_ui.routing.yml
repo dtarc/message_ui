@@ -11,7 +11,7 @@ entity.message.canonical:
 message_ui.add_page:
   path: '/message/add'
   defaults:
-    _title: 'Create a new message instance'
+    _title: 'Add Message'
     _controller: '\Drupal\message_ui\Controller\MessageController::addPage'
     # appears_on: # Should we define a route for converting MENU_LOCAL_ACTION.
   requirements:
@@ -24,7 +24,7 @@ message_ui.add:
   defaults:
   # Calls the form.add controller, defined in the message entity.
     _controller: '\Drupal\message_ui\Controller\MessageController::add'
-    _title: 'Add Message'
+    _title: 'Create Message'
   requirements:
     _entity_create_access: 'message:{message_type}'
   options:

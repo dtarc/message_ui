@@ -116,7 +116,7 @@ class MessageArgumentsWorker extends QueueWorkerBase {
 
     foreach ($messages as $message) {
       /* @var Message $message */
-      MessageUiArgumentsWorker::messageArgumentsUpdate($message, $arguments);
+      MessageArgumentsWorker::messageArgumentsUpdate($message, $arguments);
     }
   }
 }
