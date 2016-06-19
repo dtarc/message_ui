@@ -79,7 +79,7 @@ function template_preprocess_message_add_list(&$variables) {
         foreach ($variables['content'] as $type) {
             $variables['types'][$type->id()] = array(
                 'type' => $type->id(),
-                'add_link' => \Drupal::l($type->label(), new Url('message_ui.add', array('message_type' => str_replace('_', '-', $type->id())))),
+                'add_link' => \Drupal::l($type->label(), new Url('message_ui.add', array('message_type' => $type->id()))),
                 'description' => array(
                     '#markup' => $type->getDescription(),
                 ),
