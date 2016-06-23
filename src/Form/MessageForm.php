@@ -3,7 +3,6 @@
 namespace Drupal\message_ui\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
@@ -16,17 +15,15 @@ use Drupal\user\Entity\User;
  * @ingroup message_ui
  */
 class MessageForm extends ContentEntityForm {
-
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\message\Entity\Message */
     $form = parent::buildForm($form, $form_state);
     /** @var Message $message */
     $message = $this->getEntity();
 
-    // @todo: Research best way to achieve the below (excl. 'language') ported from D7.
+    // Access the message text from the view builder.
     $view_builder = \Drupal::entityManager()->getViewBuilder('message');
     $message_text = $view_builder->view($message);
 
@@ -38,20 +35,19 @@ class MessageForm extends ContentEntityForm {
       );
     }
 
-    $display = EntityFormDisplay::collectRenderDisplay($message, 'default');
-    $display->buildForm($message, $form, $form_state);
-
-    $form['additional_settings'] = array(
+    // Create the advanced vertical tabs "group".
+    $form['advanced'] = array(
         '#type' => 'vertical_tabs',
+        '#attributes' => array('class' => array('entity-meta')),
         '#weight' => 99,
     );
 
     $form['owner'] = array(
         '#type' => 'fieldset',
-        '#title' => t('Authoring information'),
+        '#title' => t('Owner information'),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
-        '#group' => 'additional_settings',
+        '#group' => 'advanced',
         '#attributes' => array(
             'class' => array('message-form-owner'),
         ),
@@ -64,19 +60,20 @@ class MessageForm extends ContentEntityForm {
         '#weight' => 90,
     );
 
-    $form['owner']['name'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Authored by'),
-        '#maxlength' => 60,
+    $form['owner']['uid'] = array(
+        '#type' => 'entity_autocomplete',
+        '#target_type' => 'user',
+        '#title' => t('Created by'),
+        '#selection_settings' => ['include_anonymous' => FALSE],
         '#weight' => 99,
-        '#autocomplete_path' => 'user/autocomplete',
         '#description' => t('Leave blank for %anonymous.', array('%anonymous' => \Drupal::config('message_ui.settings')->get('anonymous'))),
-        '#default_value' => ($message->getOwnerId() ? User::load($message->getOwnerId())->getUsername() : NULL),
+        '#default_value' => ($message->getOwnerId() ? $message->getOwnerId() : NULL),
+        '#access' => $this->currentUser()->hasPermission('bypass message access control'),
     );
 
     $form['owner']['date'] = array(
         '#type' => 'textfield',
-        '#title' => t('Authored on'),
+        '#title' => t('Created on'),
         '#description' => t('Please insert in the format of @date', array(
             '@date' => date('Y-m-d j:i', $message->getCreatedTime()),
         )),
@@ -85,6 +82,7 @@ class MessageForm extends ContentEntityForm {
         '#weight' => 100,
     );
 
+    // @todo: assess the best way to access and create tokens tab from D7.
     $args = $message->getArguments();
 
     if (!empty($args) && (\Drupal::currentUser()->hasPermission('update tokens') || \Drupal::currentUser()->hasPermission('bypass message access control'))) {
@@ -93,7 +91,7 @@ class MessageForm extends ContentEntityForm {
           '#title' => t('Tokens and arguments'),
           '#collapsible' => TRUE,
           '#collapsed' => TRUE,
-          '#group' => 'additional_settings',
+          '#group' => 'advanced',
           '#weight' => 110,
       );
 
@@ -129,25 +127,6 @@ class MessageForm extends ContentEntityForm {
       }
     }
 
-    $mid = $message->id();
-    $url = is_object($message) && !empty($mid) ? Url::fromRoute('entity.message.canonical', ['message' => $mid]) : Url::fromRoute('message.overview_types');
-
-    $link =  \Drupal::l(t('Cancel'), $url);
-
-    // @todo: convert actions array to D8.
-    $form['actions'] = array(
-        '#type' => 'actions',
-        'submit' => array(
-            '#type' => 'submit',
-            '#value' => $message->isNew() ? t('Create') : t('Update'),
-            '#submit' => $form['actions']['submit']['#submit'],
-        ),
-        'cancel' => array(
-            '#type' => 'markup',
-            '#markup' => $link
-        ),
-    );
-
     $form['langcode'] = array(
         '#title' => $this->t('Language'),
         '#type' => 'language_select',
@@ -155,30 +134,65 @@ class MessageForm extends ContentEntityForm {
         '#languages' => Language::STATE_ALL,
     );
 
+    // @todo : add similar to node/from library, adding css for 'message-form-owner' class.
+    // $form['#attached']['library'][] = 'node/form';
+
     return $form;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $form_state) {
-    /* @var $message Message */
-    $message = $this->getEntity();
-    $insert = $message->isNew();
-    // Save new entity to get access to URIs.
-    if ($insert) {
-      $message->save(); // @todo: Is there a better way to prevent no URI error?
+  protected function actions(array $form, FormStateInterface $form_state) {
+    $element = parent::actions($form, $form_state);
+    $message = $this->entity;
+
+    // @todo : check if we need access control here on form submit.
+    // Create custom save button with conditional label / value.
+    $element['save'] = $element['submit'];
+    if ($message->isNew()) {
+      $element['save']['#value'] = t('Create');
     }
-    $message_link = $message->link($this->t('View'));
-    $context = array('@type' => $message->getType(), '%title' => $message->label(), 'link' => $message_link);
-    $t_args = array('@type' => $message->getEntityType()->getLabel(), '%title' => $message->label());
+    else {
+      $element['save']['#value'] = t('Update');
+    }
+    $element['save']['#weight'] = 0;
 
-    // @todo: submit handlers are removed, what is needed below? https://www.drupal.org/node/1846648
-    // field_attach_submit('message', $message, $form, $form_state);
+    $mid = $message->id();
+    $url = is_object($message) && !empty($mid) ? Url::fromRoute('entity.message.canonical', ['message' => $mid]) : Url::fromRoute('message.overview_types');
 
+    $link =  \Drupal::l(t('Cancel'), $url);
+
+    $element['cancel'] = array(
+        '#type' => 'markup',
+        '#markup' => $link
+    );
+
+    // Remove the default "Save" button.
+    $element['submit']['#access'] = FALSE;
+
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Updates the message object by processing the submitted values.
+   *
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Build the node object from the submitted values.
+    parent::submitForm($form, $form_state);
+    /* @var $message Message */
+    $message = $this->entity;
+
+    // @todo - can you set this here or only after $message->save()?
+    // Set message owner and timestamp.
+    $message->setOwnerId($form_state->getValue('uid'));
+    $message->setCreatedTime(strtotime($form_state->getValue('date')));
+
+    // Get the tokens to be replaced and prepare for replacing.
     $replace_tokens = $form_state->getValue('replace_tokens');
-
-    // Update the tokens.
     $token_actions = empty($replace_tokens) ? array() : $replace_tokens;
 
     $args = $message->getArguments();
@@ -205,11 +219,24 @@ class MessageForm extends ContentEntityForm {
         }
       }
     }
+  }
 
-    $message->setOwnerId(user_load_by_name($form_state->getValue('name')));
-    $message->setCreatedTime(strtotime($form_state->getValue('date')));
+  /**
+   * {@inheritdoc}
+   */
+  public function save(array $form, FormStateInterface $form_state) {
+    /* @var $message Message */
+    $message = $this->entity;
+    $insert = $message->isNew();
+
     $message->save();
 
+    // Set up message link and status message contexts.
+    $message_link = $message->link($this->t('View'));
+    $context = array('@type' => $message->getType(), '%title' => 'Message:' . $message->id(), 'link' => $message_link);
+    $t_args = array('@type' => $message->getEntityType()->getLabel(), '%title' => 'Message:' . $message->id());
+
+    // Display newly created or updated message depending on if new entity.
     if ($insert) {
       $this->logger('content')->notice('@type: added %title.', $context);
       drupal_set_message(t('@type %title has been created.', $t_args));
@@ -219,7 +246,27 @@ class MessageForm extends ContentEntityForm {
       drupal_set_message(t('@type %title has been updated.', $t_args));
     }
 
-    $form_state->setRedirect('entity.message.canonical', ['message' => $message->id()]);
+    // Redirect to message view display if user has access.
+    if ($message->id()) {
+      $form_state->setValue('mid', $message->id());
+      $form_state->set('mid', $message->id());
+      if ($message->access('view')) {
+        $form_state->setRedirect(
+            'entity.message.canonical',
+            ['message' => $message->id()]
+        );
+      }
+      else {
+        $form_state->setRedirect('<front>');
+      }
+      // @todo : for node they clear temp store here, but perhaps unused with message.
+    }
+    else {
+      // In the unlikely case something went wrong on save, the message will be
+      // rebuilt and message form redisplayed.
+      drupal_set_message(t('The message could not be saved.'), 'error');
+      $form_state->setRebuild();
+    }
   }
 
 }
