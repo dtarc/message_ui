@@ -60,27 +60,13 @@ class MessageForm extends ContentEntityForm {
         '#weight' => 90,
     );
 
-    $form['owner']['uid'] = array(
-        '#type' => 'entity_autocomplete',
-        '#target_type' => 'user',
-        '#title' => t('Created by'),
-        '#selection_settings' => ['include_anonymous' => FALSE],
-        '#weight' => 99,
-        '#description' => t('Leave blank for %anonymous.', array('%anonymous' => \Drupal::config('message_ui.settings')->get('anonymous'))),
-        '#default_value' => ($message->getOwnerId() ? $message->getOwnerId() : NULL),
-        '#access' => $this->currentUser()->hasPermission('bypass message access control'),
-    );
+    if (isset($form['uid'])) {
+      $form['uid']['#group'] = 'owner';
+    }
 
-    $form['owner']['date'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Created on'),
-        '#description' => t('Please insert in the format of @date', array(
-            '@date' => date('Y-m-d j:i', $message->getCreatedTime()),
-        )),
-        '#default_value' => date('Y-m-d H:i', $message->getCreatedTime()),
-        '#maxlength' => 25,
-        '#weight' => 100,
-    );
+    if (isset($form['created'])) {
+      $form['created']['#group'] = 'owner';
+    }
 
     // @todo: assess the best way to access and create tokens tab from D7.
     $args = $message->getArguments();
@@ -160,9 +146,9 @@ class MessageForm extends ContentEntityForm {
 
     $mid = $message->id();
     $url = is_object($message) && !empty($mid) ? Url::fromRoute('entity.message.canonical', ['message' => $mid]) : Url::fromRoute('message.overview_types');
-
     $link =  \Drupal::l(t('Cancel'), $url);
 
+    // Add a cancel link to the message form actions.
     $element['cancel'] = array(
         '#type' => 'markup',
         '#markup' => $link
@@ -186,23 +172,32 @@ class MessageForm extends ContentEntityForm {
     /* @var $message Message */
     $message = $this->entity;
 
-    // @todo - can you set this here or only after $message->save()?
-    // Set message owner and timestamp.
-    $message->setOwnerId($form_state->getValue('uid'));
-    $message->setCreatedTime(strtotime($form_state->getValue('date')));
+    // Set message owner.
+    $uid = $form_state->getValue('uid');
+    if (is_array($uid) && !empty($uid[0]['target_id'])) {
+      $message->setOwnerId($uid[0]['target_id']);
+    }
+
+    // Set the timestamp to custom value or request time.
+    $created = $form_state->getValue('date');
+    if ($created) {
+      $message->setCreatedTime(strtotime($created));
+    }
+    else {
+      $message->setCreatedTime(REQUEST_TIME);
+    }
 
     // Get the tokens to be replaced and prepare for replacing.
     $replace_tokens = $form_state->getValue('replace_tokens');
     $token_actions = empty($replace_tokens) ? array() : $replace_tokens;
 
-    $args = $message->getArguments();
 
-    if (is_object($message) && !empty($args)) {
-      // @todo : get tokens and token actions working.
+    // Get the message args and replace tokens.
+    if ($args = $message->getArguments()) {
       if (!empty($token_actions) && $token_actions != 'no_update') {
 
+        // Loop through the arguments of the message.
         foreach (array_keys($args) as $token) {
-          // Loop through the arguments of the message.
 
           if ($token_actions == 'update') {
             // Get the hard coded value of the message and him in the message.

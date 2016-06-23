@@ -4,6 +4,7 @@
  * Contains Drupal\message_ui\message_ui.module.
  */
 
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\message\Entity\Message;
 use Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker;
 use Drupal\Core\Url;
@@ -19,12 +20,73 @@ const MESSAGE_UI_ALLOW = TRUE;
 const MESSAGE_UI_DENY = TRUE;
 
 /**
+ * Implements hook_entity_base_field_info_alter.
+ *
+ * Extend the message entity type's field by providing display handlers.
+ */
+function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
+    // Alter the uid and created field to include display settings.
+    if ($entity_type->id() == 'message') {
+        if(!empty($fields['uid'])) {
+            /* @var Drupal\Core\Field\BaseFieldDefinition $fields ['uid'] */
+            $fields['uid']->setDisplayOptions('view', array(
+                'label' => 'hidden',
+                'type' => 'owner',
+                'weight' => 0,
+                ))
+                ->setDisplayOptions('form', array(
+                    'type' => 'entity_reference_autocomplete',
+                    'weight' => 5,
+                    '#group' => 'advanced',
+                    'settings' => array(
+                        'match_operator' => 'CONTAINS',
+                        'size' => '60',
+                        'placeholder' => '',
+                    ),
+                ))
+                ->setDisplayConfigurable('form', TRUE);
+        }
+        if(!empty($fields['created'])) {
+            $fields['created']->setDisplayOptions('view', array(
+                'label' => 'hidden',
+                'type' => 'timestamp',
+                'weight' => 0,
+                ))
+                ->setDisplayOptions('form', array(
+                    'type' => 'datetime_timestamp',
+                    'weight' => 10,
+                ))
+                ->setDisplayConfigurable('form', TRUE);
+        }
+    }
+}
+
+/**
  * Implements hook_entity_type_alter.
  *
  * Extend the message entity type by providing form handlers.
  */
 function message_ui_entity_type_alter(array &$entity_types) {
     if (isset($entity_types['message'])) {
+
+        /**
+        ->setDisplayOptions('view', array(
+        'label' => 'hidden',
+        'type' => 'author',
+        'weight' => 0,
+        ))
+        ->setDisplayOptions('form', array(
+        'type' => 'entity_reference_autocomplete',
+        'weight' => 5,
+        'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'size' => '60',
+        'placeholder' => '',
+        ),
+        ))
+        ->setDisplayConfigurable('form', TRUE);
+         */
+        
         // @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType
         $message_config = $entity_types['message'];
         $message_config->setAccessClass('Drupal\message_ui\MessageAccessControlHandler');

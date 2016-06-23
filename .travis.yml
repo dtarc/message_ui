@@ -13,11 +13,11 @@ env:
   global:
     - MESSAGE_MODULE='message'
     - MESSAGE_REPO='https://github.com/Gizra/message.git'
-    - $MESSAGE_VERSION='8.x-1.x'
+    - MESSAGE_VERSION='8.x-1.x'
     - MODULE_NAME='message_ui'
     - MODULE_TEST_GROUP='Message UI'
     - DRUPAL_REPO='git://drupalcode.org/project/drupal.git'
-    - DRUPAL_VERSION='8.2.x'
+    - DRUPAL_VERSION='8.0.x'
     - PHPCS_VERSION='2.0.*@dev'
     - CODER_VERSION='8.2.0-beta1'
 
@@ -32,7 +32,7 @@ before_install:
 
   # Drush.
   - composer global require "youngj/httpserver:dev-master#41dd2b7"
-  - composer global require drush/drush:dev-master
+  - composer global require drush/drush:~8
 
   # Codesniffer.
   - composer global require squizlabs/php_codesniffer:$PHPCS_VERSION
