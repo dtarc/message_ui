@@ -3,4 +3,4 @@ update_tokens:
   how_to_act: 'update_when_added'
   number_items: 250
 show_preview: true
-anonymous: 'Anonymous' # What is this variable and how best to store/access it?
+anonymous: 'Anonymous'

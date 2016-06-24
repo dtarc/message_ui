@@ -6,7 +6,6 @@ package: Message
 
 dependencies:
  - views
- - views_bulk_operations
  - message
  - message_ui
  - message_notify

@@ -63,10 +63,9 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
       return $this->redirect('message_ui.add', array('message_type' => $type->id()));
     }
 
-    $build['#content'] = $content;
-
-    if (!empty($build)) {
-      return $build;
+    // Return build array.
+    if (!empty($content)) {
+      return ['#content' => $content];
     }
     else {
       $url = Url::fromRoute('message.type_add');

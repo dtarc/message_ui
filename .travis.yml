@@ -17,7 +17,7 @@ env:
     - MODULE_NAME='message_ui'
     - MODULE_TEST_GROUP='Message UI'
     - DRUPAL_REPO='git://drupalcode.org/project/drupal.git'
-    - DRUPAL_VERSION='8.0.x'
+    - DRUPAL_VERSION='8.0.5'
     - PHPCS_VERSION='2.0.*@dev'
     - CODER_VERSION='8.2.0-beta1'
 
@@ -58,6 +58,9 @@ install:
   - cd ../
 
 before_script:
+
+  # Install Composer dependencies.
+  - composer self-update && composer install
 
   # This fixes a fail when install Drupal.
   - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini

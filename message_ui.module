@@ -68,47 +68,28 @@ function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $
  */
 function message_ui_entity_type_alter(array &$entity_types) {
     if (isset($entity_types['message'])) {
-
-        /**
-        ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'author',
-        'weight' => 0,
-        ))
-        ->setDisplayOptions('form', array(
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 5,
-        'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'size' => '60',
-        'placeholder' => '',
-        ),
-        ))
-        ->setDisplayConfigurable('form', TRUE);
-         */
-        
         // @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType
         $message_config = $entity_types['message'];
         $message_config->setAccessClass('Drupal\message_ui\MessageAccessControlHandler');
         $message_config->setHandlerClass('view_builder', 'Drupal\Core\Entity\EntityViewBuilder');
         $message_config->setHandlerClass(
-            'form',
-            array(
-                'default' => 'Drupal\message_ui\Form\MessageForm',
-                'add' => 'Drupal\message_ui\Form\MessageForm',
-                'edit' => 'Drupal\message_ui\Form\MessageForm',
-                'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
+          'form',
+          array(
+            'default' => 'Drupal\message_ui\Form\MessageForm',
+            'add' => 'Drupal\message_ui\Form\MessageForm',
+            'edit' => 'Drupal\message_ui\Form\MessageForm',
+            'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
             ));
         $message_config->setHandlerClass('route_provider',
-            array(
-                'html' => 'Drupal\message_ui\Entity\MessageRouteProvider',
+          array(
+            'html' => 'Drupal\message_ui\Entity\MessageRouteProvider',
             ));
         $message_config->set(
-            'links',
-            array(
-                'canonical' => '/message/{message}',
-                'edit-form' => '/message/{message}/edit',
-                'delete-form' => '/message/{message}/delete',
+          'links',
+          array(
+            'canonical' => '/message/{message}',
+            'edit-form' => '/message/{message}/edit',
+            'delete-form' => '/message/{message}/delete',
             ));
     }
 }
