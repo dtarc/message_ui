@@ -1,7 +1,7 @@
 entity.message.canonical:
   path: '/message/{message}'
   defaults:
-  # Calls the view controller, defined in the annotation of the message entity
+  # Calls the view controller, defined the message entity alter hook.
     _entity_view: 'message'
     _title: 'Message Content'
   requirements:
@@ -22,7 +22,7 @@ message_ui.add_page:
 message_ui.add:
   path: '/message/add/{message_type}'
   defaults:
-  # Calls the form.add controller, defined in the message entity.
+  # Calls the form.add controller, defined in the message entity alter hook.
     _controller: '\Drupal\message_ui\Controller\MessageController::add'
     _title: 'Create Message'
   requirements:
@@ -36,7 +36,7 @@ message_ui.add:
 entity.message.edit_form:
   path: '/message/{message}/edit'
   defaults:
-  # Calls the form.edit controller, defined in the message entity.
+  # Calls the form.edit controller, defined in the message entity alter hook.
     _entity_form: message.edit
     _title: 'Edit Message'
   requirements:
@@ -47,7 +47,7 @@ entity.message.edit_form:
 entity.message.delete_form:
   path: '/message/{message}/delete'
   defaults:
-    # Calls the form.delete controller, defined in the message entity.
+    # Calls the form.delete controller, defined in the message entity alter hook.
     _entity_form: message.delete
     _title: 'Delete Message'
   requirements:

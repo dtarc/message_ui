@@ -7,6 +7,7 @@
 
 namespace Drupal\message_ui\Tests;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\message\Tests\MessageTestBase;
@@ -21,13 +22,13 @@ class MessageUiHardCodedArguments extends MessageTestBase {
 
   /**
    * The first user object.
-   * @var
+   * @var AccountInterface
    */
   public $user1;
 
   /**
    * The second user object.
-   * @var
+   * @var AccountInterface
    */
   public $user2;
 
@@ -105,7 +106,9 @@ class MessageUiHardCodedArguments extends MessageTestBase {
       'replace_tokens' => 'update_manually',
       '@{message:user:name}' => 'Dummy name',
     );
+
     $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
     $this->assertText('Dummy name', 'The hard coded token was updated with a custom value.');
+
   }
 }

@@ -1,7 +1,7 @@
 # message_ui
 UI for the Message module
 
-** N.B. - D8 version currently under development - not functional! **
+** N.B. - Unstable development version - partially functional! **
 
 CONTENTS OF THIS FILE
 ---------------------
@@ -14,3 +14,9 @@ CONTENTS OF THIS FILE
  * Troubleshooting
  * FAQ
  * Maintainers
+
+
+CONFIGURATION
+
+Remember to turn on the fields for display in "Manage form display" and "Manage display".
+

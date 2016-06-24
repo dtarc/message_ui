@@ -21,17 +21,17 @@ class MessageForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
     /** @var Message $message */
-    $message = $this->getEntity();
+    $message = $this->entity;
 
     // Access the message text from the view builder.
     $view_builder = \Drupal::entityManager()->getViewBuilder('message');
-    $message_text = $view_builder->view($message);
+    $message_preview = $view_builder->view($message);
 
-    if (\Drupal::config('message_ui.settings')->get('update_tokens.show_preview')) {
+    if (\Drupal::config('message_ui.settings')->get('show_preview')) {
       $form['text'] = array(
           '#type' => 'item',
-          '#title' => t('Message text'),
-          '#markup' => render($message_text),
+          '#title' => t('Message preview'),
+          '#markup' => render($message_preview),
       );
     }
 
