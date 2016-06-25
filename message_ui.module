@@ -25,40 +25,40 @@ const MESSAGE_UI_DENY = TRUE;
  * Extend the message entity type's field by providing display handlers.
  */
 function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
-    // Alter the uid and created field to include display settings.
-    if ($entity_type->id() == 'message') {
-        if(!empty($fields['uid'])) {
-            /* @var Drupal\Core\Field\BaseFieldDefinition $fields ['uid'] */
-            $fields['uid']->setDisplayOptions('view', array(
-                'label' => 'hidden',
-                'type' => 'owner',
-                'weight' => 0,
-                ))
-                ->setDisplayOptions('form', array(
-                    'type' => 'entity_reference_autocomplete',
-                    'weight' => 5,
-                    '#group' => 'advanced',
-                    'settings' => array(
-                        'match_operator' => 'CONTAINS',
-                        'size' => '60',
-                        'placeholder' => '',
-                    ),
-                ))
-                ->setDisplayConfigurable('form', TRUE);
-        }
-        if(!empty($fields['created'])) {
-            $fields['created']->setDisplayOptions('view', array(
-                'label' => 'hidden',
-                'type' => 'timestamp',
-                'weight' => 0,
-                ))
-                ->setDisplayOptions('form', array(
-                    'type' => 'datetime_timestamp',
-                    'weight' => 10,
-                ))
-                ->setDisplayConfigurable('form', TRUE);
-        }
+  // Alter the uid and created field to include display settings.
+  if ($entity_type->id() == 'message') {
+    if (!empty($fields['uid'])) {
+      /* @var Drupal\Core\Field\BaseFieldDefinition $fields ['uid'] */
+      $fields['uid']->setDisplayOptions('view', array(
+        'label' => 'hidden',
+        'type' => 'owner',
+        'weight' => 0,
+      ))
+        ->setDisplayOptions('form', array(
+          'type' => 'entity_reference_autocomplete',
+          'weight' => 5,
+          '#group' => 'advanced',
+          'settings' => array(
+            'match_operator' => 'CONTAINS',
+            'size' => '60',
+            'placeholder' => '',
+          ),
+        ))
+        ->setDisplayConfigurable('form', TRUE);
     }
+    if (!empty($fields['created'])) {
+      $fields['created']->setDisplayOptions('view', array(
+        'label' => 'hidden',
+        'type' => 'timestamp',
+        'weight' => 0,
+      ))
+        ->setDisplayOptions('form', array(
+          'type' => 'datetime_timestamp',
+          'weight' => 10,
+        ))
+        ->setDisplayConfigurable('form', TRUE);
+    }
+  }
 }
 
 /**
@@ -67,42 +67,42 @@ function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $
  * Extend the message entity type by providing form handlers.
  */
 function message_ui_entity_type_alter(array &$entity_types) {
-    if (isset($entity_types['message'])) {
-        // @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType
-        $message_config = $entity_types['message'];
-        $message_config->setAccessClass('Drupal\message_ui\MessageAccessControlHandler');
-        $message_config->setHandlerClass('view_builder', 'Drupal\message\MessageViewBuilder');
-        $message_config->setHandlerClass(
-          'form',
-          array(
-            'default' => 'Drupal\message_ui\Form\MessageForm',
-            'add' => 'Drupal\message_ui\Form\MessageForm',
-            'edit' => 'Drupal\message_ui\Form\MessageForm',
-            'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
-            ));
-        $message_config->setHandlerClass('route_provider',
-          array(
-            'html' => 'Drupal\message_ui\Entity\MessageRouteProvider',
-            ));
-        $message_config->set(
-          'links',
-          array(
-            'canonical' => '/message/{message}',
-            'edit-form' => '/message/{message}/edit',
-            'delete-form' => '/message/{message}/delete',
-            ));
-    }
+  if (isset($entity_types['message'])) {
+    // @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType
+    $message_config = $entity_types['message'];
+    $message_config->setAccessClass('Drupal\message_ui\MessageAccessControlHandler');
+    $message_config->setHandlerClass('view_builder', 'Drupal\message\MessageViewBuilder');
+    $message_config->setHandlerClass(
+      'form',
+      array(
+        'default' => 'Drupal\message_ui\Form\MessageForm',
+        'add' => 'Drupal\message_ui\Form\MessageForm',
+        'edit' => 'Drupal\message_ui\Form\MessageForm',
+        'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
+      ));
+    $message_config->setHandlerClass('route_provider',
+      array(
+        'html' => 'Drupal\message_ui\Entity\MessageRouteProvider',
+      ));
+    $message_config->set(
+      'links',
+      array(
+        'canonical' => '/message/{message}',
+        'edit-form' => '/message/{message}/edit',
+        'delete-form' => '/message/{message}/delete',
+      ));
+  }
 }
 
 /**
  * Implements hook_theme().
  */
 function message_ui_theme() {
-    return array(
-        'message_add_list' => array(
-            'variables' => array('content' => NULL),
-        )
-    );
+  return array(
+    'message_add_list' => array(
+      'variables' => array('content' => NULL),
+    )
+  );
 }
 
 /**
@@ -117,88 +117,93 @@ function message_ui_theme() {
  * @see message_add_page()
  */
 function template_preprocess_message_add_list(&$variables) {
-    $variables['types'] = array();
-    if (!empty($variables['content'])) {
-        foreach ($variables['content'] as $type) {
-            $variables['types'][$type->id()] = array(
-                'type' => $type->id(),
-                'add_link' => \Drupal::l($type->label(), new Url('message_ui.add', array('message_type' => $type->id()))),
-                'description' => array(
-                    '#markup' => $type->getDescription(),
-                ),
-            );
-        }
+  $variables['types'] = array();
+  if (!empty($variables['content'])) {
+    foreach ($variables['content'] as $type) {
+      $variables['types'][$type->id()] = array(
+        'type' => $type->id(),
+        'add_link' => \Drupal::l($type->label(), new Url('message_ui.add', array('message_type' => $type->id()))),
+        'description' => array(
+          '#markup' => $type->getDescription(),
+        ),
+      );
     }
+  }
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
 function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
-    $form['update_tokens'] = array(
-        '#type' => 'fieldset',
-        '#itle' => t('Token update settings'),
-    );
-    $form['update_tokens']['update_tokens_update_tokens'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Update messages arguments'),
-        '#description' => t('When editing a message type, the user can add or delete arguments. When this is checked, you can choose how to update to messages arguments.'),
-        '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.update_tokens'),
-    );
+  $form['update_tokens'] = array(
+    '#type' => 'fieldset',
+    '#itle' => t('Token update settings'),
+  );
+  $form['update_tokens']['update_tokens_update_tokens'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Update messages arguments'),
+    '#description' => t('When editing a message type, the user can add or delete arguments. When this is checked, you can choose how to update to messages arguments.'),
+    '#default_value' => \Drupal::config('message_ui.settings')
+      ->get('update_tokens.update_tokens'),
+  );
 
-    $form['update_tokens']['update_tokens_how_to_act'] = array(
-        '#type' => 'select',
-        '#title' => t('Choose how to act'),
-        '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.how_to_act'),
-        '#options' => array(
-            'update_when_removed' => t('Update messages when tokens are removed'),
-            'update_when_added' => t('Update messages when tokens are added'),
-        ),
-        '#states' => array(
-            'visible' => array(
-                ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
-            ),
-        ),
-    );
+  $form['update_tokens']['update_tokens_how_to_act'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose how to act'),
+    '#default_value' => \Drupal::config('message_ui.settings')
+      ->get('update_tokens.how_to_act'),
+    '#options' => array(
+      'update_when_removed' => t('Update messages when tokens are removed'),
+      'update_when_added' => t('Update messages when tokens are added'),
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
 
-    $form['update_tokens']['update_tokens_how_update'] = array(
-        '#type' => 'select',
-        '#title' => t('Choose how to update the messages'),
-        '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.how_update'),
-        '#options' => array(
-            'update_with_batch' => t('Update messages with batch API'),
-            'update_when_item' => t('Update messages with queue item'),
-        ),
-        '#states' => array(
-            'visible' => array(
-                ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
-            ),
-        ),
-    );
+  $form['update_tokens']['update_tokens_how_update'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose how to update the messages'),
+    '#default_value' => \Drupal::config('message_ui.settings')
+      ->get('update_tokens.how_update'),
+    '#options' => array(
+      'update_with_batch' => t('Update messages with batch API'),
+      'update_when_item' => t('Update messages with queue item'),
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
 
-    $form['update_tokens']['update_tokens_number_items'] = array(
-        '#type' => 'textfield',
-        '#size' => '10',
-        '#title' => t('Items to process each time.'),
-        '#description' => t('Choose how much items to process each iteration.'),
-        '#default_value' => \Drupal::config('message_ui.settings')->get('update_tokens.number_items'),
-        '#states' => array(
-            'visible' => array(
-                ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
-            ),
-        ),
-    );
+  $form['update_tokens']['update_tokens_number_items'] = array(
+    '#type' => 'textfield',
+    '#size' => '10',
+    '#title' => t('Items to process each time.'),
+    '#description' => t('Choose how much items to process each iteration.'),
+    '#default_value' => \Drupal::config('message_ui.settings')
+      ->get('update_tokens.number_items'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
 
-    $form['message_ui_show_preview'] = array(
-        '#type' => 'radios',
-        '#title' => t('Show/hide preview'),
-        '#default_value' => \Drupal::config('message_ui.settings')->get('show_preview'),
-        '#options' =>  array(
-            TRUE =>  t('Show preview'),
-            FALSE => t('Hide preview'),
-        ),
-        '#description' => t('Show/hide the text of the message when editing an instance of the message.'),
-    );
+  $form['message_ui_show_preview'] = array(
+    '#type' => 'radios',
+    '#title' => t('Show/hide preview'),
+    '#default_value' => \Drupal::config('message_ui.settings')
+      ->get('show_preview'),
+    '#options' => array(
+      TRUE => t('Show preview'),
+      FALSE => t('Hide preview'),
+    ),
+    '#description' => t('Show/hide the text of the message when editing an instance of the message.'),
+  );
 }
 
 /**
@@ -211,16 +216,16 @@ function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\
  */
 function message_ui_form_message_user_admin_settings_submit($form, &$form_state) {
 
-    $config = \Drupal::configFactory()->getEditable('message_ui.settings');
+  $config = \Drupal::configFactory()->getEditable('message_ui.settings');
 
-    // @todo: check if form_state values are accessed correctly.
-    $config->set('update_tokens.update_tokens', $form_state['values']['update_tokens_update_tokens'] );
-    $config->set('update_tokens.how_to_act', $form_state['values']['update_tokens_how_to_act'] );
-    $config->set('update_tokens.how_update', $form_state['values']['update_tokens_how_update'] );
-    $config->set('update_tokens.number_items', $form_state['values']['update_tokens_number_items'] );
-    $config->set('show_preview', $form_state['values']['message_ui_show_preview'] );
+  // @todo: check if form_state values are accessed correctly.
+  $config->set('update_tokens.update_tokens', $form_state['values']['update_tokens_update_tokens']);
+  $config->set('update_tokens.how_to_act', $form_state['values']['update_tokens_how_to_act']);
+  $config->set('update_tokens.how_update', $form_state['values']['update_tokens_how_update']);
+  $config->set('update_tokens.number_items', $form_state['values']['update_tokens_number_items']);
+  $config->set('show_preview', $form_state['values']['message_ui_show_preview']);
 
-    $config->save();
+  $config->save();
 }
 
 /**
@@ -241,84 +246,90 @@ function message_ui_form_message_user_admin_settings_submit($form, &$form_state)
  * @return bool|null
  */
 function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
-    $type = $entity->getEntityType()->getLabel();
+  $type = $entity->getEntityType()->getLabel();
 
-    if ($type != 'message_type') {
-        return FALSE;
-    }
+  if ($type != 'message_type') {
+    return FALSE;
+  }
 
+  $query = \Drupal::entityQuery('message');
+  $result = $query
+    ->condition('type', $type)
+    ->range(0, 1)
+    ->sort('mid', 'DESC')
+    ->execute();
+
+  // There is no messages from this type.
+  if (empty($result['message'])) {
+    return FALSE;
+  }
+
+  $keys = array_keys($result['message']);
+  $message = Message::load(reset($keys));
+  $new_arguments = MessageArgumentsWorker::getArguments($type);
+
+  $old_arguments_number = count($message->getArguments());
+  $new_arguments_number = $new_arguments;
+  $how_to_act = \Drupal::config('message_ui.settings')
+    ->get('update_tokens.how_to_act');
+
+  $update['when_added'] = $old_arguments_number < $new_arguments_number && $how_to_act == 'update_when_added';
+  $update['when_removed'] = $old_arguments_number > $new_arguments_number && $how_to_act == 'update_when_removed';
+
+  if (!($update['when_added'] || $update['when_removed'])) {
+    return FALSE;
+  }
+
+  $item_to_process = \Drupal::config('message_ui.settings')
+    ->get('update_tokens.number_items');
+  $how_update = \Drupal::config('message_ui.settings')
+    ->get('update_tokens.how_update');
+
+  if ($how_update == 'update_with_batch') {
+
+    // Get all the messages.
     $query = \Drupal::entityQuery('message');
     $result = $query
-        ->condition('type', $type)
-        ->range(0, 1)
-        ->sort('mid', 'DESC')
-        ->execute();
+      ->condition('type', $type)
+      ->sort('mid', 'DESC')
+      ->execute();
 
-    // There is no messages from this type.
-    if (empty($result['message'])) {
-        return FALSE;
+    $chunks = array_chunk(array_keys($result['message']), $item_to_process);
+
+    // @todo : Correct location for operations callback?
+    $operations = array();
+    foreach ($chunks as $chunk) {
+      $operations[] = array(
+        '\Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker::argumentsUpdate',
+        array($chunk, $new_arguments)
+      );
     }
 
-    $keys = array_keys($result['message']);
-    $message = Message::load(reset($keys));
-    $new_arguments = MessageArgumentsWorker::getArguments($type);
+    // @todo : Correct location for finished callback?
+    // Set the batch.
+    $batch = array(
+      'operations' => $operations,
+      'finished' => '\Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker::messageArgumentsUpdate',
+      'title' => t('Updating the messages arguments.'),
+      'init_message' => t('Start process messages.'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('Example Batch has encountered an error.'),
+    );
+    batch_set($batch);
+    batch_process('admin/structure/messages');
+  }
+  elseif ($how_update == 'update_when_item') {
+    // Define the queue item data.
+    $data = array(
+      'type' => $type,
+      'last_mid' => 0,
+      'new_arguments' => $new_arguments,
+      'item_to_process' => $item_to_process,
+    );
 
-    $old_arguments_number = count($message->getArguments());
-    $new_arguments_number = $new_arguments;
-    $how_to_act = \Drupal::config('message_ui.settings')->get('update_tokens.how_to_act');
-
-    $update['when_added'] = $old_arguments_number < $new_arguments_number && $how_to_act == 'update_when_added';
-    $update['when_removed'] = $old_arguments_number > $new_arguments_number && $how_to_act == 'update_when_removed';
-
-    if (!($update['when_added'] || $update['when_removed'])) {
-        return FALSE;
-    }
-
-    $item_to_process = \Drupal::config('message_ui.settings')->get('update_tokens.number_items');
-    $how_update = \Drupal::config('message_ui.settings')->get('update_tokens.how_update');
-
-    if ($how_update == 'update_with_batch') {
-
-        // Get all the messages.
-        $query = \Drupal::entityQuery('message');
-        $result = $query
-            ->condition('type', $type)
-            ->sort('mid', 'DESC')
-            ->execute();
-
-        $chunks = array_chunk(array_keys($result['message']), $item_to_process);
-
-        // @todo : Correct location for operations callback?
-        $operations = array();
-        foreach ($chunks as $chunk) {
-            $operations[] = array('\Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker::argumentsUpdate', array($chunk, $new_arguments));
-        }
-
-        // @todo : Correct location for finished callback?
-        // Set the batch.
-        $batch = array(
-            'operations' => $operations,
-            'finished' => '\Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker::messageArgumentsUpdate',
-            'title' => t('Updating the messages arguments.'),
-            'init_message' => t('Start process messages.'),
-            'progress_message' => t('Processed @current out of @total.'),
-            'error_message' => t('Example Batch has encountered an error.'),
-        );
-        batch_set($batch);
-        batch_process('admin/structure/messages');
-    }
-    elseif ($how_update == 'update_when_item') {
-        // Define the queue item data.
-        $data = array(
-            'type' => $type,
-            'last_mid' => 0,
-            'new_arguments' => $new_arguments,
-            'item_to_process' => $item_to_process,
-        );
-
-        // Set the queue worker.
-        $queue = \Drupal::queue('message_ui_arguments');
-        return $queue->createItem($data);
-    }
-    return NULL;
+    // Set the queue worker.
+    $queue = \Drupal::queue('message_ui_arguments');
+    return $queue->createItem($data);
+  }
+  return NULL;
 }

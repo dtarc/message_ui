@@ -78,7 +78,8 @@ class DeleteMultiple extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return \Drupal::translation()->formatPlural(count($this->messages), 'Are you sure you want to delete this item?', 'Are you sure you want to delete these items?');
+    return \Drupal::translation()
+      ->formatPlural(count($this->messages), 'Are you sure you want to delete this item?', 'Are you sure you want to delete these items?');
   }
 
   /**
@@ -99,9 +100,12 @@ class DeleteMultiple extends ConfirmFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     // @todo - below is from Message module, remove?
-    $this->messages = $this->tempStoreFactory->get('message_multiple_delete_confirm')->get(\Drupal::currentUser()->id());
+    $this->messages = $this->tempStoreFactory->get('message_multiple_delete_confirm')
+      ->get(\Drupal::currentUser()->id());
     if (empty($this->messages)) {
-      return new RedirectResponse($this->getCancelUrl()->setAbsolute()->toString());
+      return new RedirectResponse($this->getCancelUrl()
+        ->setAbsolute()
+        ->toString());
     }
 
     $form['messages'] = array(

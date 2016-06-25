@@ -60,7 +60,8 @@ class MessageUiPermissions extends MessageTestBase {
   function setUp() {
     parent::setUp();
 
-    $this->accessHandler = \Drupal::entityManager()->getAccessControlHandler('message');
+    $this->accessHandler = \Drupal::entityManager()
+      ->getAccessControlHandler('message');
 
     $this->account = $this->drupalCreateUser();
 

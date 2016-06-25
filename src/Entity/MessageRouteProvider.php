@@ -20,13 +20,13 @@ class MessageRouteProvider implements EntityRouteProviderInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRoutes( EntityTypeInterface $entity_type) {
+  public function getRoutes(EntityTypeInterface $entity_type) {
     $route_collection = new RouteCollection();
 
     $route = (new Route('/message/{message}/edit'))
-        ->setDefault('_entity_form', 'message.edit')
-        ->setRequirement('_message_ui_access', 'edit')
-        ->setOption('_admin_route', TRUE);
+      ->setDefault('_entity_form', 'message.edit')
+      ->setRequirement('_message_ui_access', 'edit')
+      ->setOption('_admin_route', TRUE);
     $route_collection->add('entity.message.edit_form', $route);
 
     $route = (new Route('/message/{message}/delete'))

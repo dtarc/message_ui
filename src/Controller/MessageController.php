@@ -30,7 +30,8 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
    */
   public function __construct() {
     $this->entityManager = \Drupal::entityManager();
-    $this->accessHandler = \Drupal::entityManager()->getAccessControlHandler('message');
+    $this->accessHandler = \Drupal::entityManager()
+      ->getAccessControlHandler('message');
   }
 
   /**
@@ -44,14 +45,18 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
    */
   public function addPage() {
     $build = [
-        '#theme' => 'message_add_list',
+      '#theme' => 'message_add_list',
     ];
 
     $content = array();
 
     // Only use node types the user has access to.
-    foreach ($this->entityManager()->getStorage('message_type')->loadMultiple() as $type) {
-      $access = $this->entityManager()->getAccessControlHandler('message')->createAccess($type->id(), NULL, [], TRUE);
+    foreach ($this->entityManager()
+               ->getStorage('message_type')
+               ->loadMultiple() as $type) {
+      $access = $this->entityManager()
+        ->getAccessControlHandler('message')
+        ->createAccess($type->id(), NULL, [], TRUE);
       if ($access->isAllowed()) {
         $content[$type->id()] = $type;
       }
@@ -98,7 +103,8 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
     // @todo - create the path corresponding to below.
     // From devel module - admin/config/development/message_delete_multiple.
     // @todo pass messages to be deleted in args?
-    $build = \Drupal::formBuilder()->getForm('Drupal\message_ui\Form\DeleteMultiple');
+    $build = \Drupal::formBuilder()
+      ->getForm('Drupal\message_ui\Form\DeleteMultiple');
 
     return $build;
   }

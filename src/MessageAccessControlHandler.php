@@ -23,11 +23,13 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     // Return early if we have bypass or create any type permissions.
     if ($account->hasPermission('bypass message access control')
-        || $account->hasPermission($operation . ' any message type')) {
+      || $account->hasPermission($operation . ' any message type')
+    ) {
       return AccessResult::allowed()->cachePerPermissions();
     }
 
-    return AccessResult::allowedIfHasPermission($account, $operation . ' ' . $entity->bundle() . ' message')->cachePerPermissions();
+    return AccessResult::allowedIfHasPermission($account, $operation . ' ' . $entity->bundle() . ' message')
+      ->cachePerPermissions();
   }
 
   /**
@@ -39,11 +41,13 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
     // Return early if we have bypass or create any type permissions.
     if ($account->hasPermission('bypass message access control')
-        || $account->hasPermission('create any message type')) {
+      || $account->hasPermission('create any message type')
+    ) {
       return AccessResult::allowed()->cachePerPermissions();
     }
 
-    return AccessResult::allowedIfHasPermission($account, 'create ' . $entity_bundle . ' message')->cachePerPermissions();
+    return AccessResult::allowedIfHasPermission($account, 'create ' . $entity_bundle . ' message')
+      ->cachePerPermissions();
   }
 
 }

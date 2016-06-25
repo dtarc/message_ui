@@ -24,7 +24,7 @@ class MessagePermissions {
    *
    * @return array
    *   The message type permissions.
-   *   @see \Drupal\user\PermissionHandlerInterface::getPermissions()
+   * @see \Drupal\user\PermissionHandlerInterface::getPermissions()
    */
   public function messageTypePermissions() {
     $perms = array();
