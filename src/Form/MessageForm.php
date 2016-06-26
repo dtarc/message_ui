@@ -23,16 +23,19 @@ class MessageForm extends ContentEntityForm {
     /** @var Message $message */
     $message = $this->entity;
 
-    // Access the message text from the view builder.
-    $view_builder = \Drupal::entityManager()->getViewBuilder('message');
-    $message_preview = $view_builder->view($message);
+    // For existing messages, create the preview.
+    if (!$message->isNew()) {
+      // Access the message text from the view builder.
+      $view_builder = \Drupal::entityManager()->getViewBuilder('message');
+      $message_preview = $view_builder->view($message);
 
-    if (\Drupal::config('message_ui.settings')->get('show_preview')) {
-      $form['text'] = array(
-        '#type' => 'item',
-        '#title' => t('Message preview'),
-        '#markup' => render($message_preview),
-      );
+      if (\Drupal::config('message_ui.settings')->get('show_preview')) {
+        $form['text'] = array(
+          '#type' => 'item',
+          '#title' => t('Message preview'),
+          '#markup' => render($message_preview),
+        );
+      }
     }
 
     // Create the advanced vertical tabs "group".
