@@ -31,7 +31,7 @@ function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $
       /* @var Drupal\Core\Field\BaseFieldDefinition $fields ['uid'] */
       $fields['uid']->setDisplayOptions('view', array(
         'label' => 'hidden',
-        'type' => 'owner',
+        'type' => 'author',
         'weight' => 0,
       ))
         ->setDisplayOptions('form', array(
