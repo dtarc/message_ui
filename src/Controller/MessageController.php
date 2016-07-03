@@ -44,10 +44,6 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
    *   type.
    */
   public function addPage() {
-    $build = [
-      '#theme' => 'message_add_list',
-    ];
-
     $content = array();
 
     // Only use node types the user has access to.
@@ -70,7 +66,7 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
 
     // Return build array.
     if (!empty($content)) {
-      return ['#content' => $content];
+      return ['#theme' => 'message_add_list', '#content' => $content];
     }
     else {
       $url = Url::fromRoute('message.type_add');
