@@ -80,10 +80,6 @@ function message_ui_entity_type_alter(array &$entity_types) {
         'edit' => 'Drupal\message_ui\Form\MessageForm',
         'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
       ));
-    $message_config->setHandlerClass('route_provider',
-      array(
-        'html' => 'Drupal\message_ui\Entity\MessageRouteProvider',
-      ));
     $message_config->set(
       'links',
       array(
