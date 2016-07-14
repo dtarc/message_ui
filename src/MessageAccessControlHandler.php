@@ -46,8 +46,25 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
       return AccessResult::allowed()->cachePerPermissions();
     }
 
-    return AccessResult::allowedIfHasPermission($account, 'create ' . $entity_bundle . ' message')
-      ->cachePerPermissions();
+    // When we have a bundle, check access on that bundle.
+    if ($entity_bundle) {
+      return AccessResult::allowedIfHasPermission($account, 'create ' . $entity_bundle . ' message')
+        ->cachePerPermissions();
+    }
+    
+    // With no bundle, e.g. on message/add, check access to any message bundle.
+    // @todo: perhaps change this method to a service as in NodeAddAccessCheck.
+    foreach (\Drupal::entityManager()
+               ->getStorage('message_type')
+               ->loadMultiple() as $type) {
+      $access = AccessResult::allowedIfHasPermission($account, 'create ' . $type->id() . ' message');
+      // If access is allowed to any of the existing bundles return allowed.
+      if ($access->isAllowed()) {
+        return $access->cachePerPermissions();
+      }
+    }
+
+    return AccessResult::neutral()->cachePerPermissions();
   }
 
 }
