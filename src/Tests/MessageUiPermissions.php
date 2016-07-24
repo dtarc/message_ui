@@ -68,8 +68,8 @@ class MessageUiPermissions extends MessageTestBase {
     // Load 'authenticated' user role.
     $this->rid = Role::load(RoleInterface::AUTHENTICATED_ID)->id();
 
-    // Create Message type foo.
-    $this->createMessageType('foo', 'Dummy test', 'Example text.', array('Dummy message'));
+    // Create Message template foo.
+    $this->createMessageTemplate('foo', 'Dummy test', 'Example text.', array('Dummy message'));
   }
 
   /**
@@ -121,7 +121,7 @@ class MessageUiPermissions extends MessageTestBase {
     // denied.
     $this->assertResponse(403, t("The user can't access the over view page."));
 
-    user_role_grant_permissions($this->rid, array('administer message types'));
+    user_role_grant_permissions($this->rid, array('administer message templates'));
     $this->drupalGet('/admin/content/messages');
     $this->assertResponse(200, "The user can access the over view page.");
 
@@ -139,7 +139,7 @@ class MessageUiPermissions extends MessageTestBase {
    * Grant to the user a specific permission.
    *
    * @param $operation
-   *  The type of operation - create, update, delete or view.
+   *  The template of operation - create, update, delete or view.
    */
   private function grantMessageUiPermission($operation) {
     user_role_grant_permissions($this->rid, array($operation . ' foo message'));
@@ -162,10 +162,10 @@ class MessageUiPermissions extends MessageTestBase {
       'update' => FALSE,
     );
 
-    // Get the message type and create an instance.
-    $message_type = $this->loadMessageType('foo');
+    // Get the message template and create an instance.
+    $message_template = $this->loadMessageTemplate('foo');
     /* @var $message Message */
-    $message = Message::create(array('type' => $message_type->id()));
+    $message = Message::create(array('template' => $message_template->id()));
     $message->setOwner($this->account);
     $message->save();
 

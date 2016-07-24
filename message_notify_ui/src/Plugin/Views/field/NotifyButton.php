@@ -7,11 +7,9 @@
 
 namespace Drupal\message_ui\Plugin\views\field;
 
-use Drupal\Core\Url;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\message\Entity\Message;
-use Drupal\message_ui\MessageAccessControlHandler;
 
 /**
  * Field handler to present a Notify button for a message instance.
@@ -23,7 +21,7 @@ use Drupal\message_ui\MessageAccessControlHandler;
 class NotifyButton extends FieldPluginBase {
 
   /**
-   * Stores the result of node_view_multiple for all rows to reuse it later.
+   * Stores the result of message_view_multiple for all rows to reuse it later.
    *
    * @var array
    */
@@ -40,7 +38,7 @@ class NotifyButton extends FieldPluginBase {
   public function render(ResultRow $values) {
     $message = Message::load($values->_entity->id());
 
-    if (user_access('send message notify')) {
+    if (\Drupal::currentUser()->hasPermission('send message notify')) {
       return l(t('Notify'), 'message/' . $message->id() . '/notify');
     }
     return NULL;

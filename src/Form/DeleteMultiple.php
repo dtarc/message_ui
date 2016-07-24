@@ -12,7 +12,7 @@ use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\message\Entity\Message;
-use Drupal\message\Entity\MessageType;
+use Drupal\message\Entity\MessageTemplate;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -113,9 +113,9 @@ class DeleteMultiple extends ConfirmFormBase {
       '#items' => array_map(function (Message $message) {
         $params = array(
           '@id' => $message->id(),
-          '@type' => $message->getType()->label(),
+          '@template' => $message->getTemplate()->label(),
         );
-        return t('Delete message ID @id fo type @type', $params);
+        return t('Delete message ID @id fo template @template', $params);
       }, $this->messages),
     );
     $form = parent::buildForm($form, $form_state);

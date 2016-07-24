@@ -21,9 +21,9 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
    * $operation as defined in the routing.yml file.
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
-    // Return early if we have bypass or create any type permissions.
+    // Return early if we have bypass or create any template permissions.
     if ($account->hasPermission('bypass message access control')
-      || $account->hasPermission($operation . ' any message type')
+      || $account->hasPermission($operation . ' any message template')
     ) {
       return AccessResult::allowed()->cachePerPermissions();
     }
@@ -39,9 +39,9 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
    * will be created during the 'add' process.
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    // Return early if we have bypass or create any type permissions.
+    // Return early if we have bypass or create any template permissions.
     if ($account->hasPermission('bypass message access control')
-      || $account->hasPermission('create any message type')
+      || $account->hasPermission('create any message template')
     ) {
       return AccessResult::allowed()->cachePerPermissions();
     }
@@ -55,9 +55,9 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
     // With no bundle, e.g. on message/add, check access to any message bundle.
     // @todo: perhaps change this method to a service as in NodeAddAccessCheck.
     foreach (\Drupal::entityManager()
-               ->getStorage('message_type')
-               ->loadMultiple() as $type) {
-      $access = AccessResult::allowedIfHasPermission($account, 'create ' . $type->id() . ' message');
+               ->getStorage('message_template')
+               ->loadMultiple() as $template) {
+      $access = AccessResult::allowedIfHasPermission($account, 'create ' . $template->id() . ' message');
       // If access is allowed to any of the existing bundles return allowed.
       if ($access->isAllowed()) {
         return $access->cachePerPermissions();

@@ -20,17 +20,17 @@ message_ui.add_page:
     _admin_route: TRUE
 
 message_ui.add:
-  path: '/message/add/{message_type}'
+  path: '/message/add/{message_template}'
   defaults:
   # Calls the form.add controller, defined in the message entity alter hook.
     _controller: '\Drupal\message_ui\Controller\MessageController::add'
     _title: 'Create Message'
   requirements:
-    _entity_create_access: 'message:{message_type}'
+    _entity_create_access: 'message:{message_template}'
   options:
     _admin_route: TRUE
     parameters:
-      message_type:
+      message_template:
         with_config_overrides: FALSE
 
 entity.message.edit_form:

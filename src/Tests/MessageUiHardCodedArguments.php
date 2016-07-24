@@ -70,13 +70,13 @@ class MessageUiHardCodedArguments extends MessageTestBase {
 
     $this->drupalLogin($this->user1);
 
-    // Create Message Type of 'Dummy Test'.
-    $this->createMessageType('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
+    // Create Message Template of 'Dummy Test'.
+    $this->createMessageTemplate('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
 
-    // Get the message type and create an instance.
-    $message_type = $this->loadMessageType('dummy_message');
+    // Get the message template and create an instance.
+    $message_template = $this->loadMessageTemplate('dummy_message');
     /* @var $message Message */
-    $message = Message::create(array('type' => $message_type->id()));
+    $message = Message::create(array('template' => $message_template->id()));
     $message->setOwner($this->user1);
     $message->save();
 

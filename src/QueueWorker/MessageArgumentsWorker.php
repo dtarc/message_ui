@@ -7,7 +7,7 @@
 namespace Drupal\message_ui\Plugin\QueueWorker;
 
 use Drupal\message\Entity\Message;
-use Drupal\message\Entity\MessageType;
+use Drupal\message\Entity\MessageTemplate;
 use Drupal\message\MessageInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 
@@ -57,18 +57,18 @@ class MessageArgumentsWorker extends QueueWorkerBase {
   /**
    * Get hard coded arguments.
    *
-   * @param $type
-   *  The message type.
+   * @param $template
+   *  The message template.
    * @param $count
    *  Determine weather to the count the arguments or return a list of them.
    * @return int
    *  The number of the arguments.
    */
-  public static function getArguments($type, $count = FALSE) {
-    /* @var $message_type MessageType */
-    $message_type = MessageType::load($type);
+  public static function getArguments($template, $count = FALSE) {
+    /* @var $message_template MessageTemplate */
+    $message_template = MessageTemplate::load($template);
 
-    if (!$output = $message_type->getText()) {
+    if (!$output = $message_template->getText()) {
       return FALSE;
     }
 

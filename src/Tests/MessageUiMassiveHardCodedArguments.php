@@ -53,18 +53,18 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
    * Test removal of added arguments.
    */
   public function testRemoveAddingArguments() {
-    // Create Message Type of 'Dummy Test.
-    $this->createMessageType('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
+    // Create Message Template of 'Dummy Test.
+    $this->createMessageTemplate('dummy_message', 'Dummy test', 'This is a dummy message with a dummy message', array('Dummy message'));
 
     // @todo : validate / fix this config access.
-    // Set a queue worker for the update arguments when updating a message type.
+    // Set a queue worker for the update arguments when updating a message template.
     $this->configSet('update_tokens.update_tokens', TRUE, 'message_ui.settings');
     $this->configSet('update_tokens.how_to_act', 'update_when_item', 'message_ui.settings');
 
     // Create a message.
-    $message_type = $this->loadMessageType('dummy_message');
+    $message_template = $this->loadMessageTemplate('dummy_message');
     /* @var $message Message */
-    $message = Message::create(array('type' => $message_type->id()))
+    $message = Message::create(array('template' => $message_template->id()))
       ->setOwner($this->user);
     $message->save();
 
@@ -76,8 +76,8 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     $this->configSet('update_tokens.how_to_act', 'update_when_removed', 'message_ui.settings');
 
     // Set message text.
-    $message_type->set('text', array('[message:user:name].'));
-    $message_type->save();
+    $message_template->set('text', array('[message:user:name].'));
+    $message_template->save();
 
     // Fire the queue worker.
     $queue = \Drupal::queue('message_ui_arguments');
@@ -90,7 +90,7 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     $this->assertTrue($original_arguments != $message->getArguments(), 'The message arguments has changed during the queue worker work.');
 
     // Creating a new message and her hard coded arguments.
-    $message = Message::create(array('type' => $message_type->id()))
+    $message = Message::create(array('template' => $message_template->id()))
       ->setOwner($this->user);
     $message->save();
     $original_arguments = $message->getArguments();
@@ -99,9 +99,9 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
     // Process the message instance when adding hard coded arguments.
     $this->configSet('update_tokens.how_to_act', 'update_when_added', 'message_ui.settings');
 
-    $message_type = $this->loadMessageType('dummy_message');
-    $message_type->set('text', array('@{message:user:name}.'));
-    $message_type->save();
+    $message_template = $this->loadMessageTemplate('dummy_message');
+    $message_template->set('text', array('@{message:user:name}.'));
+    $message_template->save();
 
     // Fire the queue worker.
     $queue = \Drupal::queue('message_ui_arguments');

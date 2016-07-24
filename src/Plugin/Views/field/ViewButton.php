@@ -9,7 +9,7 @@ namespace Drupal\message_ui\Plugin\views\field;
 
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\message_ui\MessageUiAccessControlHandler;
+use Drupal\message_ui\MessageAccessControlHandler;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\message\Entity\Message;
@@ -24,7 +24,7 @@ use Drupal\message\Entity\Message;
 class ViewButton extends FieldPluginBase {
 
   /**
-   * Stores the result of node_view_multiple for all rows to reuse it later.
+   * Stores the result of message_view_multiple for all rows to reuse it later.
    *
    * @var array
    */
@@ -42,7 +42,7 @@ class ViewButton extends FieldPluginBase {
   public function render(ResultRow $values) {
     $message = Message::load($values->_entity->id());
 
-    $access_handler = new MessageUiAccessControlHandler($message->getEntityType());
+    $access_handler = new MessageAccessControlHandler($message->getEntityType());
     if ($access_handler->access($message, 'view', \Drupal::currentUser())) {
       $url = Url::fromRoute('entity.message.canonical', $message);
       return Link::fromTextAndUrl(t('View'), $url);

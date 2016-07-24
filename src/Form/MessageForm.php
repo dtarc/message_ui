@@ -154,7 +154,7 @@ class MessageForm extends ContentEntityForm {
     $element['save']['#weight'] = 0;
 
     $mid = $message->id();
-    $url = is_object($message) && !empty($mid) ? Url::fromRoute('entity.message.canonical', ['message' => $mid]) : Url::fromRoute('message.overview_types');
+    $url = is_object($message) && !empty($mid) ? Url::fromRoute('entity.message.canonical', ['message' => $mid]) : Url::fromRoute('message.overview_templates');
     $link = \Drupal::l(t('Cancel'), $url);
 
     // Add a cancel link to the message form actions.
@@ -241,7 +241,7 @@ class MessageForm extends ContentEntityForm {
     // Set up message link and status message contexts.
     $message_link = $message->link($this->t('View'));
     $context = array(
-      '@type' => $message->getType(),
+      '@type' => $message->getTemplate(),
       '%title' => 'Message:' . $message->id(),
       'link' => $message_link
     );
