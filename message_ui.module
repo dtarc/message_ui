@@ -28,7 +28,7 @@ function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $
   // Alter the uid and created field to include display settings.
   if ($entity_type->id() == 'message') {
     if (!empty($fields['uid'])) {
-      /* @var Drupal\Core\Field\BaseFieldDefinition $fields ['uid'] */
+      /* @var Drupal\Core\Field\BaseFieldDefinition $fields['uid'] */
       $fields['uid']->setDisplayOptions('view', array(
         'label' => 'hidden',
         'type' => 'author',
@@ -68,7 +68,7 @@ function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $
  */
 function message_ui_entity_type_alter(array &$entity_types) {
   if (isset($entity_types['message'])) {
-    // @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType
+    /* @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType */
     $message_config = $entity_types['message'];
     $message_config->setAccessClass('Drupal\message_ui\MessageAccessControlHandler');
     $message_config->setHandlerClass('view_builder', 'Drupal\message\MessageViewBuilder');
