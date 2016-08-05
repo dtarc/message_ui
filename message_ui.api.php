@@ -17,8 +17,9 @@ use Drupal\Core\Session\AccountInterface;
  * @param $message
  *  The message object.
  */
-function hook_message_ui_view_alter(&$build, Message $message) {
-  // Check the output of the message as you wish.
+function hook_message_ui_view_alter(&$build, Message $message) 
+{
+    // Check the output of the message as you wish.
 }
 
 /**
@@ -34,6 +35,7 @@ function hook_message_ui_view_alter(&$build, Message $message) {
  * @return bool
  *  True or false.
  */
-function hook_message_message_ui_access_control(Message $message, $op, AccountInterface $account) {
-  return MESSAGE_UI_DENY;
+function hook_message_message_ui_access_control(Message $message, $op, AccountInterface $account) 
+{
+    return MESSAGE_UI_DENY;
 }

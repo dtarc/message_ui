@@ -14,29 +14,31 @@ use Drupal\message\Entity\MessageTemplate;
 /**
  * Defines a class containing permission callbacks.
  */
-class MessagePermissions {
+class MessagePermissions
+{
 
-  use StringTranslationTrait;
-  use UrlGeneratorTrait;
+    use StringTranslationTrait;
+    use UrlGeneratorTrait;
 
-  /**
+    /**
    * Gets an array of message type permissions.
    *
    * @return array
    *   The message template permissions.
-   * @see \Drupal\user\PermissionHandlerInterface::getPermissions()
+   * @see    \Drupal\user\PermissionHandlerInterface::getPermissions()
    */
-  public function messageTemplatePermissions() {
-    $perms = array();
-    // Generate node permissions for all message templates.
-    foreach (MessageTemplate::loadMultiple() as $template) {
-      $perms += $this->buildPermissions($template);
+    public function messageTemplatePermissions() 
+    {
+        $perms = array();
+        // Generate node permissions for all message templates.
+        foreach (MessageTemplate::loadMultiple() as $template) {
+            $perms += $this->buildPermissions($template);
+        }
+
+        return $perms;
     }
 
-    return $perms;
-  }
-
-  /**
+    /**
    * Builds a standard list of message permissions for a given template.
    *
    * @param \Drupal\message\Entity\MessageTemplate $template
@@ -45,24 +47,25 @@ class MessagePermissions {
    * @return array
    *   An array of permission names and descriptions.
    */
-  protected function buildPermissions(MessageTemplate $template) {
-    $template_id = $template->id();
-    $template_params = array('%template_name' => $template->label());
+    protected function buildPermissions(MessageTemplate $template) 
+    {
+        $template_id = $template->id();
+        $template_params = array('%template_name' => $template->label());
 
-    return array(
-      "view $template_id message" => array(
+        return array(
+        "view $template_id message" => array(
         'title' => $this->t('%template_name: View a message instance', $template_params),
-      ),
-      "edit $template_id message" => array(
+        ),
+        "edit $template_id message" => array(
         'title' => $this->t('%template_name: Edit a message instance', $template_params),
-      ),
-      "create $template_id message" => array(
+        ),
+        "create $template_id message" => array(
         'title' => $this->t('%template_name: Create a new message instance', $template_params),
-      ),
-      "delete $template_id message" => array(
+        ),
+        "delete $template_id message" => array(
         'title' => $this->t('%template_name: Delete a message instance', $template_params),
-      ),
-    );
-  }
+        ),
+        );
+    }
 
 }
