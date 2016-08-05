@@ -19,28 +19,23 @@ use Drupal\Core\Session\AccountInterface;
  *   type = "message"
  * )
  */
-class SaveMessage extends ActionBase
-{
+class SaveMessage extends ActionBase {
 
-    /**
+  /**
    * {@inheritdoc}
    */
-    public function execute($entity = null) 
-    {
-        // We need to change at least one value, otherwise the changed timestamp
-        // will not be updated.
-        $entity->changed = 0;
-        $entity->save();
-    }
+  public function execute($entity = NULL) {
+    // We need to change at least one value, otherwise the changed timestamp
+    // will not be updated.
+    $entity->changed = 0;
+    $entity->save();
+  }
 
-    /**
+  /**
    * {@inheritdoc}
    */
-    public function access($object, AccountInterface $account = null, $return_as_object = false) 
-    {
-        /**
- * @var \Drupal\message\MessageInterface $object 
-*/
-        return $object->access('update', $account, $return_as_object);
-    }
+  public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE) {
+    return $object->access('update', $account, $return_as_object);
+  }
+
 }

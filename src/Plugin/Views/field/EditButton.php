@@ -21,35 +21,33 @@ use Drupal\message\Entity\Message;
  *
  * @ViewsField("edit_button")
  */
-class EditButton extends FieldPluginBase
-{
+class EditButton extends FieldPluginBase {
 
-    /**
+  /**
    * Stores the result of message_view_multiple for all rows to reuse it later.
    *
    * @var array
    */
-    protected $build;
+  protected $build;
 
-    /**
+  /**
    * {@inheritdoc}
    */
-    public function query() 
-    {
-    }
+  public function query() {
+  }
 
-    /**
+  /**
    * {@inheritdoc}
    */
-    public function render(ResultRow $values) 
-    {
-        $message = Message::load($values->_entity->id());
+  public function render(ResultRow $values) {
+    $message = Message::load($values->_entity->id());
 
-        $access_handler = new MessageAccessControlHandler($message->getEntityType());
-        if ($access_handler->access($message, 'edit', \Drupal::currentUser())) {
-            $url = Url::fromRoute('entity.message.edit_form', $message);
-            return Link::fromTextAndUrl(t('Edit'), $url);
-        }
+    $access_handler = new MessageAccessControlHandler($message->getEntityType());
+
+    if ($access_handler->access($message, 'edit', \Drupal::currentUser())) {
+      $url = Url::fromRoute('entity.message.edit_form', $message);
+      return Link::fromTextAndUrl(t('Edit'), $url);
     }
+  }
 
 }

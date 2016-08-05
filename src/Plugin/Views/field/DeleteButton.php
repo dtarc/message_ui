@@ -21,35 +21,32 @@ use Drupal\message\Entity\Message;
  *
  * @ViewsField("delete_button")
  */
-class DeleteButton extends FieldPluginBase
-{
+class DeleteButton extends FieldPluginBase {
 
-    /**
+  /**
    * Stores the result of message_view_multiple for all rows to reuse it later.
    *
    * @var array
    */
-    protected $build;
+  protected $build;
 
-    /**
+  /**
    * {@inheritdoc}
    */
-    public function query() 
-    {
-    }
+  public function query() {
+  }
 
-    /**
+  /**
    * {@inheritdoc}
    */
-    public function render(ResultRow $values) 
-    {
-        $message = Message::load($values->_entity->id());
+  public function render(ResultRow $values) {
+    $message = Message::load($values->_entity->id());
 
-        $access_handler = new MessageAccessControlHandler($message->getEntityType());
-        if ($access_handler->access($message, 'delete', \Drupal::currentUser())) {
-            $url = Url::fromRoute('entity.message.delete_form', $message);
-            return Link::fromTextAndUrl(t('Delete'), $url);
-        }
+    $access_handler = new MessageAccessControlHandler($message->getEntityType());
+    if ($access_handler->access($message, 'delete', \Drupal::currentUser())) {
+      $url = Url::fromRoute('entity.message.delete_form', $message);
+      return Link::fromTextAndUrl(t('Delete'), $url);
     }
+  }
 
 }
