@@ -21,6 +21,7 @@ use Drupal\user\Entity\User;
  * @ingroup message_ui
  */
 class MessageForm extends ContentEntityForm {
+
   /**
    * {@inheritdoc}
    */
@@ -30,20 +31,12 @@ class MessageForm extends ContentEntityForm {
     /** @var Message $message */
     $message = $this->entity;
 
-    // For existing messages, create the preview.
-    if (!$message->isNew()) {
-      // Access the message text from the view builder.
-      $view_builder = \Drupal::entityManager()->getViewBuilder('message');
-      $message_preview = $view_builder->view($message);
-
-      if (\Drupal::config('message_ui.settings')->get('show_preview')) {
-        $form['text'] = array(
-          '#type' => 'item',
-          '#title' => t('Message preview'),
-          '#markup' => render($message_preview),
-        );
-      }
-    }
+    $template = \Drupal::entityTypeManager()->getStorage('message_template')->load($this->entity->bundle());
+    $form['text'] = array(
+      '#type' => 'item',
+      '#title' => t('Message template'),
+      '#markup' => implode("\n", $template->getText()),
+    );
 
     // Create the advanced vertical tabs "group".
     $form['advanced'] = array(
@@ -157,7 +150,7 @@ class MessageForm extends ContentEntityForm {
 
     $mid = $message->id();
     $url = is_object($message) && !empty($mid) ? Url::fromRoute('entity.message.canonical', ['message' => $mid]) : Url::fromRoute('message.overview_templates');
-    $link = Link::fromTextAndUrl(t('Cancel'), $url);
+    $link = Link::fromTextAndUrl(t('Cancel'), $url)->toString();
 
     // Add a cancel link to the message form actions.
     $element['cancel'] = array(
