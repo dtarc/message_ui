@@ -5,10 +5,10 @@
  * Definition of Drupal\message_ui\Tests\MessageUiMassiveHardCodedArguments.
  */
 
-namespace Drupal\message_ui\Tests;
+namespace Drupal\Tests\message_ui\Functional;
 
-use Drupal\message\Tests\MessageTestBase;
 use Drupal\message\Entity\Message;
+use Drupal\Tests\message\Functional\MessageTestBase;
 use Drupal\user\UserInterface;
 
 /**
@@ -28,7 +28,7 @@ class MessageUiMassiveHardCodedArguments extends MessageTestBase {
   /**
    * Modules to enable.
    *
-   * @todo: is entity_token required in D8?
+   * @todo: verify whether entity_token is required in D8.
    *
    * @var array
    */

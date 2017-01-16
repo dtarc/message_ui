@@ -5,11 +5,11 @@
  * Definition of Drupal\message_ui\Tests\MessageUiHardCodedArguments.
  */
 
-namespace Drupal\message_ui\Tests;
+namespace Drupal\Tests\message_ui\Functional;
 
+use Drupal\Tests\message\Functional\MessageTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
-use Drupal\message\Tests\MessageTestBase;
 use Drupal\message\Entity\Message;
 use Drupal\user\UserInterface;
 
@@ -78,13 +78,15 @@ class MessageUiHardCodedArguments extends MessageTestBase {
     // Verifying the message hard coded value is set to the user 1.
     $this->drupalGet('message/' . $message->id());
 
-    $this->assertText($this->user1->getUsername(), 'The message token is set to the user 1.');
+    // The message token is set to the user 1.
+    $this->assertText($this->user1->getUsername());
 
     $message->setOwner($this->user2);
     $message->save();
     $this->drupalGet('message/' . $message->id());
 
-    $this->assertNoText($this->user2->getUsername(), 'The message token is set to the user 1 after editing the message.');
+    // The message token is set to the user 1 after editing the message.
+    $this->assertNoText($this->user2->getUsername());
 
     // Update the message arguments automatically.
     $edit = array(
@@ -93,7 +95,8 @@ class MessageUiHardCodedArguments extends MessageTestBase {
     );
 
     $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
-    $this->assertText($this->user2->name, 'The message token as updated automatically.');
+    // The message token as updated automatically.
+    $this->assertText($this->user2->getUsername());
 
     // Update the message arguments manually.
     $edit = array(
@@ -103,7 +106,9 @@ class MessageUiHardCodedArguments extends MessageTestBase {
     );
 
     $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
-    $this->assertText('Dummy name', 'The hard coded token was updated with a custom value.');
+
+    // The hard coded token was updated with a custom value.
+    $this->assertText('Dummy name');
 
   }
 
