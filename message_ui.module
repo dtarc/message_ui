@@ -44,7 +44,8 @@ function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $
             'placeholder' => '',
           ),
         ))
-        ->setDisplayConfigurable('form', TRUE);
+        ->setDisplayConfigurable('form', TRUE)
+        ->setRequired(TRUE);
     }
     if (!empty($fields['created'])) {
       $fields['created']->setDisplayOptions('view', array(
