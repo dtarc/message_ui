@@ -459,7 +459,7 @@ function message_ui_form_message_user_admin_settings_alter(&$form, $form_state) 
  *    a batch or a queue and update the messages.
  */
 function message_ui_entity_update($entity, $type) {
-  if ($type != 'message_type') {
+  if ($type != 'message_type' || !variable_get('update_tokens_update_tokens')) {
     return;
   }
 
