@@ -131,24 +131,25 @@ function template_preprocess_message_add_list(&$variables) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+function message_ui_form_message_system_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
   $form['update_tokens'] = array(
     '#type' => 'fieldset',
     '#itle' => t('Token update settings'),
   );
+
+  $message_ui_settings = \Drupal::config('message_ui.settings');
+
   $form['update_tokens']['update_tokens_update_tokens'] = array(
     '#type' => 'checkbox',
     '#title' => t('Update messages arguments'),
     '#description' => t('When editing a message template, the user can add or delete arguments. When this is checked, you can choose how to update to messages arguments.'),
-    '#default_value' => \Drupal::config('message_ui.settings')
-      ->get('update_tokens.update_tokens'),
+    '#default_value' => $message_ui_settings->get('update_tokens.update_tokens'),
   );
 
   $form['update_tokens']['update_tokens_how_to_act'] = array(
     '#type' => 'select',
     '#title' => t('Choose how to act'),
-    '#default_value' => \Drupal::config('message_ui.settings')
-      ->get('update_tokens.how_to_act'),
+    '#default_value' => $message_ui_settings->get('update_tokens.how_to_act'),
     '#options' => array(
       'update_when_removed' => t('Update messages when tokens are removed'),
       'update_when_added' => t('Update messages when tokens are added'),
@@ -163,8 +164,7 @@ function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\
   $form['update_tokens']['update_tokens_how_update'] = array(
     '#type' => 'select',
     '#title' => t('Choose how to update the messages'),
-    '#default_value' => \Drupal::config('message_ui.settings')
-      ->get('update_tokens.how_update'),
+    '#default_value' => $message_ui_settings->get('update_tokens.how_update'),
     '#options' => array(
       'update_with_batch' => t('Update messages with batch API'),
       'update_when_item' => t('Update messages with queue item'),
@@ -181,8 +181,7 @@ function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\
     '#size' => '10',
     '#title' => t('Items to process each time.'),
     '#description' => t('Choose how much items to process each iteration.'),
-    '#default_value' => \Drupal::config('message_ui.settings')
-      ->get('update_tokens.number_items'),
+    '#default_value' => $message_ui_settings->get('update_tokens.number_items'),
     '#states' => array(
       'visible' => array(
         ':input[name="update_tokens_update_tokens"]' => array('checked' => TRUE),
@@ -191,16 +190,13 @@ function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\
   );
 
   $form['message_ui_show_preview'] = array(
-    '#type' => 'radios',
+    '#type' => 'checkbox',
     '#title' => t('Show/hide preview'),
-    '#default_value' => \Drupal::config('message_ui.settings')
-      ->get('show_preview'),
-    '#options' => array(
-      TRUE => t('Show preview'),
-      FALSE => t('Hide preview'),
-    ),
+    '#default_value' => $message_ui_settings->get('show_preview'),
     '#description' => t('Show/hide the text of the message when editing an instance of the message.'),
   );
+
+  $form['#submit'][] = 'message_ui_form_message_system_settings_submit';
 }
 
 /**
@@ -211,18 +207,18 @@ function message_ui_form_message_user_admin_settings_alter(&$form, \Drupal\Core\
  * @param $form
  * @param $form_state
  */
-function message_ui_form_message_user_admin_settings_submit($form, &$form_state) {
+function message_ui_form_message_system_settings_submit($form, \Drupal\Core\Form\FormStateInterface $form_state) {
+
+  $form_values = $form_state->getValues();
 
   $config = \Drupal::configFactory()->getEditable('message_ui.settings');
-
-  // @todo: check if form_state values are accessed correctly.
-  $config->set('update_tokens.update_tokens', $form_state['values']['update_tokens_update_tokens']);
-  $config->set('update_tokens.how_to_act', $form_state['values']['update_tokens_how_to_act']);
-  $config->set('update_tokens.how_update', $form_state['values']['update_tokens_how_update']);
-  $config->set('update_tokens.number_items', $form_state['values']['update_tokens_number_items']);
-  $config->set('show_preview', $form_state['values']['message_ui_show_preview']);
-
-  $config->save();
+  $config
+    ->set('update_tokens.update_tokens', $form_values['update_tokens_update_tokens'])
+    ->set('update_tokens.how_to_act', $form_values['update_tokens_how_to_act'])
+    ->set('update_tokens.how_update', $form_values['update_tokens_how_update'])
+    ->set('update_tokens.number_items', $form_values['update_tokens_number_items'])
+    ->set('show_preview', $form_values['message_ui_show_preview'])
+    ->save();
 }
 
 /**
