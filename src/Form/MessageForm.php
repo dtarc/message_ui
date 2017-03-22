@@ -40,7 +40,7 @@ class MessageForm extends ContentEntityForm {
 
     // Create the advanced vertical tabs "group".
     $form['advanced'] = array(
-      '#type' => 'vertical_tabs',
+      '#type' => 'details',
       '#attributes' => array('class' => array('entity-meta')),
       '#weight' => 99,
     );
@@ -72,10 +72,10 @@ class MessageForm extends ContentEntityForm {
     }
 
     // @todo: assess the best way to access and create tokens tab from D7.
-    $args = $message->getArguments();
+    $tokens = $message->getArguments();
 
     $access = \Drupal::currentUser()->hasPermission('update tokens') || \Drupal::currentUser()->hasPermission('bypass message access control');
-    if (!empty($args) && ($access)) {
+    if (!empty($tokens) && ($access)) {
       $form['tokens'] = array(
         '#type' => 'fieldset',
         '#title' => t('Tokens and arguments'),
@@ -197,6 +197,7 @@ class MessageForm extends ContentEntityForm {
 
     // Get the message args and replace tokens.
     if ($args = $message->getArguments()) {
+
       if (!empty($token_actions) && $token_actions != 'no_update') {
 
         // Loop through the arguments of the message.
@@ -210,13 +211,15 @@ class MessageForm extends ContentEntityForm {
           }
           else {
             // Hard coded value given from the user.
-            $value = $form_state['values'][$token];
+            $value = $form_state->getValue($token);
           }
 
           $args[$token] = $value;
         }
       }
     }
+
+    $this->entity->setArguments($args);
   }
 
   /**

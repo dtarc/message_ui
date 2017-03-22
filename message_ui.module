@@ -161,13 +161,13 @@ function message_ui_form_message_system_settings_alter(&$form, \Drupal\Core\Form
     ),
   );
 
-  $form['update_tokens']['update_tokens_how_update'] = array(
+  $form['update_tokens']['update_tokens_how_to_update'] = array(
     '#type' => 'select',
     '#title' => t('Choose how to update the messages'),
-    '#default_value' => $message_ui_settings->get('update_tokens.how_update'),
+    '#default_value' => $message_ui_settings->get('update_tokens.how_to_update'),
     '#options' => array(
       'update_with_batch' => t('Update messages with batch API'),
-      'update_when_item' => t('Update messages with queue item'),
+      'update_with_item' => t('Update messages with queue item'),
     ),
     '#states' => array(
       'visible' => array(
@@ -215,7 +215,7 @@ function message_ui_form_message_system_settings_submit($form, \Drupal\Core\Form
   $config
     ->set('update_tokens.update_tokens', $form_values['update_tokens_update_tokens'])
     ->set('update_tokens.how_to_act', $form_values['update_tokens_how_to_act'])
-    ->set('update_tokens.how_update', $form_values['update_tokens_how_update'])
+    ->set('update_tokens.how_to_update', $form_values['update_tokens_how_to_update'])
     ->set('update_tokens.number_items', $form_values['update_tokens_number_items'])
     ->set('show_preview', $form_values['message_ui_show_preview'])
     ->save();
@@ -239,7 +239,7 @@ function message_ui_form_message_system_settings_submit($form, \Drupal\Core\Form
  * @return bool|null
  */
 function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
-  $type = $entity->getEntityType()->getLabel();
+  $type = $entity->getEntityType()->id();
 
   if ($type != 'message_template') {
     return FALSE;
@@ -247,24 +247,25 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
 
   $query = \Drupal::entityQuery('message');
   $result = $query
-    ->condition('type', $type)
+    ->condition('template', $entity->getTemplate())
     ->range(0, 1)
     ->sort('mid', 'DESC')
     ->execute();
 
-  // There is no messages from this template.
-  if (empty($result['message'])) {
+  // There is no messages of this template.
+  if (empty($result)) {
     return FALSE;
   }
 
-  $keys = array_keys($result['message']);
+  $keys = array_keys($result);
   $message = Message::load(reset($keys));
-  $new_arguments = MessageArgumentsWorker::getArguments($type);
+
+  $new_arguments = MessageArgumentsWorker::getArguments($entity->getTemplate());
 
   $old_arguments_number = count($message->getArguments());
   $new_arguments_number = $new_arguments;
-  $how_to_act = \Drupal::config('message_ui.settings')
-    ->get('update_tokens.how_to_act');
+  $message_ui_settings_config = \Drupal::config('message_ui.settings');
+  $how_to_act = $message_ui_settings_config->get('update_tokens.how_to_act');
 
   $update['when_added'] = $old_arguments_number < $new_arguments_number && $how_to_act == 'update_when_added';
   $update['when_removed'] = $old_arguments_number > $new_arguments_number && $how_to_act == 'update_when_removed';
@@ -273,21 +274,19 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
     return FALSE;
   }
 
-  $item_to_process = \Drupal::config('message_ui.settings')
-    ->get('update_tokens.number_items');
-  $how_update = \Drupal::config('message_ui.settings')
-    ->get('update_tokens.how_update');
+  $item_to_process = $message_ui_settings_config->get('update_tokens.number_items');
+  $how_to_update = $message_ui_settings_config->get('update_tokens.how_to_update');
 
-  if ($how_update == 'update_with_batch') {
+  if ($how_to_update == 'update_with_batch') {
 
     // Get all the messages.
     $query = \Drupal::entityQuery('message');
     $result = $query
-      ->condition('type', $type)
+      ->condition('template', $entity->getTemplate())
       ->sort('mid', 'DESC')
       ->execute();
 
-    $chunks = array_chunk(array_keys($result['message']), $item_to_process);
+    $chunks = array_chunk(array_keys($result), $item_to_process);
 
     // @todo : Correct location for operations callback?
     $operations = array();
@@ -311,10 +310,11 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
     batch_set($batch);
     batch_process('admin/structure/messages');
   }
-  elseif ($how_update == 'update_when_item') {
+  elseif ($how_to_update == 'update_with_item') {
+    // Don't use queue worker - un-testable for some reason.
     // Define the queue item data.
     $data = array(
-      'type' => $type,
+      'template' => $entity->getTemplate(),
       'last_mid' => 0,
       'new_arguments' => $new_arguments,
       'item_to_process' => $item_to_process,

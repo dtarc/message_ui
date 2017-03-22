@@ -6,9 +6,9 @@
 
 namespace Drupal\message_ui\Plugin\QueueWorker;
 
+use Drupal\Core\Render\Markup;
 use Drupal\message\Entity\Message;
 use Drupal\message\Entity\MessageTemplate;
-use Drupal\message\MessageInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 
 /**
@@ -26,37 +26,31 @@ class MessageArgumentsWorker extends QueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($data) {
+    // todo: move to hook cron.
+    // Load all of the messages.
+    $query = \Drupal::entityQuery('message');
+    $result = $query
+      ->condition('template', $data['template'])
+      ->sort('mid', 'DESC')
+      ->condition('mid', $data['last_mid'], '>=')
+      ->range(0, $data['item_to_process'])
+      ->execute();
 
-    // Update the message arguments via a queue worker.
-    if ($data instanceof MessageInterface) {
-
-      // Load all of the messages.
-      $query = \Drupal::entityQuery('message');
-      $result = $query
-        ->condition('type', $data['type'])
-        ->sort('mid', 'DESC')
-        ->condition('mid', $data['last_mid'], '>=')
-        ->range(0, $data['item_to_process'])
-        ->execute();
-
-      if (empty($result['message'])) {
-        return FALSE;
-      }
-
-      // Update the messages.
-      $messages = Message::loadMultiple(array_keys($result['message']));
-      foreach ($messages as $message) {
-        /* @var Message $message */
-        $this->messageArgumentsUpdate($message, $data['new_arguments']);
-        $data['last_mid'] = $message->id();
-      }
-
-      // Create the next queue worker.
-      $queue = \Drupal::queue('message_ui_arguments');
-      return $queue->createItem($data);
+    if (empty($result)) {
+      return FALSE;
     }
 
-    return FALSE;
+    // Update the messages.
+    $messages = Message::loadMultiple(array_keys($result));
+    foreach ($messages as $message) {
+      /* @var Message $message */
+      $this->messageArgumentsUpdate($message, $data['new_arguments']);
+      $data['last_mid'] = $message->id();
+    }
+
+    // Create the next queue worker.
+    $queue = \Drupal::queue('message_ui_arguments');
+    return $queue->createItem($data);
   }
 
   /**
@@ -71,14 +65,23 @@ class MessageArgumentsWorker extends QueueWorkerBase {
    *   The number of the arguments.
    */
   public static function getArguments($template, $count = FALSE) {
+
     /* @var $message_template MessageTemplate */
-    $message_template = MessageTemplate::load($template);
+    if (!$message_template = MessageTemplate::load($template)) {
+      return FALSE;
+    }
 
     if (!$output = $message_template->getText()) {
       return FALSE;
     }
 
-    preg_match_all('/[@|%|\!]\{([a-z0-9:_\-]+?)\}/i', $output, $matches);
+    $text = array_map(function(Markup $markup) {
+      return (string) $markup;
+
+    }, $output);
+
+    $text = implode("\n", $text);
+    preg_match_all('/[@|%|\!]\{([a-z0-9:_\-]+?)\}/i', $text, $matches);
 
     return $count ? count($matches[0]) : $matches[0];
   }

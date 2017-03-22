@@ -19,7 +19,7 @@ use Drupal\user\UserInterface;
  *
  * @group Message UI
  */
-class MessageUiPermissions extends MessageTestBase {
+class MessageUiPermissionsTest extends MessageTestBase {
 
   /**
    * The message access control handler.
@@ -78,18 +78,19 @@ class MessageUiPermissions extends MessageTestBase {
 
     // Verify the user can't create the message.
     $this->drupalGet($create_url);
+
     // The user can't create a message.
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     // Grant and check create permissions for a message.
     $this->grantMessageUiPermission('create');
     $this->drupalGet($create_url);
 
     // Check for valid response.
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
 
     // Create a message.
-    $this->drupalPostForm(NULL, array(), t('Save'));
+    $this->drupalPostForm(NULL, array(), t('Create'));
 
     // Create the message url.
     $msg_url = '/message/1';
@@ -98,23 +99,23 @@ class MessageUiPermissions extends MessageTestBase {
     $this->grantMessageUiPermission('view');
     $this->drupalGet($msg_url);
     // The user can view a message.
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
 
     // Verify can't edit the message.
     $this->drupalGet($msg_url . '/edit');
     // The user can't edit a message.
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     // Grant permission to the user.
     $this->grantMessageUiPermission('edit');
     $this->drupalGet($msg_url . '/edit');
     // The user can't edit a message.
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
 
     // Verify the user can't delete the message.
     $this->drupalGet($msg_url . '/delete');
     // The user can't delete the message.
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     // Grant the permission to the user.
     $this->grantMessageUiPermission('delete');
@@ -122,11 +123,11 @@ class MessageUiPermissions extends MessageTestBase {
 
     // User did not have permission to the overview page - verify access
     // denied.
-    $this->assertResponse(403); // The user can't access the over view page.
+    $this->assertSession()->statusCodeEquals(403);
 
-    user_role_grant_permissions($this->rid, array('administer message templates'));
+    user_role_grant_permissions($this->rid, array('overview messages'));
     $this->drupalGet('/admin/content/messages');
-    $this->assertResponse(200); // The user can access the over view page.
+    $this->assertSession()->statusCodeEquals(200);
 
     // Create a new user with the bypass access permission and verify the
     // bypass.
@@ -136,8 +137,9 @@ class MessageUiPermissions extends MessageTestBase {
     // Verify the user can by pass the message access control.
     $this->drupalLogin($user);
     $this->drupalGet($create_url);
+
     // The user can bypass the message access control.
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
   }
 
   /**
@@ -179,10 +181,21 @@ class MessageUiPermissions extends MessageTestBase {
       // When the hook access of the dummy module will get in action it will
       // check which value need to return. If the access control function will
       // return the expected value then we know the hook got in action.
-      $message->{$op} = $value;
-      $params = array('@operation' => $op, '@value' => $value);
+      if ($op == 'create') {
+        $returned = $this->accessHandler->createAccess($message_template->id(), $this->account);
+      }
+      else {
+        $message->{$op} = $value;
+        $returned = $this->accessHandler->access($message, $op, $this->account);
+      }
 
-      $this->assertEqual($value, $this->accessHandler->access($message, $op, $this->account), new FormattableMarkup('The hook return @value for @operation', $params));
+      $params = array(
+        '@operation' => $op,
+        '@value' => $value,
+        '@returned' => $returned
+      );
+
+      $this->assertEquals($value, $returned, new FormattableMarkup('The hook return @value for @operation when it need to return @returned', $params));
     }
   }
 }

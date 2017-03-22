@@ -18,10 +18,13 @@ message_ui.update_tokens:
   mapping:
     update_tokens:
       type: boolean
-      label: 'Update Tokens'
+      label: 'Update tokens'
     how_to_act:
       type: string
-      label: 'How to Act'
+      label: 'How to act'
+    how_to_update:
+      type: string
+      label: 'How to update'
     number_items:
       type: integer
       label: 'Number Items'

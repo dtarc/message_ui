@@ -31,6 +31,17 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
       return AccessResult::allowed()->cachePerPermissions();
     }
 
+    /** @var AccessResult[] $results */
+    $results = $this->moduleHandler()->invokeAll('message_message_ui_access_control', [$entity, $operation, $account]);
+
+    foreach ($results as $result) {
+      if ($result->isNeutral()) {
+        continue;
+      }
+
+      return $result;
+    }
+
     return AccessResult::allowedIfHasPermission($account, $operation . ' ' . $entity->bundle() . ' message')->cachePerPermissions();
   }
 
@@ -44,6 +55,17 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
     // Return early if we have bypass or create any template permissions.
     if ($account->hasPermission('bypass message access control') || $account->hasPermission('create any message template')) {
       return AccessResult::allowed()->cachePerPermissions();
+    }
+
+    /** @var AccessResult[] $results */
+    $results = $this->moduleHandler()->invokeAll('message_message_ui_create_access_control', [$entity_bundle, $account]);
+
+    foreach ($results as $result) {
+      if ($result->isNeutral()) {
+        continue;
+      }
+
+      return $result;
     }
 
     // When we have a bundle, check access on that bundle.

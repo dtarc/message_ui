@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Dummy module for for testing how other modules will interact with message UI.
+ */
+
+/**
+ * Implements hook_message_message_ui_access_control.
+ */
+function message_ui_test_message_message_ui_access_control(\Drupal\message\MessageInterface $message, $op, \Drupal\Core\Session\AccountInterface $account) {
+  return \Drupal\Core\Access\AccessResult::allowedIf($message->{$op});
+}
+
+/**
+ * Implements hook_message_message_ui_create_access_control().
+ */
+function message_ui_test_message_message_ui_create_access_control($template, \Drupal\Core\Session\AccountInterface $account) {
+  // The tests expect an allowed result when creating.
+  return \Drupal\Core\Access\AccessResult::allowed();
+}
