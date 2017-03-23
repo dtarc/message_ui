@@ -43,9 +43,11 @@ abstract class AbstractTestMessageUi extends MessageTestBase {
    *
    * @param string $operation
    *   The template of operation - create, update, delete or view.
+   * @param $template
+   *   The message template.
    */
-  protected function grantMessageUiPermission($operation) {
-    user_role_grant_permissions($this->rid, array($operation . ' foo message'));
+  protected function grantMessageUiPermission($operation, $template = 'foo') {
+    user_role_grant_permissions($this->rid, array($operation . ' ' . $template . ' message'));
   }
 
   /**
