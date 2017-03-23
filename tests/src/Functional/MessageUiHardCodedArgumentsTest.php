@@ -18,7 +18,7 @@ use Drupal\user\UserInterface;
  *
  * @group Message UI
  */
-class MessageUiHardCodedArgumentsTest extends MessageTestBase {
+class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
 
   /**
    * The first user object.
@@ -33,15 +33,6 @@ class MessageUiHardCodedArgumentsTest extends MessageTestBase {
    * @var UserInterface
    */
   public $user2;
-
-  /**
-   * Modules to enable.
-   *
-   * @todo: is entity_token required in D8?
-   *
-   * @var array
-   */
-  public static $modules = ['message', 'message_ui'];
 
   /**
    * {@inheritdoc}

@@ -26,6 +26,7 @@ class MessageArgumentsWorker extends QueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($data) {
+
     // Load all of the messages.
     $query = \Drupal::entityQuery('message');
     $result = $query
@@ -41,9 +42,10 @@ class MessageArgumentsWorker extends QueueWorkerBase {
 
     // Update the messages.
     $messages = Message::loadMultiple(array_keys($result));
+
     foreach ($messages as $message) {
       /* @var Message $message */
-      $this->messageArgumentsUpdate($message, $data['new_arguments']);
+      self::messageArgumentsUpdate($message, $data['new_arguments']);
       $data['last_mid'] = $message->id();
     }
 

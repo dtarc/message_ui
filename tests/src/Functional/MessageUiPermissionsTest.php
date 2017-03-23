@@ -19,7 +19,7 @@ use Drupal\user\UserInterface;
  *
  * @group Message UI
  */
-class MessageUiPermissionsTest extends MessageTestBase {
+class MessageUiPermissionsTest extends AbstractTestMessageUi {
 
   /**
    * The message access control handler.
@@ -27,27 +27,6 @@ class MessageUiPermissionsTest extends MessageTestBase {
    * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface
    */
   protected $accessHandler;
-
-  /**
-   * The user account object.
-   *
-   * @var UserInterface
-   */
-  protected $account;
-
-  /**
-   * The user role.
-   *
-   * @var integer
-   */
-  protected $rid;
-
-  /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = ['message', 'message_ui'];
 
   /**
    * {@inheritdoc}
@@ -140,16 +119,6 @@ class MessageUiPermissionsTest extends MessageTestBase {
 
     // The user can bypass the message access control.
     $this->assertSession()->statusCodeEquals(200);
-  }
-
-  /**
-   * Grant to the user a specific permission.
-   *
-   * @param string $operation
-   *   The template of operation - create, update, delete or view.
-   */
-  private function grantMessageUiPermission($operation) {
-    user_role_grant_permissions($this->rid, array($operation . ' foo message'));
   }
 
   /**

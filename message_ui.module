@@ -263,7 +263,7 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
   $new_arguments = MessageArgumentsWorker::getArguments($entity->getTemplate());
 
   $old_arguments_number = count($message->getArguments());
-  $new_arguments_number = $new_arguments;
+  $new_arguments_number = count($new_arguments);
   $message_ui_settings_config = \Drupal::config('message_ui.settings');
   $how_to_act = $message_ui_settings_config->get('update_tokens.how_to_act');
 
@@ -311,7 +311,6 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
     batch_process('admin/structure/messages');
   }
   elseif ($how_to_update == 'update_with_item') {
-    // Don't use queue worker - un-testable for some reason.
     // Define the queue item data.
     $data = array(
       'template' => $entity->getTemplate(),
@@ -324,5 +323,6 @@ function message_ui_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
     $queue = \Drupal::queue('message_ui_arguments');
     return $queue->createItem($data);
   }
+
   return NULL;
 }
