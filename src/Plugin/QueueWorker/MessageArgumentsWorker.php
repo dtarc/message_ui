@@ -26,7 +26,6 @@ class MessageArgumentsWorker extends QueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($data) {
-    // todo: move to hook cron.
     // Load all of the messages.
     $query = \Drupal::entityQuery('message');
     $result = $query

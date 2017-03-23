@@ -10,7 +10,6 @@ namespace Drupal\Tests\message_ui\Functional;
 use Drupal\message\Entity\Message;
 use Drupal\message\MessageTemplateInterface;
 use Drupal\Tests\message\Functional\MessageTestBase;
-use Drupal\Tests\Traits\Core\CronRunTrait;
 use Drupal\user\UserInterface;
 
 /**
@@ -54,7 +53,6 @@ class MessageUiMassiveHardCodedArgumentsTest extends MessageTestBase {
    * Test removal of added arguments.
    */
   public function testRemoveAddingArguments() {
-    return;
     // Create Message Template of 'Dummy Test.
     $this->messageTemplate = $this->createMessageTemplate('dummy_message', 'Dummy test', 'This is a dummy message', array('@{message:author:name} @{message:author:mail}'));
 
@@ -89,7 +87,7 @@ class MessageUiMassiveHardCodedArgumentsTest extends MessageTestBase {
     $queue->createQueue();
     $item = $queue->claimItem();
     $queue->createItem($item->data);
-    $this->cronRun();
+    $this->container->get('cron')->run();
 
     // Verify the arguments has changed.
     $message = Message::load($message->id());
