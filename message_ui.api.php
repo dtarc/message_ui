@@ -8,6 +8,7 @@
 namespace Drupal\message_ui;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\message\Entity\Message;
 use Drupal\Core\Session\AccountInterface;
 
@@ -41,4 +42,17 @@ function hook_message_message_ui_access_control(Message $message, $op, AccountIn
  */
 function hook_message_message_ui_create_access_control($template, $account) {
   return AccessResult::allowed();
+}
+
+/**
+ * Implements hook_message_ui_multiple_message_delete_query_alter().
+ *
+ * Altering the query object when deleting multiple message from the delete
+ * multiple messages form.
+ *
+ * @param \Drupal\Core\Entity\Query\QueryInterface $query
+ *   The query object to alter.
+ */
+function hook_message_ui_multiple_message_delete_query_alter(QueryInterface $query) {
+  $query->condition('field_node_ref.target_id', 22);
 }

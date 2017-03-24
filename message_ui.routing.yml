@@ -54,3 +54,11 @@ entity.message.delete_form:
     _entity_access: 'message.delete'
   options:
     _admin_route: TRUE
+
+message_ui.message_multiple_delete_form:
+  path: '/admin/config/message/message_delete_multiple'
+  defaults:
+    _form: '\Drupal\message_ui\Form\MessageMultipleDeleteForm'
+    _title: 'MessageMultipleDeleteForm'
+  requirements:
+    _access: 'TRUE'
