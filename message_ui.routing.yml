@@ -59,6 +59,6 @@ message_ui.message_multiple_delete_form:
   path: '/admin/config/message/message_delete_multiple'
   defaults:
     _form: '\Drupal\message_ui\Form\MessageMultipleDeleteForm'
-    _title: 'MessageMultipleDeleteForm'
+    _title: 'Message multiple deleteForm'
   requirements:
     _access: 'TRUE'

@@ -17,4 +17,31 @@ function message_ui_install() {
   foreach (array_keys($templates) as $template) {
     $message_ui_field_display_manager->SetFieldsDisplay($template);
   }
+
+  // Adding the contextual links operations handler.
+  $entity = \Drupal::entityTypeManager()->getStorage('view')->load('message');
+  $display = $entity->get('display');
+
+  $display['default']['display_options']['fields']['message_ui_contextual_links'] = [
+    'id' => 'message_ui_contextual_links',
+    'table' =>  'message',
+    'field' =>  'message_ui_contextual_links',
+    'entity_type' => 'message',
+    'label' => 'Operations',
+  ];
+
+  $entity->set('display', $display);
+  $entity->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function message_ui_uninstall() {
+  // Removing the contextual links operations handler.
+  $entity = \Drupal::entityTypeManager()->getStorage('view')->load('message');
+  $display = $entity->get('display');
+  unset($display['default']['display_options']['fields']['message_ui_contextual_links']);
+  $entity->set('display', $display);
+  $entity->save();
 }
