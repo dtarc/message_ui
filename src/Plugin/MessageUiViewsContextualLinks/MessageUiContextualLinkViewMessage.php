@@ -11,7 +11,7 @@ use Drupal\Core\Entity\EntityTypeManager;
 
 /**
  * @MessageUiViewsContextualLinks(
- *  id = "message_ui_contextual_link_view_message",
+ *  id = "view",
  *  label = @Translation("Button to view a message."),
  *  weight = 0
  * )

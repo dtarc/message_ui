@@ -61,4 +61,4 @@ message_ui.message_multiple_delete_form:
     _form: '\Drupal\message_ui\Form\MessageMultipleDeleteForm'
     _title: 'Message multiple deleteForm'
   requirements:
-    _access: 'TRUE'
+    _permission: 'delete multiple messages'

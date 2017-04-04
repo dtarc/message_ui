@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\message\MessageTemplateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

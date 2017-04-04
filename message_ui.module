@@ -88,27 +88,21 @@ function message_ui_entity_base_field_info_alter(&$fields, EntityTypeInterface $
  * Extend the message entity type by providing form handlers.
  */
 function message_ui_entity_type_alter(array &$entity_types) {
-  if (isset($entity_types['message'])) {
-    /* @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType */
-    $message_config = $entity_types['message'];
-    $message_config->setAccessClass('Drupal\message_ui\MessageAccessControlHandler');
-    $message_config->setHandlerClass('view_builder', 'Drupal\message\MessageViewBuilder');
-    $message_config->setHandlerClass(
-      'form',
-      array(
-        'default' => 'Drupal\message_ui\Form\MessageForm',
-        'add' => 'Drupal\message_ui\Form\MessageForm',
-        'edit' => 'Drupal\message_ui\Form\MessageForm',
-        'delete' => 'Drupal\message_ui\Form\MessageDeleteForm',
-      ));
-    $message_config->set(
-      'links',
-      array(
-        'canonical' => '/message/{message}',
-        'edit-form' => '/message/{message}/edit',
-        'delete-form' => '/message/{message}/delete',
-      ));
+  if (!isset($entity_types['message'])) {
+    return;
   }
+
+  /* @var $message_config \Drupal\Core\Config\Entity\ConfigEntityType */
+  $entity_types['message']
+    ->setAccessClass('Drupal\message_ui\MessageAccessControlHandler')
+    ->setHandlerClass('view_builder', 'Drupal\message\MessageViewBuilder')
+    ->setFormClass('default', 'Drupal\message_ui\Form\MessageForm')
+    ->setFormClass('add', 'Drupal\message_ui\Form\MessageForm')
+    ->setFormClass('edit', 'Drupal\message_ui\Form\MessageForm')
+    ->setFormClass('delete', 'Drupal\message_ui\Form\MessageDeleteForm')
+    ->setLinkTemplate('canonical', '/message/{message}')
+    ->setLinkTemplate('edit-form', '/message/{message}/edit')
+    ->setLinkTemplate('delete-form', '/message/{message}/delete');
 }
 
 /**

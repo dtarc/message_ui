@@ -1,22 +1,23 @@
 <?php
 
-namespace Drupal\message_ui\Plugin\MessageUiViewsContextualLinks;
+namespace Drupal\message_notify_ui\Plugin\MessageUiViewsContextualLinks;
 
+use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Drupal\message_ui\MessageUiViewsContextualLinksBase;
 use Drupal\message_ui\MessageUiViewsContextualLinksInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManager;
 
 /**
  * @MessageUiViewsContextualLinks(
- *  id = "edit",
- *  label = @Translation("Button the delete a message."),
- *  weight = 1
+ *  id = "notify",
+ *  label = @Translation("Notify."),
+ *  weight = 4
  * )
  */
-class MessageUiContextualLinkEditMessage extends MessageUiViewsContextualLinksBase implements MessageUiViewsContextualLinksInterface , ContainerFactoryPluginInterface {
+class MessageUiContextualLinkNotifyMessage extends MessageUiViewsContextualLinksBase implements MessageUiViewsContextualLinksInterface, ContainerFactoryPluginInterface {
 
   /**
    * Drupal\Core\Entity\EntityTypeManager definition.
@@ -24,6 +25,13 @@ class MessageUiContextualLinkEditMessage extends MessageUiViewsContextualLinksBa
    * @var \Drupal\Core\Entity\EntityTypeManager
    */
   protected $entityTypeManager;
+
+  /**
+   * The current user service.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
 
   /**
    * Construct.
@@ -34,10 +42,15 @@ class MessageUiContextualLinkEditMessage extends MessageUiViewsContextualLinksBa
    *   The plugin_id for the plugin instance.
    * @param string $plugin_definition
    *   The plugin implementation definition.
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   The entity type manager service.
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManager $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManager $entity_type_manager, AccountProxyInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
+    $this->currentUser = $current_user;
   }
 
   /**
@@ -48,7 +61,8 @@ class MessageUiContextualLinkEditMessage extends MessageUiViewsContextualLinksBa
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('current_user')
     );
   }
 
@@ -56,7 +70,7 @@ class MessageUiContextualLinkEditMessage extends MessageUiViewsContextualLinksBa
    * {@inheritdoc}
    */
   public function access() {
-    return $this->message->access('edit');
+    return $this->currentUser->hasPermission('send message through the ui');
   }
 
   /**
@@ -64,8 +78,8 @@ class MessageUiContextualLinkEditMessage extends MessageUiViewsContextualLinksBa
    */
   public function getRouterInfo() {
     return [
-      'title' => t('Edit'),
-      'url' => Url::fromRoute('entity.message.edit_form', ['message' => $this->message->id()]),
+      'title' => t('Notify'),
+      'url' => Url::fromRoute('entity.message.notify_form', ['message' => $this->message->id()]),
     ];
   }
 

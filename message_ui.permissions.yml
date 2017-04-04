@@ -25,3 +25,7 @@ delete any message template:
 
 permission_callbacks:
   - \Drupal\message_ui\MessagePermissions::messageTemplatePermissions
+
+delete multiple messages:
+  title: 'Delete multiple messages'
+  description: 'Allow user to delete multiple messages'
