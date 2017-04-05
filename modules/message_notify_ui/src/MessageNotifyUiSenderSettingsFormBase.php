@@ -4,6 +4,7 @@ namespace Drupal\message_notify_ui;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\message\Entity\Message;
 
 /**
  * Base class for Message notify ui sender settings form plugins.
@@ -20,7 +21,7 @@ abstract class MessageNotifyUiSenderSettingsFormBase extends PluginBase implemen
   /**
    * The form state interface.
    *
-   * @var FormStateInterface
+   * @var \Drupal\Core\Form\FormStateInterface
    */
   protected $formState;
 
@@ -58,7 +59,7 @@ abstract class MessageNotifyUiSenderSettingsFormBase extends PluginBase implemen
   /**
    * Return the form state object.
    *
-   * @return FormStateInterface
+   * @return \Drupal\Core\Form\FormStateInterface
    *   The form state object.
    */
   public function getFormState() {
@@ -68,12 +69,12 @@ abstract class MessageNotifyUiSenderSettingsFormBase extends PluginBase implemen
   /**
    * Set the form state.
    *
-   * @param FormStateInterface $formState
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    *   The form state object.
    *
    * @return $this
    */
-  public function setFormState($formState) {
+  public function setFormState(FormStateInterface $formState) {
     $this->formState = $formState;
     return $this;
   }
@@ -97,7 +98,7 @@ abstract class MessageNotifyUiSenderSettingsFormBase extends PluginBase implemen
    * @return $this
    *   The current object.
    */
-  public function setMessage($message) {
+  public function setMessage(Message $message) {
     $this->message = $message;
 
     return $this;
@@ -106,7 +107,7 @@ abstract class MessageNotifyUiSenderSettingsFormBase extends PluginBase implemen
   /**
    * {@inheritdoc}
    */
-  public function validate($form, FormStateInterface $formState) {
+  public function validate(array $form, FormStateInterface $formState) {
     // Usually, there is nothing to validate.
   }
 

@@ -4,11 +4,12 @@ namespace Drupal\message_notify_ui\Plugin\MessageNotifyUiSenderSettingsForm;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\message_notify\MessageNotifier;
-use Drupal\message_notify\Plugin\Notifier\MessageNotifierBase;
 use Drupal\message_notify_ui\MessageNotifyUiSenderSettingsFormBase;
 use Drupal\message_notify_ui\MessageNotifyUiSenderSettingsFormInterface;
 
 /**
+ * Message notify plugin form for email.
+ *
  * @MessageNotifyUiSenderSettingsForm(
  *  id = "message_notify_ui_sender_settings_form",
  *  label = @Translation("The plugin ID."),
@@ -43,7 +44,7 @@ class MessageNotifyUiSenderMailSettingsForm extends MessageNotifyUiSenderSetting
   /**
    * {@inheritdoc}
    */
-  public function validate($form, FormStateInterface $formState) {
+  public function validate(array $form, FormStateInterface $formState) {
     if ($formState->getValue('use_custom') && !$formState->getValue('email')) {
       $formState->setErrorByName('email', t('The email field cannot be empty.'));
     }

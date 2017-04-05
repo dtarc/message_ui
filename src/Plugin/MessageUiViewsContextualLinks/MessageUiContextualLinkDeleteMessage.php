@@ -10,13 +10,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 
 /**
+ * Contextual link to view the message.
+ *
  * @MessageUiViewsContextualLinks(
  *  id = "delete",
  *  label = @Translation("Button the delete a message."),
  *  weight = 2
  * )
  */
-class MessageUiContextualLinkDeleteMessage extends MessageUiViewsContextualLinksBase implements MessageUiViewsContextualLinksInterface , ContainerFactoryPluginInterface {
+class MessageUiContextualLinkDeleteMessage extends MessageUiViewsContextualLinksBase implements MessageUiViewsContextualLinksInterface, ContainerFactoryPluginInterface {
 
   /**
    * Drupal\Core\Entity\EntityTypeManager definition.
@@ -34,6 +36,8 @@ class MessageUiContextualLinkDeleteMessage extends MessageUiViewsContextualLinks
    *   The plugin_id for the plugin instance.
    * @param string $plugin_definition
    *   The plugin implementation definition.
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   The entity type manager service.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManager $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);

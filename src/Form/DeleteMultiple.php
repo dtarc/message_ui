@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\message_ui\Form\DeleteMultiple.
- */
-
 namespace Drupal\message_ui\Form;
 
 use Drupal\Core\Entity\EntityManagerInterface;
@@ -12,11 +7,9 @@ use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\message\Entity\Message;
-use Drupal\message\Entity\MessageTemplate;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\message_ui\Controller\MessageUiController;
 
 /**
  * Provides a message deletion confirmation form.
@@ -28,7 +21,7 @@ class DeleteMultiple extends ConfirmFormBase {
    *
    * @var array
    */
-  protected $messages = array();
+  protected $messages = [];
 
   /**
    * The tempstore factory.
@@ -105,10 +98,10 @@ class DeleteMultiple extends ConfirmFormBase {
       return new RedirectResponse($this->getCancelUrl()->setAbsolute()->toString());
     }
 
-    $form['messages'] = array(
+    $form['messages'] = [
       '#theme' => 'item_list',
       '#items' => array_map([$this, 'filterCallback'], $this->messages),
-    );
+    ];
     $form = parent::buildForm($form, $form_state);
 
     $form['actions']['cancel']['#href'] = $this->getCancelRoute();
@@ -120,17 +113,17 @@ class DeleteMultiple extends ConfirmFormBase {
   /**
    * Filter callback; Set text for each message which will be deleted.
    *
-   * @param Message $message
+   * @param \Drupal\message\Entity\Message $message
    *   The message object.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   A simple text to show which message is deleted.
    */
   private function filterCallback(Message $message) {
-    $params = array(
+    $params = [
       '@id' => $message->id(),
       '@template' => $message->getTemplate()->label(),
-    );
+    ];
 
     return t('Delete message ID @id fo template @template', $params);
   }
@@ -153,21 +146,21 @@ class DeleteMultiple extends ConfirmFormBase {
 
     // Prepare the message IDs chunk array for batch operation.
     $chunks = array_chunk(array_keys($result['message']), 100);
-    $operations = array();
+    $operations = [];
 
     // @todo : update the operation below to new structure.
     foreach ($chunks as $chunk) {
-      $operations[] = array('message_delete_multiple', array($chunk));
+      $operations[] = ['message_delete_multiple', [$chunk]];
     }
 
     // Set the batch.
-    $batch = array(
+    $batch = [
       'operations' => $operations,
       'title' => t('deleting messages.'),
       'init_message' => t('Starting to delete messages.'),
       'progress_message' => t('Processed @current out of @total.'),
       'error_message' => t('The batch operation has failed.'),
-    );
+    ];
     batch_set($batch);
     batch_process($_GET['q']);
   }

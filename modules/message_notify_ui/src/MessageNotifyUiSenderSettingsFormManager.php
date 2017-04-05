@@ -11,7 +11,6 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
  */
 class MessageNotifyUiSenderSettingsFormManager extends DefaultPluginManager {
 
-
   /**
    * Constructor for MessageNotifyUiSenderSettingsFormManager objects.
    *

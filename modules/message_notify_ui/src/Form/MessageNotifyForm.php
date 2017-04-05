@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\message_ui\Form\MessageDeleteForm.
- */
-
 namespace Drupal\message_notify_ui\Form;
 
 use Drupal\Core\Entity\EntityForm;
@@ -97,7 +92,7 @@ class MessageNotifyForm extends EntityForm {
    *   The entity type bundle service.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
-   * @param MessageNotifier $message_notifier
+   * @param \Drupal\message_notify\MessageNotifier $message_notifier
    *   The message notifier service.
    * @param \Drupal\message_notify\Plugin\Notifier\Manager $message_notify_manager
    *   Message notifier manager service.
@@ -113,8 +108,7 @@ class MessageNotifyForm extends EntityForm {
     MessageNotifier $message_notifier,
     Manager $message_notify_manager,
     MessageNotifyUiSenderSettingsFormManager $message_notify_ui_setting_form_manager,
-    LanguageManagerInterface $language_manager)
-  {
+    LanguageManagerInterface $language_manager) {
     $this->entityManager = $entity_manager;
 
     $this->entityTypeBundleInfo = $entity_type_bundle_info ?: \Drupal::service('entity_type.bundle.info');

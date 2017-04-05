@@ -37,6 +37,6 @@ class MessageNotifyUiSenderSettingsForm extends Plugin {
    *
    * @ingroup plugin_translatable
    */
-  public $notify_plugin;
+  public $notifyPlugin;
 
 }

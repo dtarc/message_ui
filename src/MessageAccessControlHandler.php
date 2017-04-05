@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\message_ui\MessageAccessControlHandler.
- */
-
 namespace Drupal\message_ui;
 
 use Drupal\Core\Access\AccessResult;
@@ -31,8 +26,11 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
       return AccessResult::allowed()->cachePerPermissions();
     }
 
-    /** @var AccessResult[] $results */
-    $results = $this->moduleHandler()->invokeAll('message_message_ui_access_control', [$entity, $operation, $account]);
+    $params = [$entity, $operation, $account];
+    /** @var \Drupal\Core\Access\AccessResult[] $results */
+    $results = $this
+      ->moduleHandler()
+      ->invokeAll('message_message_ui_access_control', $params);
 
     foreach ($results as $result) {
       if ($result->isNeutral()) {
@@ -57,7 +55,7 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
       return AccessResult::allowed()->cachePerPermissions();
     }
 
-    /** @var AccessResult[] $results */
+    /** @var \Drupal\Core\Access\AccessResult[] $results */
     $results = $this->moduleHandler()->invokeAll('message_message_ui_create_access_control', [$entity_bundle, $account]);
 
     foreach ($results as $result) {

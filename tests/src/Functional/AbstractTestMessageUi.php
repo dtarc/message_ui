@@ -1,16 +1,8 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\message_ui\Tests\MessageUiPermissions.
- */
-
 namespace Drupal\Tests\message_ui\Functional;
 
 use Drupal\Tests\message\Functional\MessageTestBase;
-use Drupal\user\Entity\Role;
-use Drupal\user\RoleInterface;
-use Drupal\user\UserInterface;
 
 /**
  * Abstract class for Message UI tests.
@@ -20,7 +12,7 @@ abstract class AbstractTestMessageUi extends MessageTestBase {
   /**
    * The user account object.
    *
-   * @var UserInterface
+   * @var \Drupal\user\UserInterface
    */
   protected $account;
 
@@ -34,7 +26,7 @@ abstract class AbstractTestMessageUi extends MessageTestBase {
   /**
    * The user role.
    *
-   * @var integer
+   * @var int
    */
   protected $rid;
 
@@ -43,11 +35,11 @@ abstract class AbstractTestMessageUi extends MessageTestBase {
    *
    * @param string $operation
    *   The template of operation - create, update, delete or view.
-   * @param $template
+   * @param string $template
    *   The message template.
    */
   protected function grantMessageUiPermission($operation, $template = 'foo') {
-    user_role_grant_permissions($this->rid, array($operation . ' ' . $template . ' message'));
+    user_role_grant_permissions($this->rid, [$operation . ' ' . $template . ' message']);
   }
 
   /**

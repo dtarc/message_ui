@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\message_ui\MessagePermissions.
- */
-
 namespace Drupal\message_ui;
 
 use Drupal\Core\Routing\UrlGeneratorTrait;
@@ -28,7 +23,7 @@ class MessagePermissions {
    * @see \Drupal\user\PermissionHandlerInterface::getPermissions()
    */
   public function messageTemplatePermissions() {
-    $perms = array();
+    $perms = [];
 
     // Generate node permissions for all message templates.
     foreach (MessageTemplate::loadMultiple() as $template) {
@@ -48,7 +43,7 @@ class MessagePermissions {
    *   An array of permission names and descriptions.
    */
   protected function buildPermissions(MessageTemplate $template) {
-    $template_params = array('%template_name' => $template->label());
+    $template_params = ['%template_name' => $template->label()];
 
     return [
       'view $template_id message' => [

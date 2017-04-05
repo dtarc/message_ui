@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\message_ui\Form\MessageForm.
- */
-
 namespace Drupal\message_ui\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
@@ -12,8 +7,6 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\message\Entity\Message;
-use Drupal\user\Entity\User;
 
 /**
  * Form controller for the message_ui entity edit forms.
@@ -28,43 +21,43 @@ class MessageForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
-    /** @var Message $message */
+    /** @var \Drupal\message\Entity\Message $message */
     $message = $this->entity;
 
     $template = \Drupal::entityTypeManager()->getStorage('message_template')->load($this->entity->bundle());
 
     if ($this->config('message_ui.settings')->get('show_preview')) {
-      $form['text'] = array(
+      $form['text'] = [
         '#type' => 'item',
         '#title' => t('Message template'),
         '#markup' => implode("\n", $template->getText()),
-      );
+      ];
     }
 
     // Create the advanced vertical tabs "group".
-    $form['advanced'] = array(
+    $form['advanced'] = [
       '#type' => 'details',
-      '#attributes' => array('class' => array('entity-meta')),
+      '#attributes' => ['class' => ['entity-meta']],
       '#weight' => 99,
-    );
+    ];
 
-    $form['owner'] = array(
+    $form['owner'] = [
       '#type' => 'fieldset',
       '#title' => t('Owner information'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#group' => 'advanced',
       '#weight' => 90,
-      '#attributes' => array('class' => array('message-form-owner')),
-      '#attached' => array(
-        'library' => array('message_ui/message_ui.message'),
-        'drupalSettings' => array(
-          'message_ui' => array(
+      '#attributes' => ['class' => ['message-form-owner']],
+      '#attached' => [
+        'library' => ['message_ui/message_ui.message'],
+        'drupalSettings' => [
+          'message_ui' => [
             'anonymous' => \Drupal::config('message_ui.settings')->get('anonymous'),
-          ),
-        ),
-      ),
-    );
+          ],
+        ],
+      ],
+    ];
 
     if (isset($form['uid'])) {
       $form['uid']['#group'] = 'owner';
@@ -79,53 +72,53 @@ class MessageForm extends ContentEntityForm {
 
     $access = \Drupal::currentUser()->hasPermission('update tokens') || \Drupal::currentUser()->hasPermission('bypass message access control');
     if (!empty($tokens) && ($access)) {
-      $form['tokens'] = array(
+      $form['tokens'] = [
         '#type' => 'fieldset',
         '#title' => t('Tokens and arguments'),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#group' => 'advanced',
         '#weight' => 110,
-      );
+      ];
 
       // Give the user an option to update the har coded tokens.
-      $form['tokens']['replace_tokens'] = array(
+      $form['tokens']['replace_tokens'] = [
         '#type' => 'select',
         '#title' => t('Update tokens value automatically'),
         '#description' => t('By default, the hard coded values will be replaced automatically. If unchecked - you can update their value manually.'),
         '#default_value' => 'no_update',
-        '#options' => array(
+        '#options' => [
           'no_update' => t("Don't update"),
           'update' => t('Update automatically'),
           'update_manually' => t('Update manually'),
-        ),
-      );
+        ],
+      ];
 
-      $form['tokens']['values'] = array(
+      $form['tokens']['values'] = [
         '#type' => 'container',
-        '#states' => array(
-          'visible' => array(
-            ':input[name="replace_tokens"]' => array('value' => 'update_manually'),
-          ),
-        ),
-      );
+        '#states' => [
+          'visible' => [
+            ':input[name="replace_tokens"]' => ['value' => 'update_manually'],
+          ],
+        ],
+      ];
 
       // Build list of fields to update the tokens manually.
       foreach ($message->getArguments() as $name => $value) {
-        $form['tokens']['values'][$name] = array(
+        $form['tokens']['values'][$name] = [
           '#type' => 'textfield',
-          '#title' => t("@name's value", array('@name' => $name)),
+          '#title' => t("@name's value", ['@name' => $name]),
           '#default_value' => $value,
-        );
+        ];
       }
     }
 
-    $form['langcode'] = array(
+    $form['langcode'] = [
       '#title' => $this->t('Language'),
       '#type' => 'language_select',
       '#default_value' => $message->getUntranslated()->language()->getId(),
       '#languages' => Language::STATE_ALL,
-    );
+    ];
 
     // @todo : add similar to node/from library, adding css for
     // 'message-form-owner' class.
@@ -156,10 +149,10 @@ class MessageForm extends ContentEntityForm {
     $link = Link::fromTextAndUrl(t('Cancel'), $url)->toString();
 
     // Add a cancel link to the message form actions.
-    $element['cancel'] = array(
+    $element['cancel'] = [
       '#type' => 'markup',
       '#markup' => $link,
-    );
+    ];
 
     // Remove the default "Save" button.
     $element['submit']['#access'] = FALSE;
@@ -196,7 +189,7 @@ class MessageForm extends ContentEntityForm {
 
     // Get the tokens to be replaced and prepare for replacing.
     $replace_tokens = $form_state->getValue('replace_tokens');
-    $token_actions = empty($replace_tokens) ? array() : $replace_tokens;
+    $token_actions = empty($replace_tokens) ? [] : $replace_tokens;
 
     // Get the message args and replace tokens.
     if ($args = $message->getArguments()) {
@@ -208,9 +201,9 @@ class MessageForm extends ContentEntityForm {
 
           if ($token_actions == 'update') {
             // Get the hard coded value of the message and him in the message.
-            $token_name = str_replace(array('@{', '}'), array('[', ']'), $token);
+            $token_name = str_replace(['@{', '}'], ['[', ']'], $token);
             $token_service = \Drupal::token();
-            $value = $token_service->replace($token_name, array('message' => $message));
+            $value = $token_service->replace($token_name, ['message' => $message]);
           }
           else {
             // Hard coded value given from the user.
@@ -237,15 +230,15 @@ class MessageForm extends ContentEntityForm {
 
     // Set up message link and status message contexts.
     $message_link = $message->link($this->t('View'));
-    $context = array(
+    $context = [
       '@type' => $message->getTemplate(),
       '%title' => 'Message:' . $message->id(),
       'link' => $message_link,
-    );
-    $t_args = array(
+    ];
+    $t_args = [
       '@type' => $message->getEntityType()->getLabel(),
       '%title' => 'Message:' . $message->id(),
-    );
+    ];
 
     // Display newly created or updated message depending on if new entity.
     if ($insert) {

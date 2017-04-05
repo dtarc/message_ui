@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\message_ui\Controller\MessageController.
- */
-
 namespace Drupal\message_ui\Controller;
 
 use Drupal\Core\Url;
@@ -13,6 +8,9 @@ use Drupal\message\Entity\Message;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\message\MessageTemplateInterface;
 
+/**
+ * Controller for adding messages.
+ */
 class MessageController extends ControllerBase implements ContainerInjectionInterface {
 
   /**
@@ -47,7 +45,7 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
    *   one message template.
    */
   public function addPage() {
-    $content = array();
+    $content = [];
 
     // Only use message templates the user has access to.
     foreach ($this->entityManager()->getStorage('message_template')->loadMultiple() as $template) {
@@ -62,7 +60,7 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
     // Bypass the message/add listing if only one message template is available.
     if (count($content) == 1) {
       $template = array_shift($content);
-      return $this->redirect('message_ui.add', array('message_template' => $template->id()));
+      return $this->redirect('message_ui.add', ['message_template' => $template->id()]);
     }
 
     // Return build array.
@@ -71,7 +69,7 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
     }
     else {
       $url = Url::fromRoute('message.template_add');
-      return array('#markup' => 'There are no messages templates. You can create a new message template <a href="/' . $url->getInternalPath() . '">here</a>.');
+      return ['#markup' => 'There are no messages templates. You can create a new message template <a href="/' . $url->getInternalPath() . '">here</a>.'];
     }
   }
 

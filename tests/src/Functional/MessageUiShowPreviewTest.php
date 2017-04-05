@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\message_ui\Tests\MessageUiPermissions.
- */
-
 namespace Drupal\Tests\message_ui\Functional;
 
 use Drupal\user\Entity\Role;
@@ -29,7 +24,7 @@ class MessageUiShowPreviewTest extends AbstractTestMessageUi {
     $this->rid = Role::load(RoleInterface::AUTHENTICATED_ID)->id();
 
     // Create Message template foo.
-    $this->createMessageTemplate('foo', 'Dummy test', 'Example text.', array('Dummy message'));
+    $this->createMessageTemplate('foo', 'Dummy test', 'Example text.', ['Dummy message']);
 
     // Grant and check create permissions for a message.
     $this->grantMessageUiPermission('create');

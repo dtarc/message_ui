@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\message\MessageTemplateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -24,6 +23,8 @@ class MessageMultipleDeleteForm extends FormBase {
   protected $entityTypeManager;
 
   /**
+   * The module handler service.
+   *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
@@ -31,9 +32,9 @@ class MessageMultipleDeleteForm extends FormBase {
   /**
    * Constructor.
    *
-   * @param EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
-   * @param ModuleHandlerInterface $module_handler
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler service.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler) {
@@ -63,7 +64,7 @@ class MessageMultipleDeleteForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    /** @var MessageTemplateInterface $templates */
+    /** @var \Drupal\message\MessageTemplateInterface $templates */
     $templates = $this->entityTypeManager->getStorage('message_template')->loadMultiple();
     $options = [];
 
@@ -89,13 +90,6 @@ class MessageMultipleDeleteForm extends FormBase {
   }
 
   /**
-    * {@inheritdoc}
-    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -111,30 +105,32 @@ class MessageMultipleDeleteForm extends FormBase {
       ->execute();
 
     $chunks = array_chunk($messages, 250);
-    $operations = array();
+    $operations = [];
     foreach ($chunks as $chunk) {
-      $operations[] = array(
+      $operations[] = [
         '\Drupal\message_ui\Form\MessageMultipleDeleteForm::deleteMessages',
-        array($chunk),
-      );
+        [$chunk],
+      ];
     }
 
     // Set the batch.
-    $batch = array(
+    $batch = [
       'title' => $this->t('Deleting messages'),
       'operations' => $operations,
       'finished' => '\Drupal\message_ui\Form\MessageMultipleDeleteForm::deleteMessagesFinish',
-    );
+    ];
     batch_set($batch);
   }
 
   /**
    * Delete multiple messages.
    *
-   * @param $mids
+   * @param array $mids
    *   The message IDS.
+   * @param array $sandbox
+   *   The sandbo object of the batch operation.
    */
-  static public function deleteMessages($mids, &$sandbox) {
+  public static function deleteMessages(array $mids, array &$sandbox) {
     $messages = \Drupal::entityTypeManager()->getStorage('message')->loadMultiple($mids);
     $sandbox['message'] = t('Deleting messages between @start ot @end', [
       '@start' => reset($mids),
@@ -147,7 +143,7 @@ class MessageMultipleDeleteForm extends FormBase {
   /**
    * Notify the people the messages were deleted.
    */
-  static public function deleteMessagesFinish() {
+  public static function deleteMessagesFinish() {
     drupal_set_message(t('The messages were deleted.'));
   }
 

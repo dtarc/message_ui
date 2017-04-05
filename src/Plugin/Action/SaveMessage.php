@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\message_ui\Plugin\Action\SaveMessage.
- */
-
 namespace Drupal\message_ui\Plugin\Action;
 
 use Drupal\Core\Action\ActionBase;

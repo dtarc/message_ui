@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\message_ui\Form\MessageDeleteForm.
- */
-
 namespace Drupal\message_ui\Form;
 
 use Drupal\Core\Entity\ContentEntityConfirmFormBase;

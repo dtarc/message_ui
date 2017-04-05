@@ -1,14 +1,6 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\message_ui\Tests\MessageUiPermissions.
- */
-
 namespace Drupal\Tests\message_ui\Functional;
-
-use Drupal\user\Entity\Role;
-use Drupal\user\RoleInterface;
 
 /**
  * Testing the message notify button.
@@ -28,13 +20,13 @@ class MessageNotifyUiTest extends AbstractTestMessageUi {
   public function setUp() {
     parent::setUp();
 
-    $this->account = $this->drupalCreateUser(array(
+    $this->account = $this->drupalCreateUser([
       'send message through the ui',
       'overview messages',
-    ));
+    ]);
 
     // Create Message template foo.
-    $this->createMessageTemplate('foo', 'Dummy test', 'Example text.', array('Dummy message'));
+    $this->createMessageTemplate('foo', 'Dummy test', 'Example text.', ['Dummy message']);
   }
 
   /**

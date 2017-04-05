@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\message_ui;
+
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
@@ -18,19 +19,19 @@ class MessageUIFieldDisplayManagerService implements MessageUIFieldDisplayManage
   protected $entityTypeManager;
 
   /**
-   * constructor.
+   * Constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
    */
-  function __construct(EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
     $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function SetFieldsDisplay($template) {
+  public function setFieldsDisplay($template) {
     $this->entityTypeManager->getStorage('entity_form_display')
       ->resetCache();
 

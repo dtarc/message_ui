@@ -1,19 +1,9 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\message_ui\Plugin\views\field\ViewButton.
- */
-
 namespace Drupal\message_ui\Plugin\views\field;
 
-use Drupal\Core\Link;
-use Drupal\Core\Url;
-use Drupal\message_ui\MessageAccessControlHandler;
-use Drupal\message_ui\MessageUiViewsContextualLinksInterface;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
-use Drupal\message\Entity\Message;
 
 /**
  * Presenting contextual links to the messages view.
@@ -48,7 +38,7 @@ class MessageUIContextualLinks extends FieldPluginBase {
 
     // Iterate over the plugins.
     foreach ($contextual_links->getDefinitions() as $plugin) {
-      /** @var MessageUiViewsContextualLinksInterface $contextual_link */
+      /** @var \Drupal\message_ui\MessageUiViewsContextualLinksInterface $contextual_link */
       $contextual_link = $contextual_links->createInstance($plugin['id']);
       $contextual_link->setMessage($values->_entity);
 

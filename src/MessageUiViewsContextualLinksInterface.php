@@ -13,15 +13,19 @@ interface MessageUiViewsContextualLinksInterface extends PluginInspectionInterfa
   /**
    * Set the message object.
    *
-   * @param Message $message
+   * @param \Drupal\message\Entity\Message $message
    *   The message object.
    *
-   * @return mixed
+   * @return \Drupal\message_ui\MessageUiViewsContextualLinksInterface
+   *   The current object.
    */
   public function setMessage(Message $message);
 
   /**
+   * Get te message object.
+   *
    * @return \Drupal\message\Entity\Message
+   *   The message object.
    */
   public function getMessage();
 
@@ -29,6 +33,7 @@ interface MessageUiViewsContextualLinksInterface extends PluginInspectionInterfa
    * Return the an array with the router ID and message info.
    *
    * @return array
+   *   Array contains the title and the URL.
    */
   public function getRouterInfo();
 

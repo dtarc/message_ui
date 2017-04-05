@@ -1,17 +1,10 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\message_ui\Tests\MessageUiHardCodedArguments.
- */
-
 namespace Drupal\Tests\message_ui\Functional;
 
-use Drupal\Tests\message\Functional\MessageTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\message\Entity\Message;
-use Drupal\user\UserInterface;
 
 /**
  * Testing the editing of the hard coded arguments.
@@ -23,14 +16,14 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
   /**
    * The first user object.
    *
-   * @var UserInterface
+   * @var \Drupal\user\UserInterface
    */
   public $user1;
 
   /**
    * The second user object.
    *
-   * @var UserInterface
+   * @var \Drupal\user\UserInterface
    */
   public $user2;
 
@@ -52,7 +45,7 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
     $role = Role::load(RoleInterface::AUTHENTICATED_ID);
 
     /* @var $role Role */
-    user_role_grant_permissions($role->id(), array('bypass message access control'));
+    user_role_grant_permissions($role->id(), ['bypass message access control']);
 
     $this->drupalLogin($this->user1);
 
@@ -66,7 +59,7 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
     // Get the message template and create an instance.
     $message_template = $this->loadMessageTemplate('dummy_message');
     /* @var $message Message */
-    $message = Message::create(array('template' => $message_template->id()));
+    $message = Message::create(['template' => $message_template->id()]);
     $message->setOwner($this->user1);
     $message->save();
 
@@ -84,10 +77,10 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
     $this->assertSession()->pageTextNotContains($this->user2->getAccountName());
 
     // Update the message arguments automatically.
-    $edit = array(
+    $edit = [
       'name' => $this->user2->getAccountName() . ' (' . $this->user2->id() . ')',
       'replace_tokens' => 'update',
-    );
+    ];
 
     $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
 
@@ -95,11 +88,11 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
     $this->assertSession()->pageTextContains($this->user2->getAccountName());
 
     // Update the message arguments manually.
-    $edit = array(
+    $edit = [
       'name' => $this->user2->label(),
       'replace_tokens' => 'update_manually',
       'edit-messageauthorname' => 'Dummy name',
-    );
+    ];
 
     $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
 

@@ -11,9 +11,9 @@ use Drupal\message\Entity\Message;
 abstract class MessageUiViewsContextualLinksBase extends PluginBase implements MessageUiViewsContextualLinksInterface {
 
   /**
-   * @var \Drupal\message\Entity\Message.
-   *
    * The message object.
+   *
+   * @var \Drupal\message\Entity\Message
    */
   protected $message;
 

@@ -1,16 +1,8 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\message_ui\Tests\MessageUiMassiveHardCodedArguments.
- */
-
 namespace Drupal\Tests\message_ui\Functional;
 
 use Drupal\message\Entity\Message;
-use Drupal\message\MessageTemplateInterface;
-use Drupal\Tests\message\Functional\MessageTestBase;
-use Drupal\user\UserInterface;
 
 /**
  * Testing the update of the hard coded arguments in massive way.
@@ -20,7 +12,9 @@ use Drupal\user\UserInterface;
 class MessageUiMassiveHardCodedArgumentsTest extends AbstractTestMessageUi {
 
   /**
-   * @var MessageTemplateInterface
+   * The message template object.
+   *
+   * @var \Drupal\message\Entity\MessageTemplateInterface
    */
   protected $messageTemplate;
 
@@ -38,7 +32,7 @@ class MessageUiMassiveHardCodedArgumentsTest extends AbstractTestMessageUi {
    */
   public function testRemoveAddingArguments() {
     // Create Message Template of 'Dummy Test.
-    $this->messageTemplate = $this->createMessageTemplate('dummy_message', 'Dummy test', 'This is a dummy message', array('@{message:author:name} @{message:author:mail}'));
+    $this->messageTemplate = $this->createMessageTemplate('dummy_message', 'Dummy test', 'This is a dummy message', ['@{message:author:name} @{message:author:mail}']);
 
     // Set a queue worker for the update arguments when updating a message
     // template.
@@ -88,7 +82,7 @@ class MessageUiMassiveHardCodedArgumentsTest extends AbstractTestMessageUi {
     $this->configSet('update_tokens.how_to_act', 'update_when_added');
 
     $message_template = $this->loadMessageTemplate('dummy_message');
-    $message_template->set('text', array('@{message:user:name}.'));
+    $message_template->set('text', ['@{message:user:name}.']);
     $message_template->save();
 
     // Fire the queue worker.

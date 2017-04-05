@@ -11,6 +11,8 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Notify message contextual plugin link.
+ *
  * @MessageUiViewsContextualLinks(
  *  id = "notify",
  *  label = @Translation("Notify."),

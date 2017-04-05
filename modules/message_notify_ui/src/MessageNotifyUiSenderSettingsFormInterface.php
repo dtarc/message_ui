@@ -5,7 +5,6 @@ namespace Drupal\message_notify_ui;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\message_notify\MessageNotifier;
-use Drupal\message_notify\Plugin\Notifier\MessageNotifierBase;
 
 /**
  * Defines an interface for Message notify ui sender settings form plugins.
@@ -25,10 +24,10 @@ interface MessageNotifyUiSenderSettingsFormInterface extends PluginInspectionInt
    *
    * @param array $form
    *   The form API element.
-   * @param FormStateInterface $formState
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    *   The form state object.
    */
-  public function validate($form, FormStateInterface $formState);
+  public function validate(array $form, FormStateInterface $formState);
 
   /**
    * Implementing logic for sender which relate to the plugin.
@@ -40,7 +39,6 @@ interface MessageNotifyUiSenderSettingsFormInterface extends PluginInspectionInt
    *   The notifier which the plugin take care.
    * @param \Drupal\Core\Form\FormStateInterface $formState
    *   The form state object.
-   * @return
    */
   public function submit(MessageNotifier $notifier, FormStateInterface $formState);
 

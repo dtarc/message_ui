@@ -12,9 +12,9 @@ interface MessageUIFieldDisplayManagerServiceInterface {
   /**
    * Setting the fields to display.
    *
-   * @param $template
+   * @param string $template
    *   The message template.
    */
-  public function SetFieldsDisplay($template);
+  public function setFieldsDisplay($template);
 
 }

@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker.
- */
 
 namespace Drupal\message_ui\Plugin\QueueWorker;
 
@@ -76,7 +72,7 @@ class MessageArgumentsWorker extends QueueWorkerBase {
       return FALSE;
     }
 
-    $text = array_map(function(Markup $markup) {
+    $text = array_map(function (Markup $markup) {
       return (string) $markup;
 
     }, $output);
@@ -90,20 +86,20 @@ class MessageArgumentsWorker extends QueueWorkerBase {
   /**
    * A helper function for generate a new array of the message's arguments.
    *
-   * @param Message $message
+   * @param \Drupal\message\Entity\Message $message
    *   The message which her arguments need an update.
    * @param array $arguments
    *   The new arguments need to be calculated.
    */
   public static function messageArgumentsUpdate(Message $message, array $arguments) {
 
-    $message_arguments = array();
+    $message_arguments = [];
 
     foreach ($arguments as $token) {
       // Get the hard coded value of the message and him in the message.
-      $token_name = str_replace(array('@{', '}'), array('[', ']'), $token);
+      $token_name = str_replace(['@{', '}'], ['[', ']'], $token);
       $token_service = \Drupal::token();
-      $value = $token_service->replace($token_name, array('message' => $message));
+      $value = $token_service->replace($token_name, ['message' => $message]);
 
       $message_arguments[$token] = $value;
     }

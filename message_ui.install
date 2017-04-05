@@ -15,7 +15,7 @@ function message_ui_install() {
   /** @var \Drupal\message_ui\MessageUIFieldDisplayManagerServiceInterface $message_ui_field_display_manager */
   $message_ui_field_display_manager = \Drupal::service('message_ui.field_display_manager');
   foreach (array_keys($templates) as $template) {
-    $message_ui_field_display_manager->SetFieldsDisplay($template);
+    $message_ui_field_display_manager->setFieldsDisplay($template);
   }
 
   // Adding the contextual links operations handler.
@@ -24,8 +24,8 @@ function message_ui_install() {
 
   $display['default']['display_options']['fields']['message_ui_contextual_links'] = [
     'id' => 'message_ui_contextual_links',
-    'table' =>  'message',
-    'field' =>  'message_ui_contextual_links',
+    'table' => 'message',
+    'field' => 'message_ui_contextual_links',
     'entity_type' => 'message',
     'label' => 'Operations',
   ];

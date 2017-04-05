@@ -1,18 +1,11 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\message_ui\Tests\MessageUiPermissions.
- */
-
 namespace Drupal\Tests\message_ui\Functional;
 
 use Drupal\Component\Render\FormattableMarkup;
-use Drupal\Tests\message\Functional\MessageTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\message\Entity\Message;
-use Drupal\user\UserInterface;
 
 /**
  * Testing the message access use case.
@@ -42,7 +35,7 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
     $this->rid = Role::load(RoleInterface::AUTHENTICATED_ID)->id();
 
     // Create Message template foo.
-    $this->createMessageTemplate('foo', 'Dummy test', 'Example text.', array('Dummy message'));
+    $this->createMessageTemplate('foo', 'Dummy test', 'Example text.', ['Dummy message']);
   }
 
   /**
@@ -69,7 +62,7 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
     $this->assertSession()->statusCodeEquals(200);
 
     // Create a message.
-    $this->drupalPostForm(NULL, array(), t('Create'));
+    $this->drupalPostForm(NULL, [], t('Create'));
 
     // Create the message url.
     $msg_url = '/message/1';
@@ -98,20 +91,20 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
 
     // Grant the permission to the user.
     $this->grantMessageUiPermission('delete');
-    $this->drupalPostForm($msg_url . '/delete', array(), t('Delete'));
+    $this->drupalPostForm($msg_url . '/delete', [], t('Delete'));
 
     // User did not have permission to the overview page - verify access
     // denied.
     $this->assertSession()->statusCodeEquals(403);
 
-    user_role_grant_permissions($this->rid, array('overview messages'));
+    user_role_grant_permissions($this->rid, ['overview messages']);
     $this->drupalGet('/admin/content/messages');
     $this->assertSession()->statusCodeEquals(200);
 
     // Create a new user with the bypass access permission and verify the
     // bypass.
     $this->drupalLogout();
-    $user = $this->drupalCreateUser(array('bypass message access control'));
+    $user = $this->drupalCreateUser(['bypass message access control']);
 
     // Verify the user can by pass the message access control.
     $this->drupalLogin($user);
@@ -131,18 +124,18 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
     $this->drupalLogin($this->account);
 
     // Setting up the operation and the expected value from the access callback.
-    $permissions = array(
+    $permissions = [
       'create' => TRUE,
       'view' => TRUE,
       'delete' => FALSE,
       'update' => FALSE,
-    );
+    ];
 
     // Get the message template and create an instance.
     $message_template = $this->loadMessageTemplate('foo');
 
     /* @var $message Message */
-    $message = Message::create(array('template' => $message_template->id()));
+    $message = Message::create(['template' => $message_template->id()]);
     $message->setOwner($this->account);
     $message->save();
 
@@ -158,13 +151,14 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
         $returned = $this->accessHandler->access($message, $op, $this->account);
       }
 
-      $params = array(
+      $params = [
         '@operation' => $op,
         '@value' => $value,
-        '@returned' => $returned
-      );
+        '@returned' => $returned,
+      ];
 
       $this->assertEquals($value, $returned, new FormattableMarkup('The hook return @value for @operation when it need to return @returned', $params));
     }
   }
+
 }

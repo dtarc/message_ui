@@ -1,8 +1,12 @@
 <?php
 
+/**
+ * @file
+ * message_notify_ui.module
+ */
 
 /**
- * Implements hook_entity_type_alter.
+ * Implements hook_entity_type_alter().
  *
  * Extend the message entity type by providing form handlers.
  */
