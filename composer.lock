@@ -49,12 +49,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "b4dcc5b19df2b5c22b9afdac69cdc526e01f709d"
+                "reference": "2a6c14538b7fb32d0ba366a3a0fee8605533be8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/b4dcc5b19df2b5c22b9afdac69cdc526e01f709d",
-                "reference": "b4dcc5b19df2b5c22b9afdac69cdc526e01f709d",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/2a6c14538b7fb32d0ba366a3a0fee8605533be8a",
+                "reference": "2a6c14538b7fb32d0ba366a3a0fee8605533be8a",
                 "shasum": ""
             },
             "require": {
@@ -119,7 +119,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-04-05 01:46:28"
+            "time": "2017-05-01T04:13:15+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -127,12 +127,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "bd17d508c08e7862f4a7630ce49eaff66237039e"
+                "reference": "dcbd318c241341c82444a8d92b7a0ddf6419f496"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/bd17d508c08e7862f4a7630ce49eaff66237039e",
-                "reference": "bd17d508c08e7862f4a7630ce49eaff66237039e",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/dcbd318c241341c82444a8d92b7a0ddf6419f496",
+                "reference": "dcbd318c241341c82444a8d92b7a0ddf6419f496",
                 "shasum": ""
             },
             "require": {
@@ -174,7 +174,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-03-30 07:16:02"
+            "time": "2017-05-01 15:01:29"
         }
     ],
     "packages-dev": [],
