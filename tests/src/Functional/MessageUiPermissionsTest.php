@@ -3,6 +3,7 @@
 namespace Drupal\Tests\message_ui\Functional;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\message_ui\MessagePermissions;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\message\Entity\Message;
@@ -159,6 +160,10 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
 
       $this->assertEquals($value, $returned, new FormattableMarkup('The hook return @value for @operation when it need to return @returned', $params));
     }
+
+    // Check dynamic template.
+    $class = new MessagePermissions();
+    $this->assertEquals(count($class->messageTemplatePermissions()), count($this->container->get('entity_type.manager')->getStorage('message_template')->loadMultiple()) * 4);
   }
 
 }
