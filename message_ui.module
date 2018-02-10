@@ -340,3 +340,45 @@ function message_ui_entity_update(EntityInterface $entity) {
 
   return NULL;
 }
+
+/**
+ * Implements hook_entity_load().
+ */
+function message_ui_entity_load(array &$entities, $entity_type_id) {
+  static $saved;
+
+  if (!empty($saved)) {
+    return;
+  }
+
+  if ($entity_type_id != 'view') {
+    return;
+  }
+
+  foreach ($entities as &$entity) {
+
+    if ($entity->id() != 'message') {
+      continue;
+    }
+
+    $display = $entity->get('display');
+
+    if (!empty($display['default']['display_options']['fields']['message_ui_contextual_links'])) {
+      $saved = TRUE;
+      continue;
+    }
+
+    $display['default']['display_options']['fields']['message_ui_contextual_links'] = [
+      'id' => 'message_ui_contextual_links',
+      'table' => 'message',
+      'field' => 'message_ui_contextual_links',
+      'entity_type' => 'message',
+      'label' => 'Operations',
+    ];
+
+    $entity->set('display', $display);
+    // Mark the entity as saved.
+    $saved = TRUE;
+    $entity->save();
+  }
+}
