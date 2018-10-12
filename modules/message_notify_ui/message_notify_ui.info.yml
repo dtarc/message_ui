@@ -5,7 +5,7 @@ core: 8.x
 package: Message
 
 dependencies:
- - views
- - message
- - message_ui
- - message_notify
+ - drupal:views
+ - message:message
+ - message_ui:message_ui
+ - message_notify:message_notify

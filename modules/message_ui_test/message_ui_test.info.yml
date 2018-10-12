@@ -6,6 +6,6 @@ package: Message
 hidden: true
 
 dependencies:
- - message
- - views
- - message_ui
+ - message:message
+ - drupal:views
+ - message_ui:message_ui
