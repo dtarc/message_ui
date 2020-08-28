@@ -144,7 +144,7 @@ class MessageMultipleDeleteForm extends FormBase {
    * Notify the people the messages were deleted.
    */
   public static function deleteMessagesFinish() {
-    drupal_set_message(t('The messages were deleted.'));
+    $this->messenger()->addStatus(t('The messages were deleted.'));
   }
 
 }

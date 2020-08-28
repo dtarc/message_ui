@@ -140,7 +140,7 @@ class DeleteMultiple extends ConfirmFormBase {
 
     if (empty($result['message'])) {
       // No messages found, return.
-      drupal_set_message(t('No messages were found according to the parameters you entered'), 'error');
+      $this->messenger()->addError(t('No messages were found according to the parameters you entered'));
       return;
     }
 

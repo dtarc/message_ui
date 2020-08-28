@@ -31,8 +31,10 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
    * Constructs a MessageUiController object.
    */
   public function __construct() {
-    $this->entityManager = \Drupal::entityManager();
-    $this->accessHandler = \Drupal::entityManager()->getAccessControlHandler('message');
+    // TODO: Drupal Rector Notice: Please delete the following comment after you've made any necessary changes.
+    // We are assuming that we want to use the `entity_type.manager` service since no method was called here directly. Please confirm this is the case. See https://www.drupal.org/node/2549139 for more information.
+    $this->entityManager = \Drupal::service('entity_type.manager');
+    $this->accessHandler = \Drupal::service('entity_type.manager')->getAccessControlHandler('message');
   }
 
   /**
@@ -48,8 +50,8 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
     $content = [];
 
     // Only use message templates the user has access to.
-    foreach ($this->entityManager()->getStorage('message_template')->loadMultiple() as $template) {
-      $access = $this->entityManager()
+    foreach (\Drupal::service('entity_type.manager')->getStorage('message_template')->loadMultiple() as $template) {
+      $access = \Drupal::service('entity_type.manager')
         ->getAccessControlHandler('message')
         ->createAccess($template->id(), NULL, [], TRUE);
       if ($access->isAllowed()) {

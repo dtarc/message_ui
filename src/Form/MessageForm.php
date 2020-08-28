@@ -184,7 +184,7 @@ class MessageForm extends ContentEntityForm {
       $message->setCreatedTime(strtotime($created));
     }
     else {
-      $message->setCreatedTime(REQUEST_TIME);
+      $message->setCreatedTime(\Drupal::time()->getRequestTime());
     }
 
     // Get the tokens to be replaced and prepare for replacing.
@@ -229,7 +229,9 @@ class MessageForm extends ContentEntityForm {
     $message->save();
 
     // Set up message link and status message contexts.
-    $message_link = $message->link($this->t('View'));
+    // TODO: Drupal Rector Notice: Please delete the following comment after you've made any necessary changes.
+    // Please confirm that `$message` is an instance of `\Drupal\Core\Entity\EntityInterface`. Only the method name and not the class name was checked for this replacement, so this may be a false positive.
+    $message_link = $message->toLink($this->t('View'))->toString();
     $context = [
       '@type' => $message->getTemplate()->id(),
       '%title' => 'Message:' . $message->id(),
@@ -243,11 +245,11 @@ class MessageForm extends ContentEntityForm {
     // Display newly created or updated message depending on if new entity.
     if ($insert) {
       $this->logger('content')->notice('@type: added %title.', $context);
-      drupal_set_message(t('@type %title has been created.', $t_args));
+      $this->messenger()->addStatus(t('@type %title has been created.', $t_args));
     }
     else {
       $this->logger('content')->notice('@type: updated %title.', $context);
-      drupal_set_message(t('@type %title has been updated.', $t_args));
+      $this->messenger()->addStatus(t('@type %title has been updated.', $t_args));
     }
 
     // Redirect to message view display if user has access.
@@ -266,7 +268,7 @@ class MessageForm extends ContentEntityForm {
     else {
       // In the unlikely case something went wrong on save, the message will be
       // rebuilt and message form redisplayed.
-      drupal_set_message(t('The message could not be saved.'), 'error');
+      $this->messenger()->addError(t('The message could not be saved.'));
       $form_state->setRebuild();
     }
   }
