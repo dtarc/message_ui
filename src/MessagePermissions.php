@@ -2,7 +2,6 @@
 
 namespace Drupal\message_ui;
 
-use Drupal\Core\Routing\UrlGeneratorTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\message\Entity\MessageTemplate;
 
@@ -12,7 +11,6 @@ use Drupal\message\Entity\MessageTemplate;
 class MessagePermissions {
 
   use StringTranslationTrait;
-  use UrlGeneratorTrait;
 
   /**
    * Gets an array of message type permissions.

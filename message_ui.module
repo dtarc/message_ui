@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\message\Entity\Message;
 use Drupal\message_ui\Plugin\QueueWorker\MessageArgumentsWorker;
 use Drupal\Core\Url;
+use Drupal\Core\Link;
 
 /**
  * Grant permission for the operation upon message.
@@ -136,7 +137,7 @@ function template_preprocess_message_add_list(array &$variables) {
     foreach ($variables['content'] as $template) {
       $variables['templates'][$template->id()] = [
         'template' => $template->id(),
-        'add_link' => \Drupal::l($template->label(), new Url('message_ui.add', ['message_template' => $template->id()])),
+        'add_link' => Link::fromTextAndUrl($template->label(), new Url('message_ui.add', ['message_template' => $template->id()])),
         'description' => [
           '#markup' => $template->getDescription(),
         ],

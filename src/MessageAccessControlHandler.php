@@ -73,7 +73,7 @@ class MessageAccessControlHandler extends EntityAccessControlHandler {
 
     // With no bundle, e.g. on message/add, check access to any message bundle.
     // @todo: perhaps change this method to a service as in NodeAddAccessCheck.
-    foreach (\Drupal::entityManager()->getStorage('message_template')->loadMultiple() as $template) {
+    foreach (\Drupal::entityTypeManager()->getStorage('message_template')->loadMultiple() as $template) {
       $access = AccessResult::allowedIfHasPermission($account, 'create ' . $template->id() . ' message');
 
       // If access is allowed to any of the existing bundles return allowed.

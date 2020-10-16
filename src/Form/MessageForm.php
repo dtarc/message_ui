@@ -7,6 +7,7 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for the message_ui entity edit forms.
@@ -14,6 +15,38 @@ use Drupal\Core\Url;
  * @ingroup message_ui
  */
 class MessageForm extends ContentEntityForm {
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $account;
+
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->languageManager = $container->get('language_manager');
+    $instance->entityTypeManager = $container->get('entity_type.manager');
+    $instance->account = $container->get('current_user');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -24,7 +57,7 @@ class MessageForm extends ContentEntityForm {
     /** @var \Drupal\message\Entity\Message $message */
     $message = $this->entity;
 
-    $template = \Drupal::entityTypeManager()->getStorage('message_template')->load($this->entity->bundle());
+    $template = $this->entityTypeManager->getStorage('message_template')->load($this->entity->bundle());
 
     if ($this->config('message_ui.settings')->get('show_preview')) {
       $form['text'] = [
@@ -70,7 +103,7 @@ class MessageForm extends ContentEntityForm {
     // @todo: assess the best way to access and create tokens tab from D7.
     $tokens = $message->getArguments();
 
-    $access = \Drupal::currentUser()->hasPermission('update tokens') || \Drupal::currentUser()->hasPermission('bypass message access control');
+    $access = $this->account->hasPermission('update tokens') || $this->account->hasPermission('bypass message access control');
     if (!empty($tokens) && ($access)) {
       $form['tokens'] = [
         '#type' => 'fieldset',
@@ -118,6 +151,7 @@ class MessageForm extends ContentEntityForm {
       '#type' => 'language_select',
       '#default_value' => $message->getUntranslated()->language()->getId(),
       '#languages' => Language::STATE_ALL,
+      '#access' => $this->languageManager->isMultilingual(),
     ];
 
     // @todo : add similar to node/from library, adding css for
@@ -229,7 +263,7 @@ class MessageForm extends ContentEntityForm {
     $message->save();
 
     // Set up message link and status message contexts.
-    $message_link = $message->link($this->t('View'));
+    $message_link = $message->toLink($this->t('View'))->toString();
     $context = [
       '@type' => $message->getTemplate()->id(),
       '%title' => 'Message:' . $message->id(),
@@ -243,11 +277,11 @@ class MessageForm extends ContentEntityForm {
     // Display newly created or updated message depending on if new entity.
     if ($insert) {
       $this->logger('content')->notice('@type: added %title.', $context);
-      drupal_set_message(t('@type %title has been created.', $t_args));
+      $this->messenger()->addMessage(t('@type %title has been created.', $t_args));
     }
     else {
       $this->logger('content')->notice('@type: updated %title.', $context);
-      drupal_set_message(t('@type %title has been updated.', $t_args));
+      $this->messenger()->addMessage(t('@type %title has been updated.', $t_args));
     }
 
     // Redirect to message view display if user has access.
@@ -266,7 +300,7 @@ class MessageForm extends ContentEntityForm {
     else {
       // In the unlikely case something went wrong on save, the message will be
       // rebuilt and message form redisplayed.
-      drupal_set_message(t('The message could not be saved.'), 'error');
+      $this->messenger()->addMessage(t('The message could not be saved.'), 'error');
       $form_state->setRebuild();
     }
   }

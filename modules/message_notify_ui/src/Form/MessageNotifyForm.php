@@ -3,8 +3,8 @@
 namespace Drupal\message_notify_ui\Form;
 
 use Drupal\Core\Entity\EntityForm;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\message_notify\MessageNotifier;
@@ -21,11 +21,11 @@ use Drupal\message_notify\Plugin\Notifier\Manager;
 class MessageNotifyForm extends EntityForm {
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The entity being used by this form.
@@ -86,8 +86,7 @@ class MessageNotifyForm extends EntityForm {
   /**
    * Constructs a ContentEntityForm object.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The entity type bundle service.
    * @param \Drupal\Component\Datetime\TimeInterface $time
@@ -102,15 +101,14 @@ class MessageNotifyForm extends EntityForm {
    *   The language manager interface.
    */
   public function __construct(
-    EntityManagerInterface $entity_manager,
-    EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL,
-    TimeInterface $time = NULL,
+    EntityTypeManagerInterface $entity_type_manager,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info,
+    TimeInterface $time,
     MessageNotifier $message_notifier,
     Manager $message_notify_manager,
     MessageNotifyUiSenderSettingsFormManager $message_notify_ui_setting_form_manager,
     LanguageManagerInterface $language_manager) {
-    $this->entityManager = $entity_manager;
-
+    $this->entityTypeManager = $entity_type_manager;
     $this->entityTypeBundleInfo = $entity_type_bundle_info ?: \Drupal::service('entity_type.bundle.info');
     $this->time = $time ?: \Drupal::service('datetime.time');
     $this->messageNotifier = $message_notifier;
@@ -124,7 +122,7 @@ class MessageNotifyForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('entity_type.bundle.info'),
       $container->get('datetime.time'),
       $container->get('message_notify.sender'),

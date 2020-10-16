@@ -65,7 +65,7 @@ class MessageNotifyUiSenderMailSettingsForm extends MessageNotifyUiSenderSetting
     }
 
     if ($notifier->send($this->getMessage(), $settings, 'email')) {
-      drupal_set_message(t('The email sent successfully.'));
+      \Drupal::messenger()->addMessage(t('The email sent successfully.'));
     }
   }
 

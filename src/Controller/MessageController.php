@@ -21,18 +21,10 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
   private $accessHandler;
 
   /**
-   * The entity manager service.
-   *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
-   */
-  protected $entityManager;
-
-  /**
    * Constructs a MessageUiController object.
    */
   public function __construct() {
-    $this->entityManager = \Drupal::entityManager();
-    $this->accessHandler = \Drupal::entityManager()->getAccessControlHandler('message');
+    $this->accessHandler = $this->entityTypeManager()->getAccessControlHandler('message');
   }
 
   /**
@@ -48,8 +40,8 @@ class MessageController extends ControllerBase implements ContainerInjectionInte
     $content = [];
 
     // Only use message templates the user has access to.
-    foreach ($this->entityManager()->getStorage('message_template')->loadMultiple() as $template) {
-      $access = $this->entityManager()
+    foreach ($this->entityTypeManager()->getStorage('message_template')->loadMultiple() as $template) {
+      $access = $this->entityTypeManager()
         ->getAccessControlHandler('message')
         ->createAccess($template->id(), NULL, [], TRUE);
       if ($access->isAllowed()) {
