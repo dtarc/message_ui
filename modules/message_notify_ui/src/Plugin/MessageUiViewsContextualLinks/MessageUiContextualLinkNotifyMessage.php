@@ -2,12 +2,12 @@
 
 namespace Drupal\message_notify_ui\Plugin\MessageUiViewsContextualLinks;
 
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\message_ui\MessageUiViewsContextualLinksBase;
 use Drupal\message_ui\MessageUiViewsContextualLinksInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -22,9 +22,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MessageUiContextualLinkNotifyMessage extends MessageUiViewsContextualLinksBase implements MessageUiViewsContextualLinksInterface, ContainerFactoryPluginInterface {
 
   /**
-   * Drupal\Core\Entity\EntityTypeManager definition.
+   * Drupal\Core\Entity\EntityTypeManagerInterface definition.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -44,12 +44,12 @@ class MessageUiContextualLinkNotifyMessage extends MessageUiViewsContextualLinks
    *   The plugin_id for the plugin instance.
    * @param string $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManager $entity_type_manager, AccountProxyInterface $current_user) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, AccountProxyInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
