@@ -3,4 +3,4 @@ message_ui.add_page:
   route_name: message_ui.add_page
   title: 'Add message'
   appears_on:
-    - view.message.page_1
+    - message.messages
