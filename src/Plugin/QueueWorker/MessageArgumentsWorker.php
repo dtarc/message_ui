@@ -58,23 +58,22 @@ class MessageArgumentsWorker extends QueueWorkerBase {
    * @param bool $count
    *   Determine weather to the count the arguments or return a list of them.
    *
-   * @return int
+   * @return int|array
    *   The number of the arguments.
    */
   public static function getArguments($template, $count = FALSE) {
 
     /* @var $message_template MessageTemplate */
     if (!$message_template = MessageTemplate::load($template)) {
-      return FALSE;
+      return [];
     }
 
     if (!$output = $message_template->getText()) {
-      return FALSE;
+      return [];
     }
 
     $text = array_map(function (Markup $markup) {
       return (string) $markup;
-
     }, $output);
 
     $text = implode("\n", $text);
