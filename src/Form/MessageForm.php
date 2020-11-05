@@ -212,15 +212,6 @@ class MessageForm extends ContentEntityForm {
       $message->setOwnerId($uid[0]['target_id']);
     }
 
-    // Set the timestamp to custom value or request time.
-    $created = $form_state->getValue('date');
-    if ($created) {
-      $message->setCreatedTime(strtotime($created));
-    }
-    else {
-      $message->setCreatedTime(REQUEST_TIME);
-    }
-
     // Get the tokens to be replaced and prepare for replacing.
     $replace_tokens = $form_state->getValue('replace_tokens');
     $token_actions = empty($replace_tokens) ? [] : $replace_tokens;
