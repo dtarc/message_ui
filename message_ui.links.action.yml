@@ -4,3 +4,4 @@ message_ui.add_page:
   title: 'Add message'
   appears_on:
     - message.messages
+    - view.message.page_1
