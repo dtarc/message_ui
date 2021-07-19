@@ -36,6 +36,10 @@ function message_ui_entity_insert(EntityInterface $entity) {
     return;
   }
 
+  // Prevent interruption of config sync.
+  if (\Drupal::isConfigSyncing()) {
+    return;
+  }
   // A new field was attached to the message template. We will make sure it will
   // appear in message form.
   \Drupal::service('message_ui.field_display_manager')->SetFieldsDisplay($entity->get('bundle'));
