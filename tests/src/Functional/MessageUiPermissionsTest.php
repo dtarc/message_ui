@@ -25,7 +25,7 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     $this->accessHandler = \Drupal::entityTypeManager()->getAccessControlHandler('message');
@@ -63,7 +63,7 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
     $this->assertSession()->statusCodeEquals(200);
 
     // Create a message.
-    $this->drupalPostForm(NULL, [], t('Create'));
+    $this->submitForm([], t('Create'));
 
     // Create the message url.
     $msg_url = '/message/1';
@@ -92,7 +92,8 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
 
     // Grant the permission to the user.
     $this->grantMessageUiPermission('delete');
-    $this->drupalPostForm($msg_url . '/delete', [], t('Delete'));
+    $this->drupalGet($msg_url . '/delete');
+    $this->submitForm([], t('Delete'));
 
     // User did not have permission to the overview page - verify access
     // denied.

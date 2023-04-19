@@ -12,12 +12,12 @@ class MessageNotifyUiTest extends AbstractTestMessageUi {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['message', 'message_notify_ui'];
+  protected static $modules = ['message', 'message_notify_ui'];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     $this->account = $this->drupalCreateUser([
@@ -48,7 +48,8 @@ class MessageNotifyUiTest extends AbstractTestMessageUi {
       'use_custom' => TRUE,
       'email' => 'foo@gmail.com',
     ];
-    $this->drupalPostForm('message/' . $message->id() . '/notify', $edit, t('Notify'));
+    $this->drupalGet('message/' . $message->id() . '/notify');
+    $this->submitForm($edit, t('Notify'));
     $this->assertSession()->pageTextContains('The email sent successfully.');
   }
 

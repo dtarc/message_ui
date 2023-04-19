@@ -21,7 +21,7 @@ abstract class AbstractTestMessageUi extends MessageTestBase {
    *
    * @var array
    */
-  public static $modules = ['message', 'message_ui'];
+  protected static $modules = ['message', 'message_ui'];
 
   /**
    * The user role.

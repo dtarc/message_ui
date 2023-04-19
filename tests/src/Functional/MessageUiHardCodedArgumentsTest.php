@@ -30,7 +30,7 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     $this->user1 = $this->drupalCreateUser();
@@ -81,8 +81,9 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
       'name' => $this->user2->getAccountName() . ' (' . $this->user2->id() . ')',
       'replace_tokens' => 'update',
     ];
+    $this->drupalGet('message/' . $message->id() . '/edit');
 
-    $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
+    $this->submitForm($edit, t('Update'));
 
     // The message token as updated automatically.
     $this->assertSession()->pageTextContains($this->user2->getAccountName());
@@ -93,8 +94,9 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
       'replace_tokens' => 'update_manually',
       'edit-messageauthorname' => 'Dummy name',
     ];
+    $this->drupalGet('message/' . $message->id() . '/edit');
 
-    $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
+    $this->submitForm($edit, t('Update'));
 
     // The hard coded token was updated with a custom value.
     $this->assertSession()->pageTextContains('Dummy name');

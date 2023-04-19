@@ -1,0 +1,174 @@
+diff --git a/message_ui.info.yml b/message_ui.info.yml
+index 7562623..d0fffc6 100644
+--- a/message_ui.info.yml
++++ b/message_ui.info.yml
+@@ -2,7 +2,7 @@ name: 'Message UI'
+ type: module
+ description: 'UI for the Message module'
+ core: 8.x
+-core_version_requirement: ^8 || ^9
++core_version_requirement: ^8 || ^9 || ^10
+ package: Message
+ dependencies:
+  - message:message
+diff --git a/modules/message_notify_ui/message_notify_ui.info.yml b/modules/message_notify_ui/message_notify_ui.info.yml
+index 2a2021b..682ef2f 100644
+--- a/modules/message_notify_ui/message_notify_ui.info.yml
++++ b/modules/message_notify_ui/message_notify_ui.info.yml
+@@ -2,7 +2,7 @@ name: 'Message Notify UI'
+ type: module
+ description: 'Integrating the message notify into the UI functionality.'
+ core: 8.x
+-core_version_requirement: ^8 || ^9
++core_version_requirement: ^8 || ^9 || ^10
+ package: Message
+ 
+ dependencies:
+diff --git a/modules/message_ui_test/message_ui_test.info.yml b/modules/message_ui_test/message_ui_test.info.yml
+index 195ab26..d829c1d 100644
+--- a/modules/message_ui_test/message_ui_test.info.yml
++++ b/modules/message_ui_test/message_ui_test.info.yml
+@@ -2,7 +2,7 @@ name: 'Message UI test'
+ type: module
+ description: 'Dummy module for checking how other modules will interact with message UI'
+ core: 8.x
+-core_version_requirement: ^8 || ^9
++core_version_requirement: ^8 || ^9 || ^10
+ package: Message
+ hidden: true
+ 
+diff --git a/tests/src/Functional/AbstractTestMessageUi.php b/tests/src/Functional/AbstractTestMessageUi.php
+index 4d7b611..0853caf 100644
+--- a/tests/src/Functional/AbstractTestMessageUi.php
++++ b/tests/src/Functional/AbstractTestMessageUi.php
+@@ -21,7 +21,7 @@ abstract class AbstractTestMessageUi extends MessageTestBase {
+    *
+    * @var array
+    */
+-  public static $modules = ['message', 'message_ui'];
++  protected static $modules = ['message', 'message_ui'];
+ 
+   /**
+    * The user role.
+diff --git a/tests/src/Functional/MessageNotifyUiTest.php b/tests/src/Functional/MessageNotifyUiTest.php
+index 255eb68..3a9b688 100644
+--- a/tests/src/Functional/MessageNotifyUiTest.php
++++ b/tests/src/Functional/MessageNotifyUiTest.php
+@@ -12,12 +12,12 @@ class MessageNotifyUiTest extends AbstractTestMessageUi {
+   /**
+    * {@inheritdoc}
+    */
+-  public static $modules = ['message', 'message_notify_ui'];
++  protected static $modules = ['message', 'message_notify_ui'];
+ 
+   /**
+    * {@inheritdoc}
+    */
+-  public function setUp() {
++  public function setUp(): void {
+     parent::setUp();
+ 
+     $this->account = $this->drupalCreateUser([
+@@ -48,7 +48,8 @@ class MessageNotifyUiTest extends AbstractTestMessageUi {
+       'use_custom' => TRUE,
+       'email' => 'foo@gmail.com',
+     ];
+-    $this->drupalPostForm('message/' . $message->id() . '/notify', $edit, t('Notify'));
++    $this->drupalGet('message/' . $message->id() . '/notify');
++    $this->submitForm($edit, t('Notify'));
+     $this->assertSession()->pageTextContains('The email sent successfully.');
+   }
+ 
+diff --git a/tests/src/Functional/MessageUiHardCodedArgumentsTest.php b/tests/src/Functional/MessageUiHardCodedArgumentsTest.php
+index 7ca8296..dce8abf 100644
+--- a/tests/src/Functional/MessageUiHardCodedArgumentsTest.php
++++ b/tests/src/Functional/MessageUiHardCodedArgumentsTest.php
+@@ -30,7 +30,7 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
+   /**
+    * {@inheritdoc}
+    */
+-  public function setUp() {
++  public function setUp(): void {
+     parent::setUp();
+ 
+     $this->user1 = $this->drupalCreateUser();
+@@ -81,8 +81,9 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
+       'name' => $this->user2->getAccountName() . ' (' . $this->user2->id() . ')',
+       'replace_tokens' => 'update',
+     ];
++    $this->drupalGet('message/' . $message->id() . '/edit');
+ 
+-    $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
++    $this->submitForm($edit, t('Update'));
+ 
+     // The message token as updated automatically.
+     $this->assertSession()->pageTextContains($this->user2->getAccountName());
+@@ -93,8 +94,9 @@ class MessageUiHardCodedArgumentsTest extends AbstractTestMessageUi {
+       'replace_tokens' => 'update_manually',
+       'edit-messageauthorname' => 'Dummy name',
+     ];
++    $this->drupalGet('message/' . $message->id() . '/edit');
+ 
+-    $this->drupalPostForm('message/' . $message->id() . '/edit', $edit, t('Update'));
++    $this->submitForm($edit, t('Update'));
+ 
+     // The hard coded token was updated with a custom value.
+     $this->assertSession()->pageTextContains('Dummy name');
+diff --git a/tests/src/Functional/MessageUiMassiveHardCodedArgumentsTest.php b/tests/src/Functional/MessageUiMassiveHardCodedArgumentsTest.php
+index e5c3269..2bb35a5 100644
+--- a/tests/src/Functional/MessageUiMassiveHardCodedArgumentsTest.php
++++ b/tests/src/Functional/MessageUiMassiveHardCodedArgumentsTest.php
+@@ -21,7 +21,7 @@ class MessageUiMassiveHardCodedArgumentsTest extends AbstractTestMessageUi {
+   /**
+    * {@inheritdoc}
+    */
+-  public function setUp() {
++  public function setUp(): void {
+     parent::setUp();
+ 
+     $this->account = $this->drupalCreateUser();
+diff --git a/tests/src/Functional/MessageUiPermissionsTest.php b/tests/src/Functional/MessageUiPermissionsTest.php
+index b837dc0..00b500b 100644
+--- a/tests/src/Functional/MessageUiPermissionsTest.php
++++ b/tests/src/Functional/MessageUiPermissionsTest.php
+@@ -25,7 +25,7 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
+   /**
+    * {@inheritdoc}
+    */
+-  public function setUp() {
++  public function setUp(): void {
+     parent::setUp();
+ 
+     $this->accessHandler = \Drupal::entityTypeManager()->getAccessControlHandler('message');
+@@ -63,7 +63,7 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
+     $this->assertSession()->statusCodeEquals(200);
+ 
+     // Create a message.
+-    $this->drupalPostForm(NULL, [], t('Create'));
++    $this->submitForm([], t('Create'));
+ 
+     // Create the message url.
+     $msg_url = '/message/1';
+@@ -92,7 +92,8 @@ class MessageUiPermissionsTest extends AbstractTestMessageUi {
+ 
+     // Grant the permission to the user.
+     $this->grantMessageUiPermission('delete');
+-    $this->drupalPostForm($msg_url . '/delete', [], t('Delete'));
++    $this->drupalGet($msg_url . '/delete');
++    $this->submitForm([], t('Delete'));
+ 
+     // User did not have permission to the overview page - verify access
+     // denied.
+diff --git a/tests/src/Functional/MessageUiShowPreviewTest.php b/tests/src/Functional/MessageUiShowPreviewTest.php
+index cd80902..14ade10 100644
+--- a/tests/src/Functional/MessageUiShowPreviewTest.php
++++ b/tests/src/Functional/MessageUiShowPreviewTest.php
+@@ -15,7 +15,7 @@ class MessageUiShowPreviewTest extends AbstractTestMessageUi {
+   /**
+    * {@inheritdoc}
+    */
+-  public function setUp() {
++  public function setUp(): void {
+     parent::setUp();
+ 
+     $this->account = $this->drupalCreateUser();
